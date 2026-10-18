@@ -6,6 +6,7 @@ import { delimiter, dirname, join, resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { checkPort } from './demo.mjs';
+import { supportedNodeVersion } from './node-runtime.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const exists = (path, mode = constants.X_OK) => access(path, mode).then(() => true, () => false);
 const binary = async name => (await Promise.all((process.env.PATH ?? '').split(delimiter).filter(Boolean).map(path => exists(join(path, name))))).some(Boolean);
@@ -16,7 +17,7 @@ function report(ok, label, remedy, optional = false) {
   failed ||= !ok && (!optional || full);
 }
 console.log(`Node ${process.version}; architecture ${process.platform}/${process.arch}. No installs or cloud requests are performed.`);
-report([22, 24].includes(Number(process.versions.node.split('.')[0])), 'Node 22 or 24 (24 recommended)', 'install Node 24, then corepack enable');
+report(supportedNodeVersion(process.versions.node), 'Node 22 or 24.22+ (24.22.0 recommended)', 'select Node 24.22.0 (nvm install 24.22.0 && nvm use 24.22.0), then corepack enable. Earlier Node 24 releases can abort during SQLite cleanup');
 report(await binary('yarn'), 'Yarn launcher', 'run corepack enable; the repository pins Yarn 4.13.0');
 report(await exists(join(root, '.yarn/releases/yarn-4.13.0.cjs'), constants.R_OK), 'Pinned Yarn release', 'restore portal/.yarn/releases from git');
 report(await exists(join(root, 'node_modules/.bin/backstage-cli')), 'Portal dependencies', 'make portal-install (network required; no cloud credentials)');

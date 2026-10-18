@@ -490,3 +490,23 @@ test('W1-P25: a deployment with no budget and nothing readable says "to do" and 
   await expect(setup.locator('li', { hasText: 'Budgets' }).getByRole('link', { name: 'Add a budget →' })).toHaveAttribute('href', '/budgets');
   await expect(setup.locator('li', { hasText: 'Labels' })).toContainText('Not readable with your role.');
 });
+
+test('synthetic demo tour opens by keyboard and leads to the estate with its test-data banner', async ({ page }) => {
+  await page.goto('/');
+  const guide = page.locator('#demo-tour');
+  await expect(guide).toBeVisible();
+  await expect(guide).not.toHaveAttribute('open');
+  const summary = guide.locator('summary');
+  await summary.focus();
+  await page.keyboard.press('Enter');
+  await expect(guide).toHaveAttribute('open');
+  await expect(guide).toContainText('does not apply infrastructure');
+  await page.keyboard.press('Tab');
+  const estate = guide.getByRole('link', { name: 'Estate Explorer' });
+  await expect(estate).toBeFocused();
+  await expect(estate).toHaveCSS('text-decoration-line', 'underline');
+  await axe(page);
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/estate$/);
+  await expect(page.getByRole('note', { name: 'Test data', exact: true })).toBeVisible();
+});

@@ -8,37 +8,57 @@ see [third-party texts](../third_party/README.md).
 
 ## Verification record
 
-The source baseline is `188d6b9dcacc9787f4857bedcf2a760b7b813c8c`, checked in private development
-Actions run `39082724154` on October 17, 2026. That run is not publicly accessible. The following
-is a maintainer-recorded result, not independently accessible public CI evidence:
+The October 18, 2026 local verification uses the workflow's pinned Node 24.22.0 Linux image
+and the pinned infrastructure toolbox. Docker Desktop's engine is running locally; no GitHub
+Actions run or paid runner minute was used. The repository was private during verification; Actions remains disabled for publication.
+The main-branch ruleset requires a pull request and blocks deletion and non-fast-forward updates.
 
-| Check | Observed baseline result |
+| Check | Observed local result |
 |---|---|
-| Infrastructure | `make ci`, Soperator mocked checks, history secret scan, Trivy configuration scan and external links passed |
-| Portal | Typecheck, lint, config check, unit/integration tests and frontend/backend builds passed; 1,329 tests passed and three existing tests skipped |
-| Browser | Four shards, 397 checks passed, no retries |
-| Dependency compatibility | 41 installed-dependency, router-security and route-parameter regressions passed |
-| Demo and prerequisite scripts | 14 tests passed |
-| Release regressions | Passed, including authorization/pricing scope, deployment inputs, source retention and observability mock tests |
-| Complete dependency audit | **Failed:** two High and one Low upstream advisory; see [dependency security](dependency-security.md) |
+| Portal typecheck, lint, configuration and frontend/backend builds | Passed on macOS arm64 and Linux amd64 |
+| Portal unit/integration tests | Both platforms: 1,332 passed; three existing tests skipped across 123 suites |
+| Dependency compatibility | 40 installed-dependency security/compatibility checks, 10 router-security and 16 route-parameter regressions passed |
+| Demo and prerequisite scripts | 17 passed on both platforms; also passed in a macOS checkout without installed dependencies |
+| macOS demo lifecycle | Frontend and backend readiness reached; shutdown completed cleanly |
+| Infrastructure | Full toolbox CI, Soperator mocked plans and release regressions passed; final source scans passed |
+| External links | Pinned lychee 0.24.2 passed natively; Docker network limitation recorded below |
+| Browser and accessibility | 398 Linux Chromium checks passed on Node 24.22; two workers, retries disabled |
+| Expanded tour visual review | Earlier review of unchanged UI: desktop and mobile, both themes; four additional accessibility analyses passed |
+| Complete registry dependency audit | **Failed:** two High and one Low upstream advisory remain visible |
 
-Publication edits update repository URLs (including matching link assertions), first-run command
-order and documentation, remove obsolete private-history scanner exceptions, and replace the
-private release-review notes with this record. They do not change the locked dependencies or
-cloud-resource configuration. The final snapshot has **not** received another full container run.
-The maintainer has exhausted the monthly Actions allowance, and local Docker is unavailable.
-Actions is disabled in the new repository during preparation to avoid consuming additional minutes.
-Do not treat the earlier baseline run as a passing run of this repository's final commit.
+The dependency graph now applies reviewed [local source backports](security/dependency-backports.md)
+to braces, node-forge and elliptic. The strengthened advisory suite passes 24 checks.
+Its initial 13-case corpus found nine stock
+failures and one upstream-only Forge gap. Ten additional malformed-OID cases failed before
+the latest Forge extension and now pass, alongside complete digest-identifier compatibility
+controls. Published package versions
+remain unchanged, so the registry audit cannot establish that these source patches are installed.
+The installed Linux dependency tree was inspected for each patched package and the expected
+guards. These patches are a local maintenance responsibility, not official fixed releases or
+a clean audit. The owner subsequently accepted the scoped remaining risks on October 18;
+see the [advisory decision](security/advisory-release-decision.md). See [dependency security](dependency-security.md).
 
-The October 18 publication review checked 207 relative Markdown link targets for file existence,
-confirmed that the locked dependencies, pins and retained third-party texts are unchanged, and
-ran Gitleaks over the fresh source tree with no leaks found. This limited static review does not
-replace the project’s full Markdown anchor checks, builds or tests. An independent review of the
-publication delta found no source-publication blocker.
+The native macOS SQLite abort was reproduced independently of Jest and traced to Node's
+native-addon cleanup hooks. Node 24.22.0 includes the upstream fix; the same installed addon
+fails the new allocation-driven regression on 24.21 and passes on 24.22. Local setup, image
+and workflow pins now agree, and doctor flags earlier Node 24 releases. Both full unit suites
+pass without skipping database tests or forcing exit. An earlier overlapping Linux browser/unit
+run exceeded the container's memory limit; final verification runs those suites sequentially.
+The first full browser run passed 397 checks and found one accessibility failure in the expanded
+demo tour. Paragraph markup restored the existing underlined-link style, and the focused
+keyboard/accessibility regression passed before the full rerun.
+Final source checks repeat pins, relative links and anchors, and secret/configuration scans in
+the pinned toolbox. Its external-link attempt hit a GitHub 503 and connection timeouts to Kueue.
+The same pinned lychee 0.24.2 completed `make links` natively on macOS with zero errors.
+No additional URLs were excluded and no accepted status codes were added.
 
-The source/private-artifact review found no confirmed credential or private resource identifier
-in the classified findings. Scanners do not prove absence of every possible confidential value.
-Original private audit downloads and logs are excluded from this source repository.
+The demo's separate macOS startup problem was traced to its temporary SWC cache path, fixed
+with a physical private cache directory, and verified with a regression and actual readiness.
+
+This record describes local checks of the source candidate, not publicly accessible CI evidence.
+No new GPU benchmark, cloud apply, alert-delivery check, restore drill or autonomous TTL teardown
+is claimed. Original private audit downloads and raw verification logs are excluded from this
+source repository. Scanners cannot prove the absence of every confidential value.
 
 ## Reproduce the checks
 
@@ -72,9 +92,60 @@ script suite alone does not cover the Backstage route integration. Audit finding
 visible even when builds succeed. No new GPU benchmark, cloud apply, alert-delivery check,
 restore drill or autonomous TTL teardown is claimed by these offline checks.
 
+## Fresh-clone onboarding rehearsal
+
+The October 18 macOS arm64 rehearsal cloned the private candidate directly from GitHub, with
+no pre-existing `node_modules`, operator configuration or dependency cache. Node 24.22.0 used
+an isolated HOME and new Corepack, Yarn, SWC and native-build caches. Corepack created its
+Yarn launcher in a private writable directory; it did not replace the machine's global launcher.
+
+The README sequence passed: `make portal-install` completed its immutable install, `make doctor`
+passed the demo prerequisites, and `make portal-demo` reached HTTP 200 at the frontend, backend
+readiness and stub endpoints. A SIGINT to the foreground command group reproduced Ctrl-C;
+all three ports closed. The resulting interrupted Make exit is expected, not a demo startup failure.
+The clone's tracked files remained unchanged. Upstream peer and optional native-binding build
+warnings remain visible in the installation log; the installed SQLite lifecycle regression passed.
+
+The same clone passed all 40 installed-dependency security/compatibility checks, 17 script checks,
+configuration validation and typecheck. This verifies fresh installation and documented startup;
+the full unit/browser/build and infrastructure results above remain the broader functional record.
+The private verification manifest identifies the exact candidate and any documentation-only changes
+after that functional record. No live cloud call or GitHub Actions run is part of the rehearsal.
+
+## Publication approval checklist
+
+The owner approved **experimental source only** publication on October 18, 2026.
+[Release notes](releases/v0.1.0.md) describe the approved scope.
+The [advisory decision record](security/advisory-release-decision.md) gives each remaining
+finding a reviewed input boundary, mitigation, remaining risk and confirmed maintenance obligation.
+The source retains dated, scrubbed historical evidence, including the method records under
+[`docs/evidence/raw/`](evidence/raw/README.md). Their documented redactions distinguish them
+from excluded private audit downloads and current raw verification logs. The owner confirmed
+confidentiality and redistribution permission for these retained records as well as the code.
+
+Technical preparation and owner approval are separate gates:
+
+- [x] Record full local functional, infrastructure, source scan and link verification above.
+- [x] Preserve licenses/notices, source provenance, patch references and visible audit findings.
+- [x] Prepare an advisory decision record and source-only release notes.
+- [x] Complete fresh-clone onboarding; retain exact candidate, commands and results in the private verification record.
+- [x] Owner confirms source ownership/redistribution permission and confidentiality of retained evidence,
+  including the scrubbed prior-run method records linked above.
+- [x] Owner confirms the advisory disposition, maintenance assignment and review deadline for each finding.
+- [x] Owner explicitly approves publication and final release scope.
+
+Publication procedure: merge the reviewed candidate, recheck repository protections, change visibility,
+enable/check private vulnerability reporting and publish the approved source prerelease.
+Confirm each operation from GitHub before reporting completion.
+
+The owner approved merging the reviewed candidate, public visibility and the source prerelease.
+Actions must remain disabled; no paid GitHub Actions minutes are authorized. No deployment,
+production-readiness or built-artifact clearance is inferred from these checks. If the source changes after verification, assess the diff and rerun
+the affected checks before publication.
+
 ## Repository setup at publication
 
-The fresh repository is prepared privately, with Actions disabled, Dependabot alerts enabled,
+The fresh repository was prepared privately, with Actions disabled, Dependabot alerts enabled,
 no imported deployment secrets or environments, and no live Terraform enable variable. Keep
 live dispatch disabled unless deliberately configured for a separately approved cloud run.
 Before changing visibility, inspect the final source diff, scanner classifications and verification
@@ -83,7 +154,7 @@ scope. Shared deployment still requires authentication integration and a deploym
 security review.
 
 After publication, enable and test GitHub private vulnerability reporting, check the reporting link
-in [SECURITY](../SECURITY.md), and configure public fork approval and branch protection. Enable
+in [SECURITY](../SECURITY.md), and recheck public fork approvals and branch protection. Enable
 Actions only when the owner chooses to resume CI; workflow files remain available for inspection
 and local reproduction. Public repository billing differs from private repository billing, so confirm
 the account and runner settings before relying on available minutes.

@@ -9,6 +9,9 @@ or upstream repository it follows. Coverage ranges from mocked wiring to histori
 this is not a production platform or a claim that every recipe has been deployed. CI checks do not
 provision cloud resources, and the deploy pipeline ships disabled.
 
+[v0.1.0 experimental source](docs/releases/v0.1.0.md) includes the verification scope,
+known advisory risks and maintenance responsibilities.
+
 **Start here**
 
 1. [Three flagship paths](docs/portfolio.md): synthetic portal demo, measured R1 inference, and R2 foundation lifecycle.
@@ -22,10 +25,17 @@ lifecycle tooling, acceptance/benchmark methods, evidence records, and the Nebiu
 Nebius examples and the Backstage scaffold remain upstream contributions; adapted source, refs,
 modifications and retained licenses are recorded in [source provenance](docs/source-provenance.md).
 
-From the repository root, with **Node.js 24 and Yarn** available (`corepack enable`),
-run `make portal-install`, `make doctor`, then `make portal-demo` for a populated portal without an account. It shows an explicitly labelled synthetic estate on
-`http://localhost:3100`; Ctrl-C stops the services. The demo discards operator credentials
-and private configuration. See [portal setup](portal/README.md) for prerequisites.
+With **Node.js 24.22.0 and Yarn** available (`portal/.nvmrc`; `corepack enable`), run these commands from the repository root:
+
+```bash
+make portal-install  # downloads locked dependencies; no cloud access
+make doctor          # checks prerequisites and available local ports
+make portal-demo     # serves the synthetic estate at http://localhost:3100
+```
+
+Open `http://localhost:3100`, then expand **Explore this demo** below the running metrics or follow the
+[five-step walkthrough](docs/portfolio.md#five-step-demo-tour). Ctrl-C stops the services. The demo
+discards operator credentials and private configuration; see [portal setup](portal/README.md) for prerequisites.
 For your first billable sandbox run, start with the
 [serving-only path](runbooks/deploy.md#first-serving-only-sandbox) and its stated limitations.
 The portal has [three disclosed dependency advisories](docs/dependency-security.md) and incomplete

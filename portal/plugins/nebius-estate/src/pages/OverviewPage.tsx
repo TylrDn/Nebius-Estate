@@ -12,12 +12,14 @@ import {
   PageShell,
   TrendChart,
   useGet,
+  useMeta,
   useGlobalFilter,
   usePortalNow,
   useProjectNames,
 } from '../ui';
 import { billingMetric, budgetSpendLine, filterNotApplied, SETUP } from './overview/model';
 import { useAlertsAttention } from '../alerts/attention';
+import { DemoGuide } from './overview/DemoGuide';
 import { AttentionTile, BudgetsTile, ConnectorSummary, GpuSchedulingChecks, LiveRunRateTile, RateBookRunRateTile, SourcedTile, TelemetryLines } from './overview/parts';
 
 /** Combines the three Kubernetes GPU numbers into one tile without merging their meaning. */
@@ -39,6 +41,7 @@ function gpuDemand(o: OverviewResponse): SourcedMetric<{ requested: number; allo
 export function OverviewPage() {
   const [filter] = useGlobalFilter();
   const now = usePortalNow();
+  const meta = useMeta();
   const overview = useGet<OverviewResponse>(`/overview${filterQuery(filter)}`);
   const history = useGet<HistoryResponse>(`/history${filterQuery(filter, { days: '30' })}`);
   // Budgets come from one place, the Budgets & credits page (stored ones, plus deprecated config ones read-only).
@@ -137,8 +140,10 @@ export function OverviewPage() {
               </div>
 
               <GpuSchedulingChecks checks={o.gpuSchedulingChecks} />
+              <DemoGuide testData={meta.data?.testData} filter={filter} />
 
               <h2 className="ne-section-title ne-section">Spend</h2>
+              <p className="ne-muted">Reported cost is imported billing for its stated period. Live run-rate estimates the current hourly cost; rate-book run-rate uses optional user-supplied prices. An estimate is not an invoice.</p>
               <div className="ne-grid ne-grid-tiles">
                 <SourcedTile
                   label="Reported cost (BilledCost)"
