@@ -18543,8 +18543,8 @@ __metadata:
 
 "node-forge@patch:node-forge@npm%3A1.4.0#~/.yarn/patches/node-forge-npm-1.4.0-646822c506.patch":
   version: 1.4.0
-  resolution: "node-forge@patch:node-forge@npm%3A1.4.0#~/.yarn/patches/node-forge-npm-1.4.0-646822c506.patch::version=1.4.0&hash=428d3f"
-  checksum: 10c0/08fd0530e228f3927a2d0cd1cfe5f1d4ff5848b229f89a482167b1a791c1d41f0d7a271c0333e99b68ce220fe435df601eea2380f0ef57f81922b65255474a07
+  resolution: "node-forge@patch:node-forge@npm%3A1.4.0#~/.yarn/patches/node-forge-npm-1.4.0-646822c506.patch::version=1.4.0&hash=05cd61"
+  checksum: 10c0/9c602e408ca7d42b97d559fd39683dfd58d3886ecb12a8c51c25265f3cf84e7aa54eade6a1c99174a13e0a9f70420d56eb0e3f5e3dfbc9d2b28d55fc78fec270
   languageName: node
   linkType: hard
 

@@ -4,11 +4,29 @@
 
 | Tool | Version | Note |
 |---|---|---|
-| Node.js | 24 (`portal/.nvmrc`; 22 also works) | Backstage 1.55 refuses Node 25+. The production image pins `node:24.21.0-trixie-slim` by digest |
+| Node.js | 24.22.0 (`portal/.nvmrc`; 22 also supported) | Backstage 1.55 refuses Node 25+. The production image pins `node:24.22.0-trixie-slim` by digest |
 | Yarn | any `yarn` on PATH (Node 24 ships corepack: `corepack enable`) | the repository pins Yarn 4.13.0 through `.yarn/releases` |
 | Python 3 | for `better-sqlite3`'s build fallback | |
 | Terraform | optional | one domain test runs generated patches through `terraform fmt` when it is on PATH |
 | Docker | optional for the native demo; required for pinned release verification | also used for `docker-compose.yaml` (PostgreSQL) and the production image (`packages/backend/Dockerfile`) |
+
+With nvm, select the exact runtime before installing dependencies:
+
+```bash
+cd portal
+nvm install
+nvm use
+corepack enable
+cd ..
+```
+
+Earlier Node 24 releases can abort in `node::RemoveEnvironmentCleanupHook` while SQLite
+statements are garbage collected. This is an [upstream Node regression](https://github.com/nodejs/node/issues/65446),
+fixed in [Node 24.22.0](https://github.com/nodejs/node/blob/v24.22.0/src/api/hooks.cc).
+If a Mac test worker reports `SIGABRT` at that function, check `node --version`, select the
+pinned runtime, and rerun `make portal-install portal-test`. Do not add `--forceExit` or skip
+database tests. The installed-dependency security suite includes an allocation-driven SQLite regression:
+`node --test scripts/security-tests/*.test.mjs` from `portal/` after installation.
 
 ## Commands
 
@@ -28,7 +46,7 @@ Inside `portal/`: `yarn start` (loads `app-config.yaml` + `app-config.local.yaml
 (the local files, including `app-config.private.yaml` when present, and the production files against the config schemas),
 `CI=1 yarn test:all`, `yarn build:all`, `yarn playwright test`, and `yarn verify:live` (read-only
 probe of every capability against the account in the environment; never in CI). CI runs install,
-tsc, lint, config check, unit tests and build in `node:24.21.0-trixie-slim`; the Playwright suite
+tsc, lint, config check, unit tests and build in `node:24.22.0-trixie-slim`; the Playwright suite
 defines the full synthetic browser/accessibility suite in four shards; it is also available
 locally with `make portal-e2e`. Repository Actions may be disabled during private release review;
 see the [verification record](../release-readiness.md) for actual results.
@@ -44,9 +62,10 @@ and synthetic config; private overlays are excluded. Child environments discard 
 `APP_CONFIG_*`, proxies and runtime injection, and get a temporary HOME removed on shutdown.
 The stub starts first; app and backend readiness (including the first inventory sync) must succeed
 within 180 seconds. Port conflicts, startup failures, signals and later service exits stop both
-process groups, with a bounded TERM/KILL sequence. POSIX Node 22/24 is supported (24 recommended).
+process groups, with a bounded TERM/KILL sequence. POSIX Node 22 or 24.22+ is supported (24.22.0 recommended).
 The frontend compiles locally; no startup duration or real cloud performance is implied.
-Run the stdlib lifecycle and doctor regressions with `yarn test:scripts` in the Node container.
+Run the stdlib lifecycle, doctor and runtime-policy regressions with `yarn test:scripts`,
+natively or in the pinned Node container. They also work before dependency installation.
 
 Every run is meant to be clean, not to pass eventually:
 

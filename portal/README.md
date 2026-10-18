@@ -10,7 +10,7 @@ from the browser. Every cloud call is read-only.
 
 ## Try the synthetic demo
 
-From the repository root, use Node.js 24 (see `portal/.nvmrc`) and Yarn (`corepack enable`).
+From the repository root, use Node.js 24.22.0 (see `portal/.nvmrc`) and Yarn (`corepack enable`).
 Package installation requires network access; cloud credentials are unnecessary.
 
 ```bash
@@ -36,7 +36,7 @@ Browser tests install Chromium separately (`cd portal && yarn playwright install
 ## Run against your projects
 
 ```bash
-# Node.js 24 (.nvmrc), and `corepack enable` (or any yarn on PATH)
+# Node.js 24.22.0 (.nvmrc), and `corepack enable` (or any yarn on PATH)
 make portal-install           # from the repository root
 set -a; source .env; set +a   # optional: NEBIUS_PROJECT_IDS and a read-only identity (.env.example)
 make portal-dev               # http://localhost:3000 (app-config.yaml + app-config.local.yaml)

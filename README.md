@@ -22,7 +22,7 @@ lifecycle tooling, acceptance/benchmark methods, evidence records, and the Nebiu
 Nebius examples and the Backstage scaffold remain upstream contributions; adapted source, refs,
 modifications and retained licenses are recorded in [source provenance](docs/source-provenance.md).
 
-With **Node.js 24 and Yarn** available (`corepack enable`), run these commands from the repository root:
+With **Node.js 24.22.0 and Yarn** available (`portal/.nvmrc`; `corepack enable`), run these commands from the repository root:
 
 ```bash
 make portal-install  # downloads locked dependencies; no cloud access

@@ -322,7 +322,7 @@ soperator-destroy: ## Apply the saved Soperator destroy plan through tf-run.sh (
 	TERRAFORM=$(TERRAFORM_SOPERATOR) scripts/tf-run.sh $(SOPERATOR_DIR) soperator-$(STAGE)-destroy.tfplan
 
 ## --- Nebius Estate portal (local; read-only toward the cloud) -----------------
-# Node.js 24 (22 also works) and a `yarn` on PATH (docs/portal/development.md). The portal never runs
+# Node.js 24.22+ (22 also supported) and a `yarn` on PATH (docs/portal/development.md). The portal never runs
 # terraform and makes only read-only cloud calls; these targets build, test and serve it locally.
 PORTAL_YARN := cd portal && yarn
 

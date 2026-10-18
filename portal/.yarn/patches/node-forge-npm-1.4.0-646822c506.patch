@@ -1,5 +1,5 @@
 diff --git a/lib/rsa.js b/lib/rsa.js
-index a4264822b4dcd6dca44ca3e59e410c982eed7183..2d06e1bb7b0594ebc77c6a997c8b4d52f3a9efbc 100644
+index a4264822b4dcd6dca44ca3e59e410c982eed7183..a455df8a4f56c105119d4e60b9b7357cd87f8420 100644
 --- a/lib/rsa.js
 +++ b/lib/rsa.js
 @@ -1168,11 +1168,18 @@ pki.setRsaPublicKey = pki.rsa.setPublicKey = function(n, e) {
@@ -23,3 +23,19 @@ index a4264822b4dcd6dca44ca3e59e410c982eed7183..2d06e1bb7b0594ebc77c6a997c8b4d52
              var error = new Error(
                'ASN.1 object does not contain a valid RSASSA-PKCS1-v1_5 ' +
                'DigestInfo value.');
+@@ -1198,6 +1205,15 @@ pki.setRsaPublicKey = pki.rsa.setPublicKey = function(n, e) {
+             throw error;
+           }
+ 
++          // DER OIDs must consume every byte with a minimal base-128 encoding.
++          // derToOid alone discards unfinished final arcs and normalizes redundant
++          // continuation bytes, allowing ignored content in a signature.
++          if(asn1.oidToDer(oid).getBytes() !== capture.algorithmIdentifier) {
++            throw new Error(
++              'ASN.1 object does not contain a valid RSASSA-PKCS1-v1_5 ' +
++              'DigestInfo value. Invalid algorithm identifier encoding.');
++          }
++
+           // special check for md2 and md5 that NULL parameters exist
+           if(oid === forge.oids.md2 || oid === forge.oids.md5) {
+             if(!('parameters' in capture)) {

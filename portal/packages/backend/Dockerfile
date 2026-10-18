@@ -13,8 +13,8 @@
 # Starts in live mode with app-config.yaml + app-config.production.yaml; the repository the portal
 # describes is mounted read-only at /app/repo (nebiusEstate.repoRoot).
 
-# node:24.21.0-trixie-slim, pinned by index digest (multi-arch).
-FROM node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
+# node:24.22.0-trixie-slim, pinned by index digest (multi-arch).
+FROM node:24.22.0-trixie-slim@sha256:7f486cabe892bff8fef04c0f7da8dba84a560be3e4e2740b7a86afc57ebec315
 
 # Build dependencies for native modules (better-sqlite3 falls back to a source build).
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \

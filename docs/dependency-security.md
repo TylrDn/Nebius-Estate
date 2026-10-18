@@ -6,7 +6,7 @@ complete recursive audit deliberately remains visible; no advisory is blanket-ig
 no residual-risk acceptance is implied by this document.
 
 [Local source backports](security/dependency-backports.md) now address the reproduced cases,
-including an additional Forge validation gap found during review. Their 13 focused regressions
+including additional Forge NULL-content and algorithm-OID validation gaps found during review. Their 24 focused regressions
 pass locally. The complete version-based registry audit still reports the three advisories;
 these results are distinct, and publication remains on hold.
 
@@ -27,7 +27,8 @@ The release remediation updates the existing graph, without new application libr
 | UUID / material-table | UUID 11.1.1 and a named-import patch to material-table 3.2.5 | Preserves row identity and selection; [patch, upstream license and buffer regressions](material-table-uuid-patch.md) |
 | React Router | Router and DOM 7.18.4, with [Backstage route parameter compatibility patches](security/react-router-7-compatibility.md) | Tests mixed-separator navigation, exact-once named parameter encoding and preserved wildcard behavior; full browser verification and its source scope are recorded in the [release record](release-readiness.md) |
 
-Lockfile changes are generated inside the pinned Node container. The immutable install,
+Lockfile changes use the pinned Node version and are verified by immutable installs on
+macOS and Linux. The immutable install,
 typecheck, full test suite and build must validate them; resolution overrides are not proof
 of compatibility by themselves. Re-run `cd portal && yarn npm audit --all --recursive --json`
 on the exact candidate commit: counts and advisories change over time.

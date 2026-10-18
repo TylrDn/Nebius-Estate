@@ -65,13 +65,15 @@ test('braces retains ordinary glob, range and nested-parenthesis behavior', () =
 const keys = generateKeyPairSync('rsa', { modulusLength: 2048, publicExponent: 3 });
 const publicKey = forge.pki.publicKeyFromPem(keys.publicKey.export({ type: 'spki', format: 'pem' }));
 const digest = createHash('sha256').update('Nebius Estate synthetic signature regression').digest();
-function digestInfoSignature({ parameters = true, garbage = false, nullContent = '' } = {}) {
+function digestInfoSignature({ parameters = true, garbage = false, nullContent = '', oidSuffix = '', nonminimalOid = false, algorithm = 'sha256', digestBytes = digest } = {}) {
   const a = forge.asn1;
   const element = (type, value, constructed = false) => a.create(a.Class.UNIVERSAL, type, constructed, value);
-  const algorithm = [element(a.Type.OID, a.oidToDer(forge.pki.oids.sha256).getBytes())];
-  if (parameters) algorithm.push(element(a.Type.NULL, nullContent));
-  if (garbage) algorithm.push(element(a.Type.OCTETSTRING, 'unconsumed nested bytes'));
-  const info = element(a.Type.SEQUENCE, [element(a.Type.SEQUENCE, algorithm, true), element(a.Type.OCTETSTRING, digest.toString('binary'))], true);
+  let oid = a.oidToDer(forge.pki.oids[algorithm]).getBytes();
+  if (nonminimalOid) oid = `${oid.slice(0, -1)}\x80${oid.slice(-1)}`;
+  const algorithmElements = [element(a.Type.OID, oid + oidSuffix)];
+  if (parameters) algorithmElements.push(element(a.Type.NULL, nullContent));
+  if (garbage) algorithmElements.push(element(a.Type.OCTETSTRING, 'unconsumed nested bytes'));
+  const info = element(a.Type.SEQUENCE, [element(a.Type.SEQUENCE, algorithmElements, true), element(a.Type.OCTETSTRING, digestBytes.toString('binary'))], true);
   const der = Buffer.from(a.toDer(info).getBytes(), 'binary');
   const encoded = Buffer.concat([Buffer.from([0, 1]), Buffer.alloc(256 - der.length - 3, 0xff), Buffer.from([0]), der]);
   return privateEncrypt({ key: keys.privateKey, padding: constants.RSA_NO_PADDING }, encoded).toString('binary');
@@ -86,10 +88,31 @@ test('forge rejects nonempty NULL parameters instead of ignoring nested content'
 });
 
 for (const parameters of [true, false]) {
+  for (const oidSuffix of ['\x80', '\x81', '\x81\x81\x81', '\x80'.repeat(64)]) {
+    test(`forge rejects unterminated algorithm OID ${Buffer.from(oidSuffix, 'binary').toString('hex')} with parameters=${parameters}`, () => {
+      assert.throws(() => publicKey.verify(digest.toString('binary'), digestInfoSignature({ parameters, oidSuffix })), /DigestInfo/);
+    });
+  }
+  test(`forge rejects nonminimal algorithm OID encoding with parameters=${parameters}`, () => {
+    assert.throws(() => publicKey.verify(digest.toString('binary'), digestInfoSignature({ parameters, nonminimalOid: true })), /DigestInfo/);
+  });
+}
+
+for (const parameters of [true, false]) {
   test(`forge accepts valid SHA-256 DigestInfo with parameters=${parameters}`, () => {
     assert.equal(publicKey.verify(digest.toString('binary'), digestInfoSignature({ parameters })), true);
   });
 }
+
+test('forge preserves canonical encodings for its complete existing digest allowlist', () => {
+  for (const algorithm of ['md2', 'md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'sha512-224', 'sha512-256']) {
+    // Synthetic MD2 digest bytes exercise ASN.1 compatibility without adding a weak hash implementation.
+    const digestBytes = algorithm === 'md2' ? Buffer.alloc(16, 0xab) : createHash(algorithm).update('synthetic digest compatibility').digest();
+    for (const parameters of algorithm === 'md2' || algorithm === 'md5' ? [true] : [true, false]) {
+      assert.equal(publicKey.verify(digestBytes.toString('binary'), digestInfoSignature({ algorithm, digestBytes, parameters })), true, `${algorithm}, parameters=${parameters}`);
+    }
+  }
+});
 
 // Independent RFC 6979 HMAC construction plus OpenSSL's EC multiplication. In particular,
 // bits2int uses the original 66-byte candidate width, including any leading zero octet.

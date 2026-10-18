@@ -10,7 +10,7 @@ The wider R1–R16 and S1–S9 collection has uneven verification; use the dated
 ## 1. Explore an invented estate without credentials
 
 Follow the [synthetic demo setup](../portal/README.md#try-the-synthetic-demo): `make portal-install`,
-`make doctor`, then `make portal-demo`, with Node.js 24 and Yarn installed. Package installation needs network access;
+`make doctor`, then `make portal-demo`, with Node.js 24.22.0 and Yarn installed. Package installation needs network access;
 the demo needs no Nebius account or `.env`. It uses the REST stub on loopback and labels
 every page **Test data — not your tenant**. Ctrl-C stops the services.
 

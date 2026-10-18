@@ -15,7 +15,7 @@ No row is a Nebius support statement; re-verify before quoting to a customer (P6
 | `terraform / providers / dstaroff/units` | 1.1.1 |  | 2026-10-09 | [source](https://registry.terraform.io/providers/dstaroff/units) |
 | `terraform / providers / hashicorp/random` | 3.9.1 |  | 2026-10-09 | [source](https://registry.terraform.io/providers/hashicorp/random) |
 | `tooling / toolbox-base` | 3.13.16-slim-trixie |  | 2026-10-12 | toolbox base: Python 3.13 for the repo scripts (stdlib only) — [source](https://hub.docker.com/_/python) |
-| `tooling / portal-node` | 24.21.0-trixie-slim |  | 2026-10-10 | the portal image (portal/packages/backend/Dockerfile) and the CI portal job; portal/.nvmrc says 24 — [source](https://hub.docker.com/_/node) |
+| `tooling / portal-node` | 24.22.0-trixie-slim |  | 2026-10-18 | the portal image (portal/packages/backend/Dockerfile) and the CI portal job; portal/.nvmrc pins 24.22.0 (native SQLite cleanup fix) — [source](https://hub.docker.com/_/node) |
 | `tooling / terraform` | 1.16.5 |  | 2026-10-11 | every root except the Soperator recipe; above upstream CI (1.11.4) because terraform test before 1.16.0 cannot run an apply with an ephemeral variable unset (stacks/data, stacks/ml-services, modules/o11y) — [source](https://releases.hashicorp.com/terraform/1.16.5/) |
 | `tooling / terraform-soperator` | 1.12.2 |  | 2026-10-10 | the Soperator recipe requires >= 1.12; installed as terraform-soperator in the toolbox — [source](https://releases.hashicorp.com/terraform/1.12.2/) |
 | `tooling / tflint` | 0.64.0 |  | 2026-10-10 | [source](https://github.com/terraform-linters/tflint/releases/tag/v0.64.0) |

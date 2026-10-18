@@ -51,7 +51,7 @@ dependency findings, historical-artifact review and repository-setting evidence 
 | 37 | Daily history (scoped, filtered, gaps kept) with 30-day trends on Overview and GPU & Capacity | done | `history.test.ts`, `router.test.ts`, `primitives.test.tsx`, `portal.test.ts` |
 | 38 | Charts have a labelled y-axis and readable day ticks | done | `primitives.test.tsx` (`niceMax`) |
 | 39 | Schema by knex migrations; billing reports select their rows in SQL (no whole-ledger load); provisioning transitions are compare-and-set | done | `database.test.ts`, `commercial/router.test.ts`, `provisioning/store.test.ts` |
-| 40 | Repeatable runtime: Node 24 (`.nvmrc`), image pinned by digest, one backend replica stated | done | `packages/backend/Dockerfile`; `architecture.md` |
+| 40 | Repeatable runtime: Node 24.22.0 (`.nvmrc`), image pinned by digest, one backend replica stated | done | `packages/backend/Dockerfile`; `architecture.md` |
 | 41 | Network (R7) and data (R8) stacks visible without forms; a recipe README missing from the checkout is explained, not a 404 | done | `connectors.test.ts` (live roots, missing README), `router.test.ts`, `portal.test.ts` |
 | 42 | Live list prices from the Nebius calculator, labelled and never fabricated | done | `capabilities.test.ts`, `router.test.ts` (run-rate, provisioning, footprint) |
 | 43 | Connector health: every run recorded, success rate, p50/p95, failure streak, next run; first sync does not block start-up; concurrent "Sync now" refused with 409 | done | `health.test.ts`, `capabilities.test.ts` |

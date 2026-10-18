@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "22 || 24"
+    "node": "22 || >=24.22.0 <25"
   },
   "scripts": {
     "start": "node scripts/backstage-config.mjs start",

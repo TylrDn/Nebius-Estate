@@ -8,35 +8,41 @@ see [third-party texts](../third_party/README.md).
 
 ## Verification record
 
-The October 18, 2026 local verification uses the workflow's pinned Node 24.21.0 Linux image
+The October 18, 2026 local verification uses the workflow's pinned Node 24.22.0 Linux image
 and the pinned infrastructure toolbox. Docker Desktop's engine is running locally; no GitHub
 Actions run or paid runner minute was used. The repository remains private and Actions disabled.
 The main-branch ruleset requires a pull request and blocks deletion and non-fast-forward updates.
 
 | Check | Observed local result |
 |---|---|
-| Portal typecheck, lint, configuration and frontend/backend builds | Passed |
-| Portal unit/integration tests | 1,332 passed; three existing tests skipped across 123 suites |
-| Dependency compatibility | 28 Node security regressions, 10 router-security and 16 route-parameter regressions passed |
-| Demo and prerequisite scripts | 15 passed |
+| Portal typecheck, lint, configuration and frontend/backend builds | Passed on macOS arm64 and Linux amd64 |
+| Portal unit/integration tests | Both platforms: 1,332 passed; three existing tests skipped across 123 suites |
+| Dependency compatibility | 40 installed-dependency security/compatibility checks, 10 router-security and 16 route-parameter regressions passed |
+| Demo and prerequisite scripts | 17 passed on both platforms; also passed in a macOS checkout without installed dependencies |
 | macOS demo lifecycle | Frontend and backend readiness reached; shutdown completed cleanly |
 | Infrastructure | Full toolbox CI, Soperator mocked plans and release regressions passed; final source scans passed |
 | External links | Pinned lychee 0.24.2 passed natively; Docker network limitation recorded below |
-| Browser and accessibility | 398 Chromium checks passed; two workers, retries disabled |
-| Expanded tour visual review | Desktop and mobile, both themes; four additional accessibility analyses passed |
+| Browser and accessibility | 398 Linux Chromium checks passed on Node 24.22; two workers, retries disabled |
+| Expanded tour visual review | Earlier review of unchanged UI: desktop and mobile, both themes; four additional accessibility analyses passed |
 | Complete registry dependency audit | **Failed:** two High and one Low upstream advisory remain visible |
 
 The dependency graph now applies reviewed [local source backports](security/dependency-backports.md)
-to braces, node-forge and elliptic. All 13 added regressions pass; stock packages failed nine,
-and the upstream proposals alone failed one additional Forge case. Published package versions
+to braces, node-forge and elliptic. The strengthened advisory suite passes 24 checks.
+Its initial 13-case corpus found nine stock
+failures and one upstream-only Forge gap. Ten additional malformed-OID cases failed before
+the latest Forge extension and now pass, alongside complete digest-identifier compatibility
+controls. Published package versions
 remain unchanged, so the registry audit cannot establish that these source patches are installed.
 The installed Linux dependency tree was inspected for each patched package and the expected
 guards. These patches are a local maintenance responsibility, not official fixed releases or
 an accepted residual-risk decision. See [dependency security](dependency-security.md).
 
-Earlier attempts exposed two environment limits: native macOS Jest workers aborted in SQLite
-cleanup, and overlapping Linux browser/unit runs exceeded the container's memory limit. The
-successful Linux unit/build run was sequential; the macOS full unit run is not recorded as passing.
+The native macOS SQLite abort was reproduced independently of Jest and traced to Node's
+native-addon cleanup hooks. Node 24.22.0 includes the upstream fix; the same installed addon
+fails the new allocation-driven regression on 24.21 and passes on 24.22. Local setup, image
+and workflow pins now agree, and doctor flags earlier Node 24 releases. Both full unit suites
+pass without skipping database tests or forcing exit. An earlier overlapping Linux browser/unit
+run exceeded the container's memory limit; final verification runs those suites sequentially.
 The first full browser run passed 397 checks and found one accessibility failure in the expanded
 demo tour. Paragraph markup restored the existing underlined-link style, and the focused
 keyboard/accessibility regression passed before the full rerun.
