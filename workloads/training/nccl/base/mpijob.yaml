@@ -1,0 +1,80 @@
+# Copyright 2024 Nebius B.V. (adapted portions); Apache-2.0.
+# Apache source antecedent: nebius-solutions-library at
+# d1c15caa37d330db88cb20bfef8dfceee4852032, modules/nccl-test/files/helm/nccl-test/
+# templates/nccl-test-h100.yaml. License: third_party/licenses/nebius-solutions-library-LICENSE.
+# Modified by Taylor Dean: static Kustomize name/replicas, digest-pinned newer images,
+# UCX eth0 selection, deadlines/backoff, worker resources, selector and tolerations.
+# Documentation also informed functional settings (H100/H200 and B200 image/flag facts):
+# https://docs.nebius.com/kubernetes/gpu/nccl-test ; this does not relicense its prose.
+# Overlays adjust replicas/slots/-np/resources; see docs/source-provenance.md.
+apiVersion: kubeflow.org/v1
+kind: MPIJob
+metadata:
+  name: nccl-test
+spec:
+  slotsPerWorker: 8
+  runPolicy:
+    cleanPodPolicy: Running
+    activeDeadlineSeconds: 1800 # tests/validate/03-nccl.sh waits the same 30 minutes
+    backoffLimit: 0
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          containers:
+            - name: nccl
+              image: cr.eu-north1.nebius.cloud/nebius-benchmarks/nccl-tests:2.23.4-ubu22.04-cu12.4@sha256:ac690d7e792f9baed20c079e664fee097ec0f9b872a1ac6e4f6ecb4c9c667381
+              command: ["/bin/bash", "-c"]
+              args:
+                - >-
+                  mpirun -np 16 -bind-to none -x LD_LIBRARY_PATH
+                  -x NCCL_DEBUG=INFO -x NCCL_SOCKET_IFNAME=eth0
+                  -x UCX_NET_DEVICES=eth0
+                  -x NCCL_IB_HCA=mlx5
+                  -x SHARP_COLL_ENABLE_PCI_RELAXED_ORDERING=1
+                  -x NCCL_COLLNET_ENABLE=0
+                  /opt/nccl_tests/build/all_reduce_perf -b 512M -e 8G -f 2 -g 1
+              env:
+                - { name: OMPI_ALLOW_RUN_AS_ROOT, value: "1" }
+                - { name: OMPI_ALLOW_RUN_AS_ROOT_CONFIRM, value: "1" }
+              resources:
+                requests: { cpu: 2, memory: 1208Mi }
+              securityContext:
+                privileged: true
+          initContainers:
+            - name: init-limit
+              image: busybox:1.36.1@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+              command: ["sh", "-c", "ulimit -Hl unlimited && ulimit -Sl unlimited"]
+              securityContext:
+                privileged: true
+    Worker:
+      replicas: 2
+      template:
+        spec:
+          automountServiceAccountToken: false
+          enableServiceLinks: false
+          nodeSelector:
+            nip.nebius.io/gpu: "true"
+          tolerations:
+            - { key: nvidia.com/gpu, operator: Exists, effect: NoSchedule }
+          containers:
+            - name: nccl
+              image: cr.eu-north1.nebius.cloud/nebius-benchmarks/nccl-tests:2.23.4-ubu22.04-cu12.4@sha256:ac690d7e792f9baed20c079e664fee097ec0f9b872a1ac6e4f6ecb4c9c667381
+              resources:
+                limits: { cpu: 96, memory: 1600G, nvidia.com/gpu: 8 }
+                requests: { cpu: 96, memory: 1600G, nvidia.com/gpu: 8 }
+              securityContext:
+                privileged: true
+              volumeMounts:
+                - { name: dshm, mountPath: /dev/shm }
+          initContainers:
+            - name: init-limit
+              image: busybox:1.36.1@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+              command: ["sh", "-c", "ulimit -Hl unlimited && ulimit -Sl unlimited"]
+              securityContext:
+                privileged: true
+          volumes:
+            - name: dshm
+              emptyDir:
+                medium: Memory

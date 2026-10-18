@@ -1,0 +1,238 @@
+name: Terraform (plan, then reviewed apply, by stage)
+
+# Production-shape deploy pipeline, SHIPPED DISABLED. CONTRIBUTING rules 4 and 9 hold for this
+# repository: `ci.yml` is static and credential-free, and nothing here spends money by itself.
+# This workflow is the documented exception (ADR-0009, docs/change-management.md "Enabling the
+# pipeline"): it runs only on workflow_dispatch, only when the repository variable
+# NIP_TERRAFORM_ENABLED is "true", and only after a tenant has applied terraform/live/foundation
+# and created the GitHub Environments below. Until the repository owner records that decision,
+# no environment holds credentials and every job stops at the gate.
+#
+# Shape (ADR-0009):
+#   gate   enabled? is the dispatched ref allowed for the stage? can the chosen runner reach the
+#          cluster API? (a stage with public_endpoint: false needs the self-hosted runner in its VPC)
+#            sandbox  any ref          staging  refs/heads/main only     prod  a release tag vX.Y.Z only
+#          (mirror these as deployment branch/tag rules on each Environment, so the API enforces them too)
+#   plan   environment "<stage>-plan" (no reviewers): plans WITHOUT the state lock (its state key is
+#          read-only, storage.object-viewer, so it cannot take the lock or write state), writes the
+#          digest and the resource-change counts and addresses (no attribute values) to the job
+#          summary, and outputs the sha256 of its resource changes. Neither the saved plan nor its
+#          full text is published: the plan embeds prior state and variable values.
+#   apply  environment "<stage>" (prod: required reviewers + wait timer), only for action=apply,
+#          AFTER plan: re-plans at the same commit, refuses unless the resource-change digest equals
+#          the one reviewers approved, then applies that fresh plan through scripts/tf-run.sh.
+# Tools: every step runs in the pinned toolbox image (make ci-docker), the same one `make ci` uses.
+# Credentials: per stage, the plan job's environment holds the viewer service account
+# (foundation output ci_plan_identities.<stage>) and a READ-ONLY state key (ci_plan_state_identities),
+# the apply job's the editor account (ci_identities.<stage>) and the read-write state key
+# (state_identities), on one of two paths chosen per environment by NIP_SA_PRIVATE_KEY:
+#   key        NIP_SA_ID + NIP_SA_KEY_ID + NIP_SA_PRIVATE_KEY; keys are registered with the CLI
+#              (docs/credentials.md) and turned into tokens by scripts/ci-token.sh
+#   federated  NIP_SA_ID only (R13, foundation ci_federation): the job's GitHub OIDC token is swapped
+#              for a short-lived Nebius token at STS, so only plan and apply get id-token: write
+#              (runbooks/identity.md; plan side run live on sandbox 2026-10-11, apply side not yet)
+# NEBIUS_IAM_TOKEN must NOT be set (user credentials win over the SA).
+# Stacks without a live root for a stage (gpu-vm in prod: max_gpu_nodes.gpu-vm is 0) stop at the gate.
+# ml-services with MLflow or PostgreSQL enabled needs its passwords in TF_VAR_* (SecretStash), which
+# this pipeline does not read yet, and its node identity needs admin, not the CI account's editor
+# (runbooks/ml-services.md): live stage sizing sets create_node_service_account = false. governance's
+# project limits need tenant admin (stacks/governance): spot caps only from the pipeline.
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "Stage to act on (staging: dispatch from main; prod: dispatch from a release tag)"
+        type: choice
+        options: [sandbox, staging, prod]
+        default: sandbox
+      stack:
+        description: "Stack to act on"
+        type: choice
+        options: [network, data, inference, training, gpu-vm, ml-services, governance]
+        default: inference
+      action:
+        description: "plan only, or plan then a separately approved apply"
+        type: choice
+        options: [plan, apply]
+        default: plan
+      runner:
+        description: "github-hosted reaches public endpoints only; private-endpoint stages need the self-hosted runner in the stage VPC"
+        type: choice
+        options: [github-hosted, self-hosted]
+        default: github-hosted
+      run:
+        description: "nip-run label: ticket or run id (empty: gh-<run id>)"
+        type: string
+        default: ""
+      ttl:
+        description: "sandbox only: hours until nip-ttl-expires (1-24)"
+        type: string
+        default: "4"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tf-${{ inputs.stage }}-${{ inputs.stack }}
+  cancel-in-progress: false # never cancel an apply mid-flight (runbooks/incident.md)
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "0"
+  MAKE_ARGS: STAGE=${{ inputs.stage }} STACK=${{ inputs.stack }}
+
+jobs:
+  gate:
+    name: Enabled, ref and runner allowed for ${{ inputs.stage }}?
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - id: check
+        env:
+          ENABLED: ${{ vars.NIP_TERRAFORM_ENABLED }}
+          STAGE: ${{ inputs.stage }}
+          STACK: ${{ inputs.stack }}
+          RUNNER: ${{ inputs.runner }}
+          REF: ${{ github.ref }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "${ENABLED}" != "true" ]]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::NIP_TERRAFORM_ENABLED is not 'true'; this workflow is shipped disabled (docs/change-management.md)."
+            exit 0
+          fi
+          case "${STAGE}" in
+            sandbox) ;;
+            staging) [[ "${REF}" == "refs/heads/main" ]] || { echo "::error::staging is promoted from main only (dispatched from ${REF})"; exit 1; } ;;
+            prod)    [[ "${REF_TYPE}" == "tag" && "${REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::prod is promoted from a release tag vX.Y.Z only (dispatched from ${REF})"; exit 1; } ;;
+            *)       echo "::error::unknown stage ${STAGE}"; exit 1 ;;
+          esac
+          if [[ ! -f "terraform/live/${STAGE}/${STACK}/main.tf" ]]; then
+            echo "::error::no live root terraform/live/${STAGE}/${STACK} (scripts/render-live-roots.py; gpu-vm has none where max_gpu_nodes.gpu-vm is 0)"; exit 1
+          fi
+          if [[ "$(python3 scripts/render-live-roots.py --policy "${STAGE}" public_endpoint)" == false && "${RUNNER}" != self-hosted ]]; then
+            echo "::error::${STAGE} has a private cluster endpoint (platform/stages.yaml); dispatch with runner=self-hosted (docs/change-management.md#runners)"; exit 1
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+  plan:
+    name: plan ${{ inputs.stage }}/${{ inputs.stack }}
+    needs: gate
+    if: needs.gate.outputs.enabled == 'true'
+    runs-on: ${{ inputs.runner == 'self-hosted' && fromJSON('["self-hosted","nip-stage-vpc"]') || 'ubuntu-latest' }}
+    environment: ${{ inputs.stage }}-plan
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write # federated path only (R13): lets this job request a GitHub OIDC token
+    outputs:
+      digest: ${{ steps.digest.outputs.digest }}
+      # The apply job reuses the plan's label expiry, so its re-plan can match the digest.
+      ttl-expires: ${{ steps.setup.outputs.ttl-expires }}
+    env:
+      NEBIUS_TENANT_ID: ${{ secrets.NEBIUS_TENANT_ID }}
+      NEBIUS_PROJECT_ID: ${{ secrets.NEBIUS_PROJECT_ID }} # the STAGE's project
+      NEBIUS_REGION: ${{ vars.NEBIUS_REGION }}
+      NIP_SA_ID: ${{ secrets.NIP_SA_ID }}
+      NIP_SA_KEY_ID: ${{ secrets.NIP_SA_KEY_ID }} # key path only; absent on the federated path
+      # Read-only state key of <stage>-plan: storage.object-viewer on the bucket (foundation output
+      # ci_plan_state_identities; rotation: runbooks/credential-rotation.md). It cannot write state
+      # or the lock file, so this job plans with PLAN_LOCK=false.
+      AWS_ACCESS_KEY_ID: ${{ secrets.NIP_STATE_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.NIP_STATE_SECRET_ACCESS_KEY }}
+      NIP_ALLOWED_CIDRS: ${{ vars.NIP_ALLOWED_CIDRS }} # JSON list, e.g. ["198.18.0.10/32"]; exported only when set
+      NIP_SUBNET_ID: ${{ vars.NIP_SUBNET_ID }} # TF_VAR_subnet_id when set: the stage's default subnet or R7's subnet_id
+      NIP_SERVICE_CIDR: ${{ vars.NIP_SERVICE_CIDR }} # R7 service_cidr; inference/training only
+      NIP_SECURITY_GROUP_IDS: ${{ vars.NIP_SECURITY_GROUP_IDS }} # JSON list; inference/training/gpu-vm only
+      NIP_NODE_SERVICE_ACCOUNT_ID: ${{ vars.NIP_NODE_SERVICE_ACCOUNT_ID }} # existing pull identity; inference/training only
+      NIP_SSH_PUBLIC_KEY: ${{ vars.NIP_SSH_PUBLIC_KEY }} # TF_VAR_ssh_public_key, gpu-vm (R10) only; a public key
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: ./.github/actions/nebius-stage-setup
+        id: setup
+        with:
+          stage: ${{ inputs.stage }}
+          stack: ${{ inputs.stack }}
+          sa-private-key: ${{ secrets.NIP_SA_PRIVATE_KEY }} # empty = federated path (R13)
+          state-bucket: ${{ vars.NIP_STATE_BUCKET }}
+          run: ${{ inputs.run }}
+          ttl-hours: ${{ inputs.ttl }}
+
+      # No state lock: the read-only state key cannot write the lock file. A concurrent apply of the
+      # same stage/stack from THIS workflow is excluded by the concurrency group above; one from
+      # elsewhere (a laptop) can still race this read, which the apply job catches: it re-plans
+      # under the lock and refuses unless the digest matches.
+      - name: terraform init / plan (read-only state, no lock)
+        run: make ci-docker TARGETS="init plan PLAN_LOCK=false PLAN_LOG=false ${MAKE_ARGS}"
+
+      # The summary carries the digest, counts and resource addresses only. The full plan text
+      # (make show-plan) holds attribute and variable values; it is published neither here nor in
+      # the log (PLAN_LOG=false).
+      - name: Digest and resource changes to the job summary (what the apply reviewers approve)
+        id: digest
+        run: |
+          digest="$(make -s ci-docker TARGETS="-s plan-digest ${MAKE_ARGS}")"
+          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Plan: ${{ inputs.stage }}/${{ inputs.stack }} @ ${GITHUB_SHA::12}"
+            echo "Resource-change digest: \`${digest}\` (the apply job re-plans and refuses unless it matches)"
+            echo '```'
+            make -s ci-docker TARGETS="-s plan-summary ${MAKE_ARGS}"
+            echo '```'
+            echo "Attribute values are not published. Review them by running \`make plan show-plan STAGE=${{ inputs.stage }} STACK=${{ inputs.stack }}\` at ${GITHUB_SHA::12} with your own credentials (docs/change-management.md)."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  apply: # checks out the same commit as the plan job (one workflow run)
+    name: apply ${{ inputs.stage }}/${{ inputs.stack }} (reviewed plan)
+    needs: [gate, plan]
+    if: needs.gate.outputs.enabled == 'true' && inputs.action == 'apply'
+    runs-on: ${{ inputs.runner == 'self-hosted' && fromJSON('["self-hosted","nip-stage-vpc"]') || 'ubuntu-latest' }}
+    environment: ${{ inputs.stage }} # prod: required reviewers + wait timer + tag-only deployment rule
+    permissions:
+      contents: read
+      id-token: write # federated path only (R13)
+    env:
+      NEBIUS_TENANT_ID: ${{ secrets.NEBIUS_TENANT_ID }}
+      NEBIUS_PROJECT_ID: ${{ secrets.NEBIUS_PROJECT_ID }}
+      NEBIUS_REGION: ${{ vars.NEBIUS_REGION }}
+      NIP_SA_ID: ${{ secrets.NIP_SA_ID }}
+      NIP_SA_KEY_ID: ${{ secrets.NIP_SA_KEY_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.NIP_STATE_ACCESS_KEY_ID }} # read-write state key (state_identities): this job plans under the lock and applies
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.NIP_STATE_SECRET_ACCESS_KEY }}
+      NIP_ALLOWED_CIDRS: ${{ vars.NIP_ALLOWED_CIDRS }} # JSON list, e.g. ["198.18.0.10/32"]; exported only when set
+      NIP_SUBNET_ID: ${{ vars.NIP_SUBNET_ID }} # TF_VAR_subnet_id when set: the stage's default subnet or R7's subnet_id
+      NIP_SERVICE_CIDR: ${{ vars.NIP_SERVICE_CIDR }} # R7 service_cidr; inference/training only
+      NIP_SECURITY_GROUP_IDS: ${{ vars.NIP_SECURITY_GROUP_IDS }} # JSON list; inference/training/gpu-vm only
+      NIP_NODE_SERVICE_ACCOUNT_ID: ${{ vars.NIP_NODE_SERVICE_ACCOUNT_ID }} # existing pull identity; inference/training only
+      NIP_SSH_PUBLIC_KEY: ${{ vars.NIP_SSH_PUBLIC_KEY }} # TF_VAR_ssh_public_key, gpu-vm (R10) only; a public key
+      APPROVED_DIGEST: ${{ needs.plan.outputs.digest }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: ./.github/actions/nebius-stage-setup
+        with:
+          stage: ${{ inputs.stage }}
+          stack: ${{ inputs.stack }}
+          sa-private-key: ${{ secrets.NIP_SA_PRIVATE_KEY }}
+          state-bucket: ${{ vars.NIP_STATE_BUCKET }}
+          run: ${{ inputs.run }}
+          ttl-hours: ${{ inputs.ttl }}
+          ttl-expires: ${{ needs.plan.outputs.ttl-expires }}
+
+      - name: Re-plan and compare with the approved digest
+        run: |
+          make ci-docker TARGETS="init plan PLAN_LOG=false ${MAKE_ARGS}"
+          digest="$(make -s ci-docker TARGETS="-s plan-digest ${MAKE_ARGS}")"
+          if [[ "${digest}" != "${APPROVED_DIGEST}" ]]; then
+            echo "::error::the plan changed since review (approved ${APPROVED_DIGEST}, now ${digest}); dispatch again and review the new plan"; exit 1
+          fi
+
+      - name: Apply the matching plan (scripts/tf-run.sh)
+        run: make ci-docker TARGETS="apply CONFIRM=yes ${MAKE_ARGS}"

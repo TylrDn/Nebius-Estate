@@ -1,0 +1,77 @@
+# Nebius Estate — one operator on this machine, loaded on top of app-config.yaml by
+# `yarn start` (make portal-dev). Real, read-only connectors; nothing is simulated.
+#
+# The backend binds loopback only. That is the one condition under which the guest
+# sign-in and the development identity below are accepted (lib/config.ts refuses them
+# otherwise). Credentials and project ids come from the environment, never from this
+# file: load the repository .env first (set -a; source .env; set +a):
+#   NEBIUS_PROJECT_IDS         comma-separated projects to inventory
+#   NEBIUS_SA_ID, NEBIUS_SA_PUBLIC_KEY_ID, NEBIUS_SA_PRIVATE_KEY_FILE   read-only service account
+#   NEBIUS_IAM_TOKEN           or a short-lived token instead of the service account
+# Without them the portal still starts and shows every connector as not configured.
+# Setup: docs/portal/nebius-setup.md.
+
+backend:
+  listen:
+    host: 127.0.0.1 # loopback only
+  # The dev server serves the app on :3000 and calls the backend on :7007.
+  csp:
+    connect-src: ["'self'", 'http://localhost:7007']
+  cors:
+    origin: http://localhost:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  database:
+    client: better-sqlite3
+    connection:
+      directory: ../../.local-data # relative to packages/backend: portal/.local-data (git-ignored)
+
+auth:
+  providers:
+    guest: {} # local only: refused unless the backend listens on loopback
+
+nebiusEstate:
+  # Relative to packages/backend (the backend's working directory).
+  repoRoot: ../../..
+  access:
+    roles:
+      - name: local-operator
+        principals: [user:development/guest]
+        projects: ['*']
+        permissions: ['*']
+  nebius:
+    # The tenant (tenant-…): tenant-level lists (quotas, reservations, capacity advice) and audit events need it. Unset,
+    # or empty (the :- form drops the key), it is read from a project's parent; with it set, a failed project read loses nothing.
+    tenantId: ${NEBIUS_TENANT_ID:-}
+    projectIdsEnv: NEBIUS_PROJECT_IDS
+    discoverProjects: true # hint at tenant projects not in NEBIUS_PROJECT_IDS (needs tenant-level viewer)
+    auth:
+      # A service account wins when NEBIUS_SA_ID and NEBIUS_SA_PUBLIC_KEY_ID are set.
+      # A relative key path is resolved against the repository root (e.g. secrets/portal-viewer.pem).
+      serviceAccount:
+        idEnv: NEBIUS_SA_ID
+        publicKeyIdEnv: NEBIUS_SA_PUBLIC_KEY_ID
+        privateKeyFileEnv: NEBIUS_SA_PRIVATE_KEY_FILE
+      tokenEnv: NEBIUS_IAM_TOKEN
+  # Billing export pull: FOCUS files from the export bucket (read-only, SigV4). Variable names only.
+  billing:
+    export:
+      bucketEnv: NEBIUS_BILLING_EXPORT_BUCKET
+      regionEnv: NEBIUS_BILLING_EXPORT_REGION
+      prefixEnv: NEBIUS_BILLING_EXPORT_PREFIX
+      accessKeyIdEnv: NEBIUS_BILLING_EXPORT_ACCESS_KEY_ID
+      secretAccessKeyEnv: NEBIUS_BILLING_EXPORT_SECRET_ACCESS_KEY
+  # AI services page: Token Factory models and key health, Hugging Face token and gated access. Variable names only.
+  ai:
+    tokenFactory: { apiKeyEnv: NEBIUS_API_KEY }
+    huggingface: { tokenEnv: HF_TOKEN }
+  # kubernetes:
+  #   clusters:
+  #     - name: sandbox-inference
+  #       url: https://<api-server>:443        # https only; from config, never from a request
+  #       tokenEnv: K8S_SANDBOX_INFERENCE_TOKEN  # K8S_<NAME>_TOKEN per cluster
+  #       caFile: /path/to/ca.crt
+  #       mk8sClusterId: <mk8scluster-…>       # links the cluster to the Nebius inventory (enables scoping)
+  # prometheus:
+  #   url: http://localhost:9090   # port-forward; https for anything else
+  #   tokenEnv: PROMETHEUS_TOKEN   # only if the endpoint needs a bearer token

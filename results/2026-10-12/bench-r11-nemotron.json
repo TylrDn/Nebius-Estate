@@ -1,0 +1,134 @@
+{
+  "step": "bench-r11",
+  "status": "fail",
+  "timestamp": "2026-10-12T18:51:12Z",
+  "details": {
+    "schema": "nip-bench/1",
+    "target": "r11",
+    "vantage": "operator-host",
+    "status": "fail",
+    "base_url": "https://api.tokenfactory.nebius.com",
+    "endpoint": "/v1/chat/completions",
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "image": "vllm/vllm-openai:v0.31.0@sha256:c1c9f6fd5c109ba7f0546a59f5b2f15fb87f64c77782e90a27b648b42a8e67c3",
+    "params": {
+      "input_len": 256,
+      "output_len": 128,
+      "num_prompts": 200,
+      "warmup_prompts": 10,
+      "concurrency": [
+        1,
+        8,
+        32
+      ]
+    },
+    "placement": null,
+    "sweep_complete": true,
+    "cold_start": {
+      "server_startup_s": null,
+      "first_request_ms": null,
+      "first_request_source": null
+    },
+    "first_sweep_request_ms": null,
+    "warm": {
+      "concurrency": 1,
+      "first_point_e2e_p50_ms": null
+    },
+    "bars": {
+      "max_ttft_p99_ms": null,
+      "max_tpot_p99_ms": null,
+      "max_e2e_p99_ms": 10000,
+      "min_output_tokens_per_s": null,
+      "min_success_ratio": 1,
+      "source": "tests/load/README.md (Pass bars): e2e p99 from docs/slo.md (p95 <= 10 s, applied at p99); every request answered; the others unset until a client or a first baseline sets them"
+    },
+    "cost": {
+      "model": "per-token",
+      "usd_per_hour": null,
+      "utilisation": 1.0,
+      "usd_per_1m_output_tokens_list": null,
+      "formula": "listed per-token price (R11: list-models.sh --verbose; the API states no unit)",
+      "note": "no price given: set BENCH_USD_PER_1M_OUTPUT (or --usd-per-1m-output) to the model's listed output price from recipes/token-factory/list-models.sh --verbose"
+    },
+    "points": [
+      {
+        "concurrency": 1,
+        "prompts": 200,
+        "successful_requests": null,
+        "failed_requests": null,
+        "requests_per_s": null,
+        "output_tokens_per_s": null,
+        "ttft_ms": {
+          "p50": null,
+          "p99": null
+        },
+        "tpot_ms": {
+          "p50": null,
+          "p99": null
+        },
+        "e2e_ms": {
+          "p50": null,
+          "p99": null
+        },
+        "cost_per_1m_output_tokens_usd": null,
+        "pass": false,
+        "failures": [
+          "no result block (rc=1)"
+        ]
+      },
+      {
+        "concurrency": 8,
+        "prompts": 200,
+        "successful_requests": null,
+        "failed_requests": null,
+        "requests_per_s": null,
+        "output_tokens_per_s": null,
+        "ttft_ms": {
+          "p50": null,
+          "p99": null
+        },
+        "tpot_ms": {
+          "p50": null,
+          "p99": null
+        },
+        "e2e_ms": {
+          "p50": null,
+          "p99": null
+        },
+        "cost_per_1m_output_tokens_usd": null,
+        "pass": false,
+        "failures": [
+          "no result block (rc=1)"
+        ]
+      },
+      {
+        "concurrency": 32,
+        "prompts": 200,
+        "successful_requests": null,
+        "failed_requests": null,
+        "requests_per_s": null,
+        "output_tokens_per_s": null,
+        "ttft_ms": {
+          "p50": null,
+          "p99": null
+        },
+        "tpot_ms": {
+          "p50": null,
+          "p99": null
+        },
+        "e2e_ms": {
+          "p50": null,
+          "p99": null
+        },
+        "cost_per_1m_output_tokens_usd": null,
+        "pass": false,
+        "failures": [
+          "no result block (rc=1)"
+        ]
+      }
+    ],
+    "max_passing_concurrency": null,
+    "method": "tests/load/README.md",
+    "generator_exit_code": 0
+  }
+}

@@ -1,0 +1,12 @@
+# Expiry of the long-lived CI credentials (GitHub Environment secrets), one flow mapping per line.
+# Dates only: never a key id, a secret, or a project or tenant id. scripts/env-status.sh (make
+# env-status, make preflight) warns 14 days before each expiry and fails once one has passed.
+# Update the line in the same change as each rotation (runbooks/credential-rotation.md, step 6);
+# add a line whenever a CI key is minted with --expires-at.
+#
+# sandbox-plan: minted with a 30-day expiry for the first federated plan on 2026-10-11
+# (docs/evidence/2026-10-11-sandbox-ci-federated-plan.md); the mint printed its expiry, 2026-11-11 (UTC).
+# sandbox: read-write state key for the federated apply job, minted 2026-10-12 with a 30-day expiry.
+keys:
+  - { environment: sandbox-plan, secret: NIP_STATE_ACCESS_KEY_ID, what: "read-only state access key", expires: 2026-11-11, rotate: "runbooks/credential-rotation.md#rotating-the-ci-state-access-keys" }
+  - { environment: sandbox, secret: NIP_STATE_ACCESS_KEY_ID, what: "read-write state access key", expires: 2026-11-11, rotate: "runbooks/credential-rotation.md#rotating-the-ci-state-access-keys" }

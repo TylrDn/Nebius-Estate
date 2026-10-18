@@ -1,0 +1,5 @@
+ddp-sanity-master-0:41:41 [0] NCCL INFO NCCL version 2.27.5+cuda13.0
+ddp-sanity-master-0:41:60 [0] NCCL INFO NET/IB : Using [0]mlx5_0:1/IB [1]mlx5_1:1/IB; OOB eth0:10.0.0.11<0>
+ddp-sanity-master-0:41:60 [0] NCCL INFO comm 0x5600 rank 0 nRanks 16 nNodes 2 localRanks 8 localRank 0 MNNVL 0
+{"world_size": 16, "hidden": 4096, "steps": 20, "batch_per_rank": 64, "params_M": 33.6, "step_ms_p50": 12.5, "step_ms_max": 14.1, "samples_per_s": 81920.0, "torch": "2.14.1", "cuda": "13.0", "nccl": "2.27.5", "gpu": "NVIDIA H100 80GB HBM3"}
+ddp-sanity-master-0:41:41 [0] NCCL INFO comm 0x5600 rank 0 nranks 16 cudaDev 0 busId 8d000 - Destroy COMPLETE

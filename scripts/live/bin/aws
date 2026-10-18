@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# `aws` for the live run scripts, in a container: the official AWS CLI image, pinned by digest in
+# platform/versions.yaml (validation_images.aws-cli; `make pins` checks this default), nothing
+# installed on the host. Only the S3 credential variables are passed in, by name (values never on
+# argv); no ~/.aws is mounted or written. Used by tests/validate/checkpoint-restore.sh (the R8
+# restore drill, scripts/live/run2-4-r8-acceptance.sh puts this folder first on PATH).
+IMAGE="${AWS_CLI_IMAGE:-amazon/aws-cli:2.37.4@sha256:3a0758d9430be6e07af814bf26d9d42afdb768bc138a11636ea037100e3de8a1}"
+exec docker run --rm -i \
+  -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN -e AWS_DEFAULT_REGION -e AWS_REGION \
+  "${IMAGE}" "$@"

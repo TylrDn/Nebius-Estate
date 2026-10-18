@@ -1,0 +1,8 @@
+{
+  "name": "r6-serverless-endpoint-l40s",
+  "region": "eu-north1",
+  "items": [
+    {"name": "endpoint-vm", "platform": "gpu-l40s-a", "preset": "1gpu-8vcpu-32gb", "count": 1, "hours": 1, "preemptible": false},
+    {"name": "endpoint-disk", "disk_type": "NETWORK_SSD", "size_gib": 200, "count": 1, "hours": 1}
+  ]
+}

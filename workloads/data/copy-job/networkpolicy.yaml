@@ -1,0 +1,21 @@
+# Egress the copy needs: DNS and the Object Storage endpoint (443). A no-op in a namespace whose
+# egress is open (training); required in a default-deny namespace (inference).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-stage-dataset-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: stage-dataset
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+    - ports:
+        - { protocol: TCP, port: 443 }

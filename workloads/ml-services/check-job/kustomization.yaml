@@ -1,0 +1,25 @@
+# R12: one Job that uses every service of stacks/ml-services as a client would
+# (runbooks/ml-services.md#validate). tests/validate/ml-services.sh creates the namespace, writes the
+# ml-services-check ConfigMap from its inputs, applies this, waits and records the result; by hand:
+#   kubectl -n ml-services create secret generic ml-services-check \
+#     --from-literal=REGISTRY_TOKEN=... --from-literal=MLFLOW_TRACKING_PASSWORD=... --from-literal=PGPASSWORD=...  # never committed
+#   kubectl -n ml-services create configmap ml-services-check --from-literal=REGISTRY_URL=... (keys: job.yaml)
+#   kubectl apply -k workloads/ml-services/check-job
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: ml-services
+resources:
+  - job.yaml
+  - networkpolicy.yaml
+# The mlflow container's code, kept as a file so tests/scripts/test-mlflow-check.sh can run it offline.
+# A fixed name: the Job is deleted and re-applied each run, so no hashed copies pile up.
+configMapGenerator:
+  - name: ml-services-check-scripts
+    files:
+      - mlflow_check.py
+    options:
+      disableNameSuffixHash: true
+labels:
+  # Object metadata only: selectors and pod templates stay as they are (Job templates are immutable).
+  - pairs:
+      app.kubernetes.io/part-of: nip-ml-services

@@ -1,0 +1,26 @@
+# R8: stage one Object Storage prefix onto the shared filesystem before a training or serving run
+# (runbooks/data.md). A claim is namespaced, so the Job runs in the namespace of the workload that
+# reads the data: training by default; for another namespace, an overlay that sets `namespace:`.
+#   kubectl -n training create secret generic s3-credentials \
+#     --from-literal=AWS_ACCESS_KEY_ID=... --from-literal=AWS_SECRET_ACCESS_KEY=...   # never committed
+#   edit the literals below (or set them in an overlay), then:
+#   kubectl apply -k workloads/data/copy-job && kubectl -n training logs -f job/stage-dataset
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: training
+resources:
+  - pvc.yaml
+  - job.yaml
+  - networkpolicy.yaml
+labels:
+  # Object metadata only: selectors and pod templates stay as they are (Job templates are immutable).
+  - pairs:
+      app.kubernetes.io/part-of: nip-data
+configMapGenerator:
+  - name: stage-dataset
+    literals:
+      - S3_ENDPOINT=https://storage.eu-north1.nebius.cloud # output s3_endpoint of the data stack
+      - S3_REGION=eu-north1                              # the data stack's region
+      - SOURCE=nip-sandbox-datasets-e00mock/corpus/v1     # <dataset_bucket>/<prefix>
+      - TARGET=/data/corpus/v1                           # path inside the claim
+      - TRANSFERS=32                                     # parallel object copies; raise for many small files

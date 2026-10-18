@@ -1,0 +1,23 @@
+name: Recipe or improvement request
+description: Suggest a new recipe, solution scenario or change to an existing one.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: The workload and what is hard about it today (scale, latency or throughput targets, budget, who operates it).
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The recipe or change you have in mind, and the Nebius doc or upstream repository it would mirror, if any.
+    validations:
+      required: true
+  - type: textarea
+    id: proof
+    attributes:
+      label: How we would know it works
+      description: The acceptance check or measurement that would prove it (see tests/load/README.md for the method).

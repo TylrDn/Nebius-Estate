@@ -1,0 +1,13 @@
+{
+  "name": "s6-primary-eu-north1-month",
+  "region": "eu-north1",
+  "items": [
+    {"name": "gpu-serving", "platform": "gpu-h200-sxm", "preset": "1gpu-16vcpu-200gb", "count": 2, "hours": 730, "preemptible": false},
+    {"name": "gpu-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 512, "count": 2, "hours": 730},
+    {"name": "cpu-nodes", "platform": "cpu-d3", "preset": "8vcpu-32gb", "count": 3, "hours": 730},
+    {"name": "cpu-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 128, "count": 3, "hours": 730},
+    {"name": "model-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 1024, "count": 1, "hours": 730},
+    {"name": "nat-vm", "platform": "cpu-d3", "preset": "4vcpu-16gb", "count": 1, "hours": 730},
+    {"name": "nat-boot", "disk_type": "NETWORK_SSD", "size_gib": 50, "count": 1, "hours": 730}
+  ]
+}

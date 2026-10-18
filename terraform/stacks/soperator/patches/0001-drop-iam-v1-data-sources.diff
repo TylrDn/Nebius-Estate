@@ -1,0 +1,77 @@
+# Copyright 2024 Nebius B.V. (upstream context); Apache-2.0.
+# Modified by Taylor Dean: remove obsolete v1 IAM data sources and use supplied IDs.
+# Sources include installations/example/main.tf AND variables.tf; see docs/source-provenance.md.
+diff --git a/soperator/installations/example/main.tf b/soperator/installations/example/main.tf
+index 1fe852c..fbd93ee 100644
+--- a/soperator/installations/example/main.tf
++++ b/soperator/installations/example/main.tf
+@@ -137,7 +137,7 @@ module "filestore" {
+     terraform_data.check_variables,
+   ]
+ 
+-  iam_project_id = data.nebius_iam_v1_project.this.id
++  iam_project_id = var.iam_project_id
+ 
+   k8s_cluster_name = local.k8s_cluster_name
+ 
+@@ -201,7 +201,7 @@ module "nfs-server" {
+ 
+   source = "../../../modules/nfs-server"
+ 
+-  parent_id = data.nebius_iam_v1_project.this.id
++  parent_id = var.iam_project_id
+   subnet_id = data.nebius_vpc_v1_subnet.this.id
+ 
+   platform      = var.nfs.resource.platform
+@@ -264,7 +264,7 @@ module "k8s" {
+ 
+   source = "../../modules/k8s"
+ 
+-  iam_project_id  = data.nebius_iam_v1_project.this.id
++  iam_project_id  = var.iam_project_id
+   vpc_subnet_id   = data.nebius_vpc_v1_subnet.this.id
+   login_public_ip = var.slurm_login_public_ip
+ 
+@@ -332,7 +332,7 @@ module "nvidia_operator_network" {
+   source = "../../../modules/network-operator"
+ 
+   cluster_id = module.k8s.cluster_id
+-  parent_id  = data.nebius_iam_v1_project.this.id
++  parent_id  = var.iam_project_id
+ 
+   providers = {
+     nebius = nebius
+@@ -349,7 +349,7 @@ module "nvidia_operator_gpu" {
+   source = "../../../modules/gpu-operator"
+ 
+   cluster_id = module.k8s.cluster_id
+-  parent_id  = data.nebius_iam_v1_project.this.id
++  parent_id  = var.iam_project_id
+ 
+   enable_dcgm_exporter        = var.dcgm_job_mapping_enabled == false && var.telemetry_enabled
+   enable_dcgm_service_monitor = var.dcgm_job_mapping_enabled == false && var.telemetry_enabled
+diff --git a/soperator/installations/example/variables.tf b/soperator/installations/example/variables.tf
+index e453848..f0f02dc 100644
+--- a/soperator/installations/example/variables.tf
++++ b/soperator/installations/example/variables.tf
+@@ -31,9 +31,6 @@ variable "iam_project_id" {
+     error_message = "ID of the IAM project must start with `project-`."
+   }
+ }
+-data "nebius_iam_v1_project" "this" {
+-  id = var.iam_project_id
+-}
+ 
+ variable "iam_tenant_id" {
+   description = "ID of the IAM tenant."
+@@ -46,10 +43,6 @@ variable "iam_tenant_id" {
+   }
+ }
+ 
+-data "nebius_iam_v1_tenant" "this" {
+-  id = var.iam_tenant_id
+-}
+-
+ variable "o11y_iam_tenant_id" {
+   description = "ID of the IAM tenant for O11y."
+   type        = string

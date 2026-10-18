@@ -1,0 +1,15 @@
+# The namespace's GPU cap is the cost boundary: the platform sizes node groups,
+# the team cannot exceed its share.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-research
+  namespace: team-research
+spec:
+  hard:
+    requests.nvidia.com/gpu: "1"
+    limits.nvidia.com/gpu: "1"
+    requests.cpu: "16"
+    requests.memory: 128Gi
+    persistentvolumeclaims: "5"
+    requests.storage: 200Gi

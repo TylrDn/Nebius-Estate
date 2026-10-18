@@ -1,0 +1,13 @@
+# A directory on the shared filesystem every node mounts (csi-mounted-fs-path, ReadWriteMany).
+# With the R8 data stack, that filesystem is the one R1/R3 attach through existing_filesystem_id,
+# so staged data outlives any one cluster. Size it for the working set, not the whole bucket.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: datasets
+spec:
+  accessModes: ["ReadWriteMany"]
+  storageClassName: csi-mounted-fs-path-sc
+  resources:
+    requests:
+      storage: 100Gi

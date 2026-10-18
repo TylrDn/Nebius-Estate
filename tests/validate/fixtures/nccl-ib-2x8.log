@@ -1,0 +1,14 @@
+# nThread 1 nGpus 1 minBytes 536870912 maxBytes 8589934592 step: 2(factor) warmup iters: 5 iters: 20 agg iters: 1 validation: 1 graph: 0
+nccl-test-worker-0:21:21 [0] NCCL INFO NCCL version 2.23.4+cuda12.4
+nccl-test-worker-0:21:40 [0] NCCL INFO NET/IB : Using [0]mlx5_0:1/IB [1]mlx5_1:1/IB [2]mlx5_2:1/IB [3]mlx5_3:1/IB [4]mlx5_4:1/IB [5]mlx5_5:1/IB [6]mlx5_6:1/IB [7]mlx5_7:1/IB [RO]; OOB eth0:10.0.0.11<0>
+nccl-test-worker-0:21:40 [0] NCCL INFO Using network IB
+#
+#                                                              out-of-place                       in-place
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)
+   536870912     134217728     float     sum      -1   3310.5  162.17  304.07      0   3302.1  162.58  304.84      0
+  1073741824     268435456     float     sum      -1   6520.3  164.68  308.78      0   6515.9  164.79  308.98      0
+  8589934592    2147483648     float     sum      -1  51220.0  167.71  314.46      0  51190.4  167.80  314.63      0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 309.29
+#

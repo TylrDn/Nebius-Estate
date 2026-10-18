@@ -1,0 +1,309 @@
+{
+  "tenant_id": "tenant-e00mock",
+  "allowances": {
+    "tenant-e00mock": [
+      {
+        "metadata": {
+          "name": "compute.instance.non-gpu.vcpu",
+          "id": "quotaallowance-t1"
+        },
+        "spec": {
+          "region": "eu-north1"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.count",
+          "id": "quotaallowance-t2"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "12"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.gpu.h100",
+          "id": "quotaallowance-t3"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "32"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.gpu.l40s",
+          "id": "quotaallowance-t4"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "32"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.preemptible.count",
+          "id": "quotaallowance-t5"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "8"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.gpucluster.count",
+          "id": "quotaallowance-t6"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "5"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.disk.size.network-ssd",
+          "id": "quotaallowance-t7"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "5497558138880"
+        },
+        "status": {
+          "unit": "byte",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.disk.size.network-ssd-io-m3",
+          "id": "quotaallowance-t8"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "5497558138880"
+        },
+        "status": {
+          "unit": "byte",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.filesystem.size.network-ssd",
+          "id": "quotaallowance-t9"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "5497558138880"
+        },
+        "status": {
+          "unit": "byte",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "mk8s.cluster.count",
+          "id": "quotaallowance-t10"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "2"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.non-gpu.vcpu",
+          "id": "quotaallowance-t11"
+        },
+        "spec": {
+          "region": "eu-west2",
+          "limit": "200"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.gpu.b300",
+          "id": "quotaallowance-t12"
+        },
+        "spec": {
+          "region": "eu-west2",
+          "limit": "32"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      }
+    ],
+    "project-e00mock": [
+      {
+        "metadata": {
+          "name": "compute.gpucluster.count",
+          "id": "quotaallowance-p1"
+        },
+        "spec": {
+          "region": "eu-north1"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.disk.size.network-ssd",
+          "id": "quotaallowance-p2"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "1649267441664"
+        },
+        "status": {
+          "unit": "byte",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.disk.size.network-ssd-io-m3",
+          "id": "quotaallowance-p3"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "549755813888"
+        },
+        "status": {
+          "unit": "byte",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.filesystem.size.network-ssd",
+          "id": "quotaallowance-p4"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "549755813888"
+        },
+        "status": {
+          "unit": "byte",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.preemptible.count",
+          "id": "quotaallowance-p5"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "1"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "mk8s.cluster.count",
+          "id": "quotaallowance-p6"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "1"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.non-gpu.vcpu",
+          "id": "quotaallowance-p7"
+        },
+        "spec": {
+          "region": "eu-west2",
+          "limit": "64"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.gpu.b300",
+          "id": "quotaallowance-p8"
+        },
+        "spec": {
+          "region": "eu-west2",
+          "limit": "1"
+        },
+        "status": {
+          "unit": "count",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.gpu.l40s"
+        },
+        "spec": {
+          "region": "eu-north1"
+        },
+        "status": {
+          "unit": "count"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.non-gpu.vcpu"
+        },
+        "spec": {
+          "region": "eu-north1"
+        },
+        "status": {
+          "unit": "count"
+        }
+      }
+    ]
+  }
+}

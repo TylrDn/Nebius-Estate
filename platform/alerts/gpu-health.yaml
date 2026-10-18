@@ -1,0 +1,56 @@
+# Prometheus alerting rules for GPU health (loaded by modules/o11y when alertmanager_enabled;
+# metrics from dcgm-exporter, shipped by the Marketplace device plugin with
+# dcgm_exporter_enabled = true, and from kube-state-metrics in the Prometheus chart).
+# Thresholds are starting points; record every change in docs/slo.md.
+# Labels: summaries name both the in-cluster dcgm-exporter labels (Hostname, gpu) and the Nebius
+# Monitoring ones (instance_id, uuid); each series carries one pair, so one renders. DCGM renamed
+# CLOCK_THROTTLE_REASONS to CLOCKS_EVENT_REASONS and Nebius Monitoring serves only the new name
+# (recipes/observability/metrics.sh coverage, 2026-10-11).
+groups:
+  - name: nip-gpu-health
+    rules:
+      - alert: GpuXidError
+        expr: increase(DCGM_FI_DEV_XID_ERRORS[10m]) > 0
+        for: 0m
+        labels: { severity: critical }
+        annotations:
+          summary: "Xid error on {{ $labels.Hostname }}{{ $labels.instance_id }} GPU {{ $labels.gpu }}{{ $labels.uuid }}"
+          description: "DCGM reported an Xid error. Drain the node and open a support case (runbooks/incident.md: GPU faults)."
+          runbook: runbooks/fleet-alerts.md#gpu-xid-or-ecc-errors
+          docs: https://docs.nebius.com/compute/virtual-machines/maintenance-reasons#gpu-errors
+      - alert: GpuUncorrectableEccErrors
+        expr: increase(DCGM_FI_DEV_ECC_DBE_VOL_TOTAL[1h]) > 0
+        for: 0m
+        labels: { severity: critical }
+        annotations:
+          summary: "Double-bit ECC errors on {{ $labels.Hostname }}{{ $labels.instance_id }} GPU {{ $labels.gpu }}{{ $labels.uuid }}"
+          description: "Uncorrectable memory errors: the GPU is unreliable. Cordon, drain, replace the node."
+          runbook: runbooks/fleet-alerts.md#gpu-xid-or-ecc-errors
+          docs: https://docs.nebius.com/compute/virtual-machines/maintenance-reasons#gpu-errors
+      - alert: GpuThermalOrPowerThrottling
+        expr: (DCGM_FI_DEV_CLOCKS_EVENT_REASONS or DCGM_FI_DEV_CLOCK_THROTTLE_REASONS) > 0 and DCGM_FI_DEV_GPU_UTIL > 50
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "GPU {{ $labels.gpu }}{{ $labels.uuid }} on {{ $labels.Hostname }}{{ $labels.instance_id }} is throttling under load"
+          description: "Clock throttle reasons set for 15 minutes while busy: thermal or power cap. Expect lower throughput; check the node's DCGM temperature and power metrics."
+          runbook: runbooks/fleet-alerts.md#gpu-hot-or-throttling
+          docs: https://docs.nebius.com/compute/monitoring/virtual-machines#gpu-monitoring-metrics
+      - alert: GpuNodeNotReady
+        expr: kube_node_status_condition{condition="Ready",status="true"} == 0 and on(node) kube_node_labels{label_nip_nebius_io_gpu="true"}
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "GPU node {{ $labels.node }} NotReady for 5 minutes"
+          description: "A GPU node left Ready. Check the node group's rollout, the driver image and the node's conditions (runbooks/incident.md)."
+          runbook: runbooks/fleet-alerts.md#gpu-node-not-ready
+          docs: https://docs.nebius.com/kubernetes/maintenance/health-checks#false-or-unknown-status-of-a-node
+      - alert: GpuMetricsMissing
+        expr: absent(DCGM_FI_DEV_GPU_UTIL) and on() count(kube_node_labels{label_nip_nebius_io_gpu="true"}) > 0
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "No DCGM metrics although GPU nodes exist"
+          description: "dcgm-exporter is not scraping: the device plugin release, its DaemonSet tolerations or the GPU taint changed (tests/validate/01-gpu.sh)."
+          runbook: runbooks/fleet-alerts.md#gpu-metrics-missing
+          docs: https://docs.nebius.com/kubernetes/gpu/set-up#gpu-drivers-and-other-components

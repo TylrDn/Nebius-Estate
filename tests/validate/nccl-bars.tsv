@@ -1,0 +1,9 @@
+# Multi-node NCCL bars per GPU platform, from the Nebius docs only (tests/README.md, "NCCL pass bar").
+# Columns (tab-separated): platform, min avg busbw GB/s, source of the bar, avg busbw the docs show
+# as an example (- when they show none), source of that example. An example is not a bar: its node
+# count and message sizes differ from this repository's overlays. Platforms: the tutorial's GPU-cluster list.
+gpu-h100-sxm	300	docs.nebius.com/kubernetes/gpu/nccl-test (bar for every listed platform)	317.11	docs.nebius.com/kubernetes/gpu/nccl-test example output; the tutorial's nodes are gpu-h100-sxm 8gpu, 2 nodes, 512M-8G
+gpu-h200-sxm	300	docs.nebius.com/kubernetes/gpu/nccl-test (bar for every listed platform)	355.703	docs.nebius.com/slurm-soperator/jobs/examples/nccl-all-reduce example: 8 nodes x 8 H200, 512M-16G
+gpu-b200-sxm	300	docs.nebius.com/kubernetes/gpu/nccl-test (bar for every listed platform)	-	unknown: the docs show no B200 figure
+gpu-b200-sxm-a	300	docs.nebius.com/kubernetes/gpu/nccl-test (bar for every listed platform)	-	unknown: the docs show no B200 figure
+gpu-b300-sxm	300	docs.nebius.com/kubernetes/gpu/nccl-test (bar for every listed platform)	-	unknown: the docs show no B300 figure

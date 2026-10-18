@@ -1,0 +1,6 @@
+# 2 nodes x 8 GPUs over InfiniBand — the configuration in the Nebius doc.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: nccl-test
+resources:
+  - ../../base

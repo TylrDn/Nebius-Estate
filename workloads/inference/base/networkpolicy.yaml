@@ -1,0 +1,112 @@
+# Default-deny for the inference namespace (docs/security.md "network isolation").
+# What stays open, and why:
+#   - DNS egress to kube-system (name resolution)
+#   - ingress to the vLLM port from this namespace (the load generator in tests/load runs here)
+#     and the matching egress from that load generator (default-deny also blocks egress)
+#     and from the o11y namespace (Prometheus scrapes /metrics on the same port)
+#   - egress to the internet on 443 for the first model download (Hugging Face); once the
+#     model cache on the shared filesystem is warm this rule can be dropped per stage
+#   - egress to the internet on 443 for the load generator, which loads the tokenizer from the
+#     Hugging Face Hub (unverified live: drop it if the first WITH_LOAD=1 run shows it unused)
+# kubectl port-forward is not subject to NetworkPolicy (it goes through the API server and the
+# kubelet), so the port-forward-only access model in docs/security.md keeps working.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-vllm-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: vllm
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: {} # same namespace: the benchmark job in tests/load
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: o11y # Prometheus (modules/o11y default namespace)
+      ports:
+        - { protocol: TCP, port: 8000 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-bench-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: vllm-bench # tests/load/bench-job.yaml
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: vllm
+      ports:
+        - { protocol: TCP, port: 8000 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-model-download-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: vllm
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - { protocol: TCP, port: 443 }
+---
+# `vllm bench serve --model <repo>` loads the model's tokenizer from the Hugging Face Hub (the bench
+# Job mounts no model cache), so the load generator needs the same HTTPS egress as the model download.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-bench-tokenizer-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: vllm-bench # tests/load/bench-job.yaml
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - { protocol: TCP, port: 443 }

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nccl-test
+  labels:
+    # MPIJob workers need privileged + IPC_LOCK for RDMA, as in the Nebius doc.
+    pod-security.kubernetes.io/enforce: privileged

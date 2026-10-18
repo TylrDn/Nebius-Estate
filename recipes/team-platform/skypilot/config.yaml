@@ -1,0 +1,20 @@
+# SkyPilot global config for a team (export SKYPILOT_GLOBAL_CONFIG=<this file>).
+# Kubernetes only, one allowed context, pods run as the namespace's `skypilot`
+# ServiceAccount. The namespace itself comes from the kubeconfig context
+# (set-context --namespace), as NPA's namespace selection does.
+kubernetes:
+  allowed_contexts:
+    # Replace with the context `make kubeconfig STAGE=<stage> STACK=inference` writes for the cluster
+    # nip-<stage>-inference (read it with `kubectl config current-context`); `nip-lab` was the old default
+    # cluster name (docs/naming.md section 7, item 3).
+    - REPLACE-WITH-KUBECONFIG-CONTEXT
+  remote_identity: skypilot
+  provision_timeout: 900
+  pod_config:
+    spec:
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      nodeSelector:
+        nip.nebius.io/gpu: "true"

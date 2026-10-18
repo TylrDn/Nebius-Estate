@@ -1,0 +1,26 @@
+#cloud-config
+# A node boots without reaching a package mirror: nothing here installs a package (virtiofs and
+# fuse ship with the node image). Turn package_update on only together with a packages list.
+%{ if filestore_mount_path != "" ~}
+
+mounts:
+  # nofail is required: without it a node whose filesystem is gone will not boot
+  # (https://docs.nebius.com/kubernetes/storage/filesystem-over-csi).
+  - [ ${filestore_mount_tag}, ${filestore_mount_path}, virtiofs, "defaults,nofail", 0, 2 ]
+
+# Use image/kernel default read-ahead. Optional docs-derived tuning was removed;
+# throughput-sensitive workloads must remeasure (docs/source-provenance.md).
+runcmd:
+  - [ modprobe, fuse ]
+  - [ mkdir, '-p', ${filestore_mount_path} ]
+  - [ mount, '-a' ]
+%{ endif ~}
+%{ if ssh_public_key != null ~}
+
+users:
+  - name: ${ssh_user_name}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+%{ endif ~}

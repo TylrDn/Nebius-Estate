@@ -1,0 +1,24 @@
+#cloud-config
+# WireGuard server on UDP 51820. Peers are added by an operator (runbooks/network.md); the server
+# key is generated on the VM and never leaves it. Client traffic is masqueraded into the VPC.
+# package_update is needed here: wireguard-tools is not in the image.
+${admin_user}
+package_update: true
+packages: [wireguard-tools]
+write_files:
+  - path: /etc/sysctl.d/99-nip-wg.conf
+    content: "net.ipv4.ip_forward=1\n"
+runcmd:
+  - sysctl --system
+  - umask 077 && wg genkey > /etc/wireguard/server.key && wg pubkey < /etc/wireguard/server.key > /etc/wireguard/server.pub
+  - |
+    umask 077
+    cat > /etc/wireguard/wg0.conf <<CONF
+    [Interface]
+    Address = ${tunnel_address}
+    ListenPort = 51820
+    PrivateKey = $(cat /etc/wireguard/server.key)
+    PostUp = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+    PreDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+    CONF
+  - systemctl enable --now wg-quick@wg0

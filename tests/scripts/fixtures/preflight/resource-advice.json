@@ -1,0 +1,65 @@
+{
+ "items": [
+  {
+   "metadata": {
+    "parentId": "tenant-e00mock"
+   },
+   "spec": {
+    "region": "eu-north1",
+    "computeInstance": {
+     "platform": "gpu-l40s-a",
+     "preset": {
+      "name": "1gpu-8vcpu-32gb"
+     }
+    }
+   },
+   "status": {
+    "onDemand": {
+     "dataState": "DATA_STATE_FRESH",
+     "availabilityLevel": "AVAILABILITY_LEVEL_MEDIUM",
+     "effectiveAt": "2026-10-11T05:19:42Z",
+     "available": 8,
+     "limit": 32
+    },
+    "preemptible": {
+     "dataState": "DATA_STATE_FRESH",
+     "availabilityLevel": "AVAILABILITY_LEVEL_HIGH",
+     "effectiveAt": "2026-10-11T05:19:42Z",
+     "available": 7,
+     "limit": 8
+    }
+   }
+  },
+  {
+   "metadata": {
+    "parentId": "tenant-e00mock"
+   },
+   "spec": {
+    "region": "eu-north1",
+    "computeInstance": {
+     "platform": "gpu-h100-sxm",
+     "preset": {
+      "name": "1gpu-16vcpu-200gb"
+     }
+    },
+    "fabric": "fabric-3"
+   },
+   "status": {
+    "onDemand": {
+     "dataState": "DATA_STATE_FRESH",
+     "availabilityLevel": "AVAILABILITY_LEVEL_HIGH",
+     "effectiveAt": "2026-10-11T05:19:42Z",
+     "available": 32,
+     "limit": 32
+    },
+    "preemptible": {
+     "dataState": "DATA_STATE_FRESH",
+     "availabilityLevel": "AVAILABILITY_LEVEL_HIGH",
+     "effectiveAt": "2026-10-11T05:19:42Z",
+     "available": 7,
+     "limit": 8
+    }
+   }
+  }
+ ]
+}

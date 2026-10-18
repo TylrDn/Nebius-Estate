@@ -1,0 +1,644 @@
+{
+  "id": "test-xts",
+  "name": "Test rate book (XTS, invented prices)",
+  "kind": "negotiated",
+  "classification": "confidential",
+  "currency": "XTS",
+  "note": "Test data for the e2e and unit tests. Every price is invented and in XTS (ISO 4217 test currency); not a Nebius price, quote or offer.",
+  "entries": [
+    {
+      "id": "eu-north1-cpu-vcpu",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "vcpu",
+      "unit": {
+        "quantity": "vcpu",
+        "per": "hour"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.05",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed",
+      "platform": "cpu-d3"
+    },
+    {
+      "id": "eu-north1-cpu-ram",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "ram",
+      "unit": {
+        "quantity": "ram_gib",
+        "per": "hour"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.01",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed",
+      "platform": "cpu-d3"
+    },
+    {
+      "id": "eu-north1-boot",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "boot-disk",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.146",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "eu-north1-fs",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "filesystem",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.219",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "eu-north1-iom3",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "disk-io-m3",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.292",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "eu-north1-ip",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "network",
+      "component": "public-ip",
+      "unit": {
+        "quantity": "ip",
+        "per": "hour"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.01",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "uk-south1-cpu-vcpu",
+      "provider": "nebius",
+      "region": "uk-south1",
+      "service": "compute",
+      "component": "vcpu",
+      "unit": {
+        "quantity": "vcpu",
+        "per": "hour"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.05",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed",
+      "platform": "cpu-d3"
+    },
+    {
+      "id": "uk-south1-cpu-ram",
+      "provider": "nebius",
+      "region": "uk-south1",
+      "service": "compute",
+      "component": "ram",
+      "unit": {
+        "quantity": "ram_gib",
+        "per": "hour"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.01",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed",
+      "platform": "cpu-d3"
+    },
+    {
+      "id": "uk-south1-boot",
+      "provider": "nebius",
+      "region": "uk-south1",
+      "service": "compute",
+      "component": "boot-disk",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.146",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "uk-south1-fs",
+      "provider": "nebius",
+      "region": "uk-south1",
+      "service": "compute",
+      "component": "filesystem",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.219",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "uk-south1-iom3",
+      "provider": "nebius",
+      "region": "uk-south1",
+      "service": "compute",
+      "component": "disk-io-m3",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.292",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "uk-south1-ip",
+      "provider": "nebius",
+      "region": "uk-south1",
+      "service": "network",
+      "component": "public-ip",
+      "unit": {
+        "quantity": "ip",
+        "per": "hour"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.01",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "eu-west1-cpu-vcpu",
+      "provider": "nebius",
+      "region": "eu-west1",
+      "service": "compute",
+      "component": "vcpu",
+      "unit": {
+        "quantity": "vcpu",
+        "per": "hour"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.05",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed",
+      "platform": "cpu-d3"
+    },
+    {
+      "id": "eu-west1-cpu-ram",
+      "provider": "nebius",
+      "region": "eu-west1",
+      "service": "compute",
+      "component": "ram",
+      "unit": {
+        "quantity": "ram_gib",
+        "per": "hour"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.01",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed",
+      "platform": "cpu-d3"
+    },
+    {
+      "id": "eu-west1-boot",
+      "provider": "nebius",
+      "region": "eu-west1",
+      "service": "compute",
+      "component": "boot-disk",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.146",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "eu-west1-fs",
+      "provider": "nebius",
+      "region": "eu-west1",
+      "service": "compute",
+      "component": "filesystem",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.219",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "eu-west1-iom3",
+      "provider": "nebius",
+      "region": "eu-west1",
+      "service": "compute",
+      "component": "disk-io-m3",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.292",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "eu-west1-ip",
+      "provider": "nebius",
+      "region": "eu-west1",
+      "service": "network",
+      "component": "public-ip",
+      "unit": {
+        "quantity": "ip",
+        "per": "hour"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.01",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "eu-north1-ssd-old",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "disk-ssd",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.146",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed",
+      "effectiveTo": "2026-09-30",
+      "note": "Expired on purpose: demonstrates the expired-rate state."
+    },
+    {
+      "id": "uk-south1-ssd",
+      "provider": "nebius",
+      "region": "uk-south1",
+      "service": "compute",
+      "component": "disk-ssd",
+      "unit": {
+        "quantity": "storage_gib",
+        "per": "month730"
+      },
+      "capacityType": "any",
+      "currency": "XTS",
+      "price": "0.146",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [],
+      "priceSemantics": "fixed"
+    },
+    {
+      "id": "eu-north1-gpu-h100-sxm-od",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "gpu",
+      "unit": {
+        "quantity": "gpu",
+        "per": "hour"
+      },
+      "capacityType": "on-demand",
+      "currency": "XTS",
+      "price": "10.00",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [
+        "vcpu",
+        "ram"
+      ],
+      "priceSemantics": "fixed",
+      "platform": "gpu-h100-sxm",
+      "note": "GPU-hour bundles the preset vCPU and RAM (mirrors the documented structure)."
+    },
+    {
+      "id": "eu-north1-gpu-h100-sxm-res",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "gpu",
+      "unit": {
+        "quantity": "gpu",
+        "per": "hour"
+      },
+      "capacityType": "reserved",
+      "currency": "XTS",
+      "price": "8.00",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [
+        "vcpu",
+        "ram"
+      ],
+      "priceSemantics": "fixed",
+      "platform": "gpu-h100-sxm"
+    },
+    {
+      "id": "eu-north1-gpu-h100-sxm-spot",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "gpu",
+      "unit": {
+        "quantity": "gpu",
+        "per": "hour"
+      },
+      "capacityType": "preemptible",
+      "currency": "XTS",
+      "price": "4.00",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [
+        "vcpu",
+        "ram"
+      ],
+      "priceSemantics": "variable",
+      "platform": "gpu-h100-sxm",
+      "note": "Spot price: variable; the recorded value is illustrative."
+    },
+    {
+      "id": "eu-north1-gpu-h200-sxm-od",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "gpu",
+      "unit": {
+        "quantity": "gpu",
+        "per": "hour"
+      },
+      "capacityType": "on-demand",
+      "currency": "XTS",
+      "price": "12.00",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [
+        "vcpu",
+        "ram"
+      ],
+      "priceSemantics": "fixed",
+      "platform": "gpu-h200-sxm",
+      "note": "GPU-hour bundles the preset vCPU and RAM (mirrors the documented structure)."
+    },
+    {
+      "id": "eu-north1-gpu-h200-sxm-res",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "gpu",
+      "unit": {
+        "quantity": "gpu",
+        "per": "hour"
+      },
+      "capacityType": "reserved",
+      "currency": "XTS",
+      "price": "9.50",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [
+        "vcpu",
+        "ram"
+      ],
+      "priceSemantics": "fixed",
+      "platform": "gpu-h200-sxm"
+    },
+    {
+      "id": "eu-north1-gpu-h200-sxm-spot",
+      "provider": "nebius",
+      "region": "eu-north1",
+      "service": "compute",
+      "component": "gpu",
+      "unit": {
+        "quantity": "gpu",
+        "per": "hour"
+      },
+      "capacityType": "preemptible",
+      "currency": "XTS",
+      "price": "5.00",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [
+        "vcpu",
+        "ram"
+      ],
+      "priceSemantics": "variable",
+      "platform": "gpu-h200-sxm",
+      "note": "Spot price: variable; the recorded value is illustrative."
+    },
+    {
+      "id": "uk-south1-gpu-b300-sxm-od",
+      "provider": "nebius",
+      "region": "uk-south1",
+      "service": "compute",
+      "component": "gpu",
+      "unit": {
+        "quantity": "gpu",
+        "per": "hour"
+      },
+      "capacityType": "on-demand",
+      "currency": "XTS",
+      "price": "20.00",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [
+        "vcpu",
+        "ram"
+      ],
+      "priceSemantics": "fixed",
+      "platform": "gpu-b300-sxm"
+    },
+    {
+      "id": "uk-south1-gpu-b300-sxm-spot",
+      "provider": "nebius",
+      "region": "uk-south1",
+      "service": "compute",
+      "component": "gpu",
+      "unit": {
+        "quantity": "gpu",
+        "per": "hour"
+      },
+      "capacityType": "preemptible",
+      "currency": "XTS",
+      "price": "9.00",
+      "effectiveFrom": "2026-09-01",
+      "source": "test data",
+      "retrievedAt": "2026-10-01T00:00:00Z",
+      "classification": "confidential",
+      "bundles": [
+        "vcpu",
+        "ram"
+      ],
+      "priceSemantics": "variable",
+      "platform": "gpu-b300-sxm"
+    }
+  ],
+  "discountRules": [
+    {
+      "id": "demo-gpu-commit-15",
+      "description": "Illustrative 15 % GPU discount assumption (test data)",
+      "percent": "15",
+      "appliesTo": {
+        "components": [
+          "gpu"
+        ],
+        "capacityTypes": [
+          "on-demand",
+          "reserved"
+        ]
+      },
+      "source": "test data"
+    },
+    {
+      "id": "demo-storage-5",
+      "description": "Illustrative 5 % storage discount assumption (test data)",
+      "percent": "5",
+      "appliesTo": {
+        "components": [
+          "filesystem",
+          "boot-disk",
+          "disk-ssd"
+        ]
+      },
+      "source": "test data"
+    }
+  ]
+}

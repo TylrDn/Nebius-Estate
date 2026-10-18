@@ -1,0 +1,100 @@
+=== nip-bench params base_url=http://vllm:8000 endpoint=/v1/chat/completions model=Qwen/Qwen2.5-1.5B-Instruct input_len=256 output_len=128 num_prompts=200 warmup_prompts=10 concurrency=1,8,32
+INFO 10-12 01:00:00 [__init__.py:1] Automatically detected platform cpu.
+=== nip-bench first concurrency=1 prompts=1
+============ Serving Benchmark Result ============
+Successful requests:                     1
+Maximum request concurrency:             1
+Benchmark duration (s):                  21.43
+Total input tokens:                      256
+Total generated tokens:                  128
+Request throughput (req/s):              0.42
+Output token throughput (tok/s):         53.00
+Peak output token throughput (tok/s):    99999.00
+Total Token throughput (tok/s):          77777.00
+---------------Time to First Token----------------
+Mean TTFT (ms):                          1.00
+Median TTFT (ms):                        2400.00
+P50 TTFT (ms):                           2400.00
+P99 TTFT (ms):                           2400.00
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          1.00
+Median TPOT (ms):                        9.00
+P50 TPOT (ms):                           9.00
+P99 TPOT (ms):                           9.00
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           1.00
+Median ITL (ms):                         1.00
+P50 ITL (ms):                            1.00
+P99 ITL (ms):                            1.00
+----------------End-to-end Latency----------------
+Mean E2EL (ms):                          1.00
+Median E2EL (ms):                        2380.00
+P50 E2EL (ms):                           2380.00
+P99 E2EL (ms):                           2380.00
+==================================================
+=== nip-bench warmup concurrency=8 prompts=10
+(discarded)
+=== nip-bench point concurrency=1 prompts=200
+============ Serving Benchmark Result ============
+Successful requests:                     200
+Maximum request concurrency:             1
+Benchmark duration (s):                  21.43
+Total input tokens:                      51200
+Total generated tokens:                  25600
+Request throughput (req/s):              1.70
+Output token throughput (tok/s):         218.10
+Peak output token throughput (tok/s):    99999.00
+Total Token throughput (tok/s):          77777.00
+---------------Time to First Token----------------
+Mean TTFT (ms):                          1.00
+Median TTFT (ms):                        30.10
+P50 TTFT (ms):                           30.10
+P99 TTFT (ms):                           33.20
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          1.00
+Median TPOT (ms):                        4.50
+P50 TPOT (ms):                           4.50
+P99 TPOT (ms):                           4.90
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           1.00
+Median ITL (ms):                         1.00
+P50 ITL (ms):                            1.00
+P99 ITL (ms):                            1.00
+----------------End-to-end Latency----------------
+Mean E2EL (ms):                          1.00
+Median E2EL (ms):                        600.10
+P50 E2EL (ms):                           600.10
+P99 E2EL (ms):                           650.40
+==================================================
+=== nip-bench point concurrency=8 prompts=200
+============ Serving Benchmark Result ============
+Successful requests:                     200
+Maximum request concurrency:             8
+Benchmark duration (s):                  21.43
+Total input tokens:                      51200
+Total generated tokens:                  25600
+Request throughput (req/s):              11.90
+Output token throughput (tok/s):         1523.40
+Peak output token throughput (tok/s):    99999.00
+Total Token throughput (tok/s):          77777.00
+---------------Time to First Token----------------
+Mean TTFT (ms):                          1.00
+Median TTFT (ms):                        40.20
+P50 TTFT (ms):                           40.20
+P99 TTFT (ms):                           80.30
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          1.00
+Median TPOT (ms):                        5.10
+P50 TPOT (ms):                           5.10
+P99 TPOT (ms):                           6.20
+---------------Inter-token Latency----------------
+Mean ITL (ms):                           1.00
+Median ITL (ms):                         1.00
+P50 ITL (ms):                            1.00
+P99 ITL (ms):                            1.00
+----------------End-to-end Latency----------------
+Mean E2EL (ms):                          1.00
+Median E2EL (ms):                        690.70
+P50 E2EL (ms):                           690.70
+P99 E2EL (ms):                           900.20
+==================================================

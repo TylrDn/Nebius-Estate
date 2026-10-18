@@ -1,0 +1,28 @@
+{
+  "step": "03-storage",
+  "status": "fail",
+  "timestamp": "2026-10-12T19:30:51Z",
+  "context": "nebius-mk8s-nip-sandbox-inference-<id>",
+  "details": {
+    "mount": "/mnt/data",
+    "all_nodes_virtiofs": true,
+    "node_mounts": [
+      {
+        "node": "computeinstance-<id>",
+        "fstype": "virtiofs",
+        "source": "data"
+      }
+    ],
+    "storage_class": "csi-mounted-fs-path-sc",
+    "pvc": "inference/model-cache",
+    "pvc_phase": "none",
+    "write_MiBps": 2066,
+    "read_MiBps": 1757,
+    "fio_errors": 0,
+    "fio_version": "fio-3.13",
+    "numjobs": 4,
+    "min_MiBps": 450,
+    "method": "fio fio-3.13: 4 parallel jobs x 1G, 1 MiB sequential write then read, direct=1, group_reporting, on the virtiofs mount from a GPU node; MiB/s = aggregate bw_bytes / 1048576",
+    "min_source": "floor: one Network SSD disk ceiling (docs compute/storage/types#disk-types-comparison); filesystem figures in the docs are upper bounds"
+  }
+}

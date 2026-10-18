@@ -1,0 +1,2 @@
+2026/10/12 01:00:05 INFO mlflow.tracking.fluent: Experiment with name 'nip-check' does not exist. Creating a new experiment.
+NIP-CHECK {"check":"mlflow","ok":true,"tracking_uri":"https://mlflow.example.invalid","experiment":"nip-check","run_id":"0123456789abcdef","status":"FINISHED","metric_smoke":1.0,"client_version":"2.21.2"}

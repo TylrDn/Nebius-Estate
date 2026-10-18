@@ -1,0 +1,63 @@
+# rclone copy (idempotent: a re-run skips objects already present with the same size and mtime).
+# Runs on CPU nodes (no GPU request or toleration), which mount the same shared filesystem.
+# JSON logs carry rclone's stats, so tests/validate/data.sh can compute the throughput.
+# Object Storage ETags are not always MD5 (object-storage/interfaces/s3-api-compatibility); if a run
+# reports "md5 hash differ", add --ignore-checksum (sizes are still compared).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: stage-dataset
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: stage-dataset
+    spec:
+      restartPolicy: Never
+      # Root like the vLLM pod: the csi-mounted-fs-path driver does not document fsGroup support
+      # (workloads/inference/base/deployment.yaml). Capabilities are dropped instead.
+      securityContext:
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: rclone
+          image: rclone/rclone:1.75.2@sha256:2687085f718d3c628f7fdfb77c52a1d344332aed543110bb88088f2c70d43eb5
+          args:
+            - copy
+            - nebius:$(SOURCE)
+            - $(TARGET)
+            - --transfers=$(TRANSFERS)
+            - --checkers=$(TRANSFERS)
+            - --fast-list
+            - --stats=30s
+            - --stats-log-level=NOTICE
+            - --use-json-log
+          envFrom:
+            - configMapRef:
+                name: stage-dataset
+            - secretRef:
+                name: s3-credentials
+          env:
+            - { name: RCLONE_CONFIG_NEBIUS_TYPE, value: s3 }
+            - { name: RCLONE_CONFIG_NEBIUS_PROVIDER, value: Other }
+            - { name: RCLONE_CONFIG_NEBIUS_ENV_AUTH, value: "true" }
+            - { name: RCLONE_CONFIG_NEBIUS_ENDPOINT, value: $(S3_ENDPOINT) }
+            - { name: RCLONE_CONFIG_NEBIUS_REGION, value: $(S3_REGION) }
+            - { name: RCLONE_CACHE_DIR, value: /tmp/rclone } # the root filesystem is read-only
+          resources:
+            requests: { cpu: "2", memory: 2Gi }
+            limits: { memory: 4Gi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: datasets
+        - name: tmp
+          emptyDir: { sizeLimit: 1Gi }

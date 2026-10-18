@@ -1,0 +1,51 @@
+{
+  "fio version": "fio-3.13",
+  "global options": {
+    "directory": "/data",
+    "bs": "1M",
+    "size": "64M",
+    "numjobs": "4",
+    "ioengine": "psync",
+    "unlink": "1"
+  },
+  "jobs": [
+    {
+      "jobname": "seqwrite",
+      "groupid": 0,
+      "error": 0,
+      "job options": {
+        "name": "seqwrite",
+        "rw": "write"
+      },
+      "read": {
+        "io_bytes": 0,
+        "bw_bytes": 0,
+        "runtime": 0
+      },
+      "write": {
+        "io_bytes": 268435456,
+        "bw_bytes": 32419741,
+        "runtime": 414
+      }
+    },
+    {
+      "jobname": "seqread",
+      "groupid": 1,
+      "error": 0,
+      "job options": {
+        "name": "seqread",
+        "rw": "read"
+      },
+      "read": {
+        "io_bytes": 268435456,
+        "bw_bytes": 63913203,
+        "runtime": 210
+      },
+      "write": {
+        "io_bytes": 0,
+        "bw_bytes": 0,
+        "runtime": 0
+      }
+    }
+  ]
+}

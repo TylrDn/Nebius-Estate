@@ -1,0 +1,16 @@
+{
+  "step": "01-gpu",
+  "status": "pass",
+  "timestamp": "2026-10-12T19:38:24Z",
+  "context": "nebius-mk8s-nip-sandbox-inference-<id>",
+  "details": {
+    "allocatable_gpus": 1,
+    "gpu_namespace": "nvidia-device-plugin",
+    "device_plugin_ready": 3,
+    "dcgm_exporter_ready": 1,
+    "nvidia_smi": "NVIDIA L40S, 580.173.02, 46068 MiB\nNVIDIA L40S, 580.173.02, 46068 MiB",
+    "probe_image": "nvidia/cuda:13.0.1-base-ubuntu24.04@sha256:f8ef28f579ea42a44b415d2c5d46f788e6a9b395c6c83f2929416e1fc192c143",
+    "daemonsets_missing_nodes": [],
+    "all_daemonsets_cover_gpu_nodes": true
+  }
+}

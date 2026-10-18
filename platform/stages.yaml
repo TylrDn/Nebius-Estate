@@ -1,0 +1,80 @@
+# Lifecycle stages (ADR-0009). Each stage is its own Nebius project, state bucket and
+# service accounts; a stack is promoted by applying the SAME module version with the
+# stage's own tfvars. The policy block is read by the stacks (yamldecode) and enforced as
+# plan-time preconditions, so a prod root cannot be planned with sandbox settings.
+#
+# scripts/render-live-roots.py renders terraform/live/<stage>/<stack>/ from this file and the
+# stack's variables; CI fails when the rendered roots are stale.
+
+stages:
+  sandbox:
+    description: "Disposable, budget-capped experiments. Everything carries a TTL and is torn down by the run that created it."
+    policy:
+      etcd_cluster_size: 1 # single member is acceptable: nothing here outlives its run (HA etcd is still free; see ADR-0009)
+      public_endpoint: true
+      require_ttl_label: true # nip-ttl-expires in the future and at most 7 days ahead of the plan (modules/stage-policy)
+      allow_preemptible_serving: true
+      forbid_deletion: false
+      max_gpu_nodes: { inference: 2, training: 4, gpu-vm: 1, nvl: 0 } # gpu-vm: one R10 VM (any preset, up to 8 GPUs); nvl: GB300 rack nodes (R15), 0 until a reservation is approved
+      k8s_version_offset: 0 # may run the newest accepted version (platform/regions.yaml); enforced by the stacks
+      k8s_version_pinned: false # null = backend default is fine for a disposable cluster
+      audit_logs: false
+      alertmanager: false
+      require_allowed_cidrs: false # a public endpoint may be open to the internet (TTL-bound)
+      require_strict_reservation: { inference: false, training: false, nvl: true }
+  staging:
+    description: "Production shape at reduced size. Applied by a manual pipeline dispatch from main; the gate before a release."
+    policy:
+      etcd_cluster_size: 3 # a request may raise etcd to the policy value, never lower it
+      public_endpoint: true
+      require_ttl_label: false
+      allow_preemptible_serving: false
+      forbid_deletion: false
+      max_gpu_nodes: { inference: 2, training: 8, gpu-vm: 1, nvl: 0 }
+      k8s_version_offset: 1 # N-1: what prod will run next
+      k8s_version_pinned: true
+      audit_logs: true
+      alertmanager: true
+      require_allowed_cidrs: true # public endpoint only behind an allowlist; every entry /8 or narrower
+      require_strict_reservation: { inference: false, training: false, nvl: true }
+  prod:
+    description: "Customer-facing. Applied by a manual pipeline dispatch from a release tag, through a protected environment with required reviewers."
+    policy:
+      etcd_cluster_size: 3 # a request may raise etcd to the policy value, never lower it
+      public_endpoint: false # private endpoint, enforced: a stack request public_endpoint = true is refused here (may tighten, never loosen)
+      require_ttl_label: false
+      allow_preemptible_serving: false
+      forbid_deletion: true
+      max_gpu_nodes: { inference: 8, training: 32, gpu-vm: 0, nvl: 0 } # prod serves through R1, not a single VM; nvl 0 until a GB300 reservation is approved (R15)
+      k8s_version_offset: 1
+      k8s_version_pinned: true
+      audit_logs: true
+      alertmanager: true
+      require_allowed_cidrs: true # guards a deliberate re-enable (a reviewed change to public_endpoint above), and every allowlist entry is /8 or narrower
+      require_strict_reservation: { inference: false, training: true, nvl: true } # STRICT reservation whenever training GPU nodes > 0 (committed capacity); serving may use AUTO/on-demand
+  lab:
+    description: "CPU-only disposable runs in a second region, for stacks the sandbox project's region cannot host (its non-GPU vCPU quota is 0). Its own new project, nip-lab, in uk-south1. Sandbox rules, no GPUs, and only the stacks listed below. Never promoted."
+    # Only these live roots are rendered for this stage (scripts/render-live-roots.py); absent = every stack.
+    stacks: [network, soperator]
+    policy:
+      etcd_cluster_size: 1 # as sandbox: nothing here outlives its run
+      public_endpoint: true
+      require_ttl_label: true # nip-ttl-expires in the future and at most 7 days ahead (modules/stage-policy)
+      allow_preemptible_serving: false # no GPUs here, so nothing to serve preemptibly
+      forbid_deletion: false
+      max_gpu_nodes: { inference: 0, training: 0, gpu-vm: 0, nvl: 0 } # CPU only: GPU work stays in sandbox
+      k8s_version_offset: 0
+      k8s_version_pinned: false
+      audit_logs: false
+      alertmanager: false
+      require_allowed_cidrs: false
+      require_strict_reservation: { inference: false, training: false, nvl: true }
+
+# Promotion order and what each hop requires.
+promotion:
+  - from: sandbox
+    to: staging
+    requires: "change merged to main; CI static checks green; the stack's mocked plan tests pass; then a manual dispatch from main"
+  - from: staging
+    to: prod
+    requires: "tagged release; staging validate-cluster evidence from the same commit; a manual dispatch from the tag; required reviewers on the prod environment"

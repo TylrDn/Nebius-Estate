@@ -1,0 +1,51 @@
+{
+  "name": "app",
+  "version": "0.0.0",
+  "private": true,
+  "bundled": true,
+  "backstage": {
+    "role": "frontend"
+  },
+  "scripts": {
+    "start": "backstage-cli package start",
+    "build": "backstage-cli package build",
+    "clean": "backstage-cli package clean",
+    "test": "backstage-cli package test",
+    "lint": "backstage-cli package lint"
+  },
+  "dependencies": {
+    "@backstage/cli": "^0.36.6",
+    "@backstage/core-components": "^0.18.14",
+    "@backstage/frontend-defaults": "^0.5.6",
+    "@backstage/frontend-plugin-api": "^0.18.1",
+    "@backstage/plugin-app-react": "^0.2.7",
+    "@backstage/theme": "^0.7.3",
+    "@backstage/ui": "^0.18.0",
+    "@internal/backstage-plugin-nebius-estate": "workspace:^",
+    "@material-ui/core": "^4.12.2",
+    "react": "^18.0.2",
+    "react-dom": "^18.0.2",
+    "react-router": "7.18.4",
+    "react-router-dom": "7.18.4"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "^1.32.3",
+    "@types/react-dom": "*"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "files": [
+    "dist"
+  ]
+}

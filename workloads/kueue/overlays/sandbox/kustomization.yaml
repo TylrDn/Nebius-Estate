@@ -1,0 +1,24 @@
+# Stage sandbox: each team's nominal share is half of what the stage lets the training stack run
+# (platform/stages.yaml max_gpu_nodes.training x 8 GPUs), so the cohort never promises more GPUs
+# than the stage can have. policy/kueue.rego checks the sum against the file.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+labels:
+  - pairs:
+      nip.nebius.io/stage: sandbox
+    includeSelectors: false
+patches:
+  - target:
+      kind: ClusterQueue
+    patch: |-
+      - op: replace
+        path: /spec/resourceGroups/0/flavors/0/resources/0/nominalQuota
+        value: 224
+      - op: replace
+        path: /spec/resourceGroups/0/flavors/0/resources/1/nominalQuota
+        value: 2800Gi
+      - op: replace
+        path: /spec/resourceGroups/0/flavors/0/resources/2/nominalQuota
+        value: 16

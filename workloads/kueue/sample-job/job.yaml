@@ -1,0 +1,44 @@
+# Two pods x 8 GPUs that Kueue admits only when both fit inside ONE GPU cluster (InfiniBand
+# domain), the placement a multi-node NCCL job needs. The annotation is the docs' "required to run
+# within a GPU cluster" case (https://docs.nebius.com/kubernetes/gpu/topology-aware-scheduling#steps);
+# podset-preferred-topology: topology.nebius.com/tier-1 asks for one rack-level block instead, and
+# falls back to wider domains. The job is suspended by Kueue until admitted; the ResourceFlavor adds
+# the node selector and the GPU toleration. Each pod prints its GPUs; where the pods landed
+# is checked with `kubectl get pods -o wide` and the nodes' topology labels (runbooks/team-scheduling.md).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tas-sample
+  namespace: team-nlp
+  labels:
+    kueue.x-k8s.io/queue-name: gpu
+spec:
+  parallelism: 2
+  completions: 2
+  completionMode: Indexed
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      annotations:
+        kueue.x-k8s.io/podset-required-topology: topology.nebius.com/gpu-cluster-id
+    spec:
+      restartPolicy: Never
+      securityContext:
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: probe
+          image: nvidia/cuda:13.0.1-base-ubuntu24.04@sha256:f8ef28f579ea42a44b415d2c5d46f788e6a9b395c6c83f2929416e1fc192c143
+          command: ["sh", "-c", "nvidia-smi -L && sleep 30"]
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+              nvidia.com/gpu: 8
+            limits:
+              memory: 2Gi
+              nvidia.com/gpu: 8
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true # nvidia-smi -L and sleep write nothing
+            capabilities: { drop: ["ALL"] }

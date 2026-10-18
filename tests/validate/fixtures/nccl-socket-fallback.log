@@ -1,0 +1,7 @@
+nccl-test-worker-0:21:21 [0] NCCL INFO NCCL version 2.23.4+cuda12.4
+nccl-test-worker-0:21:40 [0] NCCL INFO NET/Socket : Using [0]eth0:10.0.0.11<0>
+nccl-test-worker-0:21:40 [0] NCCL INFO Using network Socket
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+   536870912     134217728     float     sum      -1  98211.0    5.47   10.25      0  98100.2    5.47   10.26      0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 10.25

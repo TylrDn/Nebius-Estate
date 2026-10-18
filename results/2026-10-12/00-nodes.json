@@ -1,0 +1,21 @@
+{
+  "step": "00-nodes",
+  "status": "pass",
+  "timestamp": "2026-10-12T19:38:16Z",
+  "context": "nebius-mk8s-nip-sandbox-inference-<id>",
+  "details": {
+    "total": 1,
+    "ready": 1,
+    "gpu_nodes": 1,
+    "nodes": [
+      {
+        "name": "computeinstance-<id>",
+        "ready": "True",
+        "gpu": "true",
+        "kubelet": "v1.36.3",
+        "os": "Ubuntu 24.04.4 LTS",
+        "kernel": "6.11.0-1016-nvidia"
+      }
+    ]
+  }
+}

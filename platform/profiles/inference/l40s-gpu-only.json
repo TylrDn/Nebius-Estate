@@ -1,0 +1,22 @@
+{
+  "description": "R1 on one preemptible L40S node and no CPU node group (the GPU node hosts the add-ons): the shape of the 2026-10-11 sandbox runs, when the project's non-GPU vCPU quota was 0.",
+  "stack": "inference",
+  "stages": ["sandbox"],
+  "region": "eu-north1",
+  "ttl_hours": 3,
+  "evidence": [
+    "docs/evidence/2026-10-11-sandbox-inference-populate.md",
+    "docs/evidence/2026-10-11-sandbox-inference-serving.md",
+    "docs/evidence/2026-10-11-sandbox-inference-teardown-verify.md"
+  ],
+  "vars": {
+    "cpu_node_count": 0,
+    "gpu_platform": "gpu-l40s-a",
+    "gpu_preset": "1gpu-8vcpu-32gb",
+    "gpu_node_count": 1,
+    "gpu_preemptible": true,
+    "enable_filestore": true,
+    "filestore_size_gib": 64,
+    "enable_o11y": true
+  }
+}

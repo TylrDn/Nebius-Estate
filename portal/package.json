@@ -1,0 +1,80 @@
+{
+  "name": "nebius-estate-portal",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "22 || 24"
+  },
+  "scripts": {
+    "start": "node scripts/backstage-config.mjs start",
+    "demo": "node scripts/demo.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "test:scripts": "node --test scripts/tests/*.test.mjs",
+    "e2e:stub": "node e2e-stub/nebius-stub.mjs",
+    "build:backend": "yarn workspace backend build",
+    "build:all": "backstage-cli repo build --all",
+    "build-image": "yarn workspace backend build-image",
+    "tsc": "tsc",
+    "tsc:full": "tsc --skipLibCheck false --incremental false",
+    "clean": "backstage-cli repo clean",
+    "test": "backstage-cli repo test",
+    "test:all": "backstage-cli repo test --coverage",
+    "test:e2e": "playwright test",
+    "verify:live": "yarn workspace @internal/backstage-plugin-nebius-estate-backend verify:live",
+    "fix": "backstage-cli repo fix",
+    "lint:all": "backstage-cli repo lint",
+    "config:check": "node scripts/backstage-config.mjs check && backstage-cli config:check --strict --lax --config app-config.yaml --config app-config.production.yaml",
+    "new": "backstage-cli new"
+  },
+  "backstage": {
+    "cli": {
+      "new": {
+        "globals": {
+          "license": "Apache-2.0",
+          "namePrefix": "@internal/",
+          "private": true
+        }
+      }
+    }
+  },
+  "workspaces": [
+    "packages/*",
+    "plugins/*"
+  ],
+  "devDependencies": {
+    "@backstage/cli": "^0.36.6",
+    "@backstage/cli-defaults": "^0.1.6",
+    "@backstage/e2e-test-utils": "^0.1.2",
+    "@jest/environment-jsdom-abstract": "~30.2.0",
+    "@playwright/test": "^1.32.3",
+    "@types/jest": "^30.0.0",
+    "jest": "~30.2.0",
+    "jsdom": "^27.1.0",
+    "prettier": "^2.3.2",
+    "typescript": "~5.8.0"
+  },
+  "resolutions": {
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@yarnpkg/core": "4.9.1",
+    "@octokit/rest@npm:^19.0.3": "20.1.2",
+    "@octokit/auth-app@npm:^4.0.0": "6.1.4",
+    "argparse@npm:^1.0.7": "2.0.1",
+    "js-yaml@npm:^3.13.1": "patch:js-yaml@npm:3.15.2#./.yarn/patches/js-yaml-npm-3.15.2-argparse-version.patch",
+    "js-yaml@npm:^3.6.1": "patch:js-yaml@npm:3.15.2#./.yarn/patches/js-yaml-npm-3.15.2-argparse-version.patch",
+    "js-yaml@npm:^3.8.3": "patch:js-yaml@npm:3.15.2#./.yarn/patches/js-yaml-npm-3.15.2-argparse-version.patch",
+    "uuid": "11.1.1",
+    "react-router": "7.18.4",
+    "react-router-dom": "7.18.4",
+    "@backstage/frontend-app-api@npm:^0.16.8": "patch:@backstage/frontend-app-api@npm:0.16.8#./.yarn/patches/backstage-frontend-app-api-npm-0.16.8-router7.patch",
+    "@backstage/core-app-api@npm:^1.20.5": "patch:@backstage/core-app-api@npm:1.20.5#./.yarn/patches/backstage-core-app-api-npm-1.20.5-router7.patch",
+    "@material-table/core@npm:^3.1.0": "patch:@material-table/core@npm:3.2.5#./.yarn/patches/@material-table-core-npm-3.2.5-uuid-named-export.patch",
+    "adm-zip": "0.6.1",
+    "prismjs": "1.30.0",
+    "postcss-selector-parser": "7.1.6",
+    "tar": "7.5.22",
+    "undici@npm:7.29.0": "7.30.0"
+  },
+  "prettier": "@backstage/cli/config/prettier",
+  "packageManager": "yarn@4.13.0"
+}

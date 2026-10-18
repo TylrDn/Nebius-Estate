@@ -1,0 +1,61 @@
+# SYNTHETIC ONLY — the supported demo and Playwright suite (yarn demo), on top of app-config.yaml +
+# app-config.local.yaml. Points the inventory connector at the loopback stub of the
+# documented Nebius REST endpoints (nebius-stub.mjs). Runs on :3100 / :7107 so the
+# operator's own dev servers (:3000 / :7007) keep running. lib/config.ts accepts a
+# non-default apiEndpoint only on a loopback-only backend; production never loads this file.
+
+app:
+  title: Nebius Estate — independent synthetic demo
+  baseUrl: http://localhost:3100
+
+backend:
+  baseUrl: http://localhost:7107
+  listen:
+    port: 7107
+    host: 127.0.0.1
+  csp:
+    connect-src: ["'self'", 'http://localhost:7107']
+  cors:
+    origin: http://localhost:3100
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+
+nebiusEstate:
+  waitForFirstSync: true # pages are tested against a finished first sync
+  nebius:
+    apiEndpoint: http://127.0.0.1:7199
+    discoverProjects: true
+    # Every connector shares this one loopback stub host: no spacing between calls (the GPU history
+    # back-fill alone reads 7 days in 6-hour windows on the first sync).
+    minRequestIntervalMs: 0
+    monitoring:
+      endpoint: http://127.0.0.1:7199
+    logging:
+      endpoint: http://127.0.0.1:7199 # the stub's Loki read API (/projects/<p>/loki/api/v1/…)
+    audit:
+      endpoint: http://127.0.0.1:7199 # the stub's audit events API (/audit/v2/audit-events)
+    mk8s:
+      testEndpoint: http://127.0.0.1:7199 # discovered clusters' Kubernetes APIs, served by the stub under /k8s/<cluster>
+    pricing:
+      currency: xts # the stub's invented prices are in the ISO test currency
+    tenantId: tenant-e00mocktest
+    # Ids only: names and regions come from GET /iam/v2/projects/{id}, as in a live run.
+    projects:
+      - { id: project-e00mocksandbox }
+      - { id: project-e00mockstaging }
+      - { id: project-e00mocklab }
+      - { id: project-e00mocklegacy }
+  billing:
+    export:
+      endpoint: http://127.0.0.1:7199 # the stub's S3-compatible bucket
+  ai:
+    tokenFactory: { apiKeyEnv: NEBIUS_API_KEY, endpoint: http://127.0.0.1:7199 } # the stub's /v1/models
+    huggingface: { tokenEnv: HF_TOKEN, endpoint: http://127.0.0.1:7199 } # the stub's whoami-v2, model API and file probe
+  budgets:
+    - id: sandbox-run-481
+      project: project-e00mocksandbox
+      amount: '1500'
+      currency: XTS
+      period: '2026-10'
+      source: test data

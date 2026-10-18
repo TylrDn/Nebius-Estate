@@ -1,0 +1,1 @@
+NIP-CHECK {"check":"postgresql","ok":true,"select_1":"1","server_version":"16.10","sslmode":"verify-full"}

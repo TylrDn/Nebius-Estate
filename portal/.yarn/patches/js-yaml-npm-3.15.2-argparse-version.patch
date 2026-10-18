@@ -1,0 +1,18 @@
+diff --git a/bin/js-yaml.js b/bin/js-yaml.js
+--- a/bin/js-yaml.js
++++ b/bin/js-yaml.js
+@@ -23,8 +23,13 @@
+ 
+ var cli = new argparse.ArgumentParser({
+   prog:     'js-yaml',
+-  version:  require('../package.json').version,
+   addHelp:  true
++});
++
++
++cli.add_argument('-v', '--version', {
++  action: 'version',
++  version: require('../package.json').version
+ });
+ 
+ 

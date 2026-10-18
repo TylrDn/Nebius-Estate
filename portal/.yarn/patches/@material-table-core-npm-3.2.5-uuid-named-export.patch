@@ -1,0 +1,21 @@
+diff --git a/dist/utils/data-manager.js b/dist/utils/data-manager.js
+--- a/dist/utils/data-manager.js
++++ b/dist/utils/data-manager.js
+@@ -17,7 +17,7 @@
+ 
+ var _format = _interopRequireDefault(require("date-fns/format"));
+ 
+-var _uuid = _interopRequireDefault(require("uuid"));
++var _uuid = require("uuid");
+ 
+ var _2 = require("./");
+ 
+@@ -331,7 +331,7 @@
+           id: row.id || index,
+           // `uuid` acts as our 'key' and is generated when new data
+           // is passed into material-table externally.
+-          uuid: row.uuid || _uuid["default"].v4()
++          uuid: row.uuid || (0, _uuid.v4)()
+         }, prevTableData), row.tableData);
+ 
+         if (tableData.checked) {

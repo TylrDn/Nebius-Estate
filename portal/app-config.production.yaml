@@ -1,0 +1,81 @@
+# Nebius Estate — served deployment TEMPLATE, loaded on top of app-config.yaml.
+# Values in ${...} and the variables named by *Env keys come from the environment
+# (portal/.env.example for the deployment, the repository .env.example for Nebius);
+# never commit credentials, project or tenant ids. It fails closed: it refuses to
+# start with the guest provider, without access roles, or without projects.
+# Setup: docs/portal/nebius-setup.md, docs/portal/security.md.
+
+app:
+  baseUrl: ${PORTAL_BASE_URL}
+
+backend:
+  baseUrl: ${PORTAL_BASE_URL}
+  listen:
+    port: 7007
+  # No backend.auth.keys / externalAccess: nothing outside this backend calls its API.
+  # The app and the API share one origin: the browser talks to nothing else.
+  # No `cors` block, so no cross-origin access is granted.
+  csp:
+    connect-src: ["'self'"]
+  database:
+    client: pg
+    connection:
+      host: ${POSTGRES_HOST}
+      port: ${POSTGRES_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+
+auth:
+  environment: production
+  providers: {} # configure a real sign-in provider here (docs/portal/security.md); never `guest`
+
+permission:
+  enabled: true
+
+nebiusEstate:
+  repoRoot: /app/repo # a read-only checkout of this repository
+  access:
+    roles:
+      - name: platform
+        principals: [group:default/platform]
+        projects: ['*']
+        permissions: ['*']
+      # - name: finance
+      #   principals: [group:default/finance]
+      #   projects: ['*']
+      #   permissions: [nebius.estate.read, nebius.billing.read, nebius.commercial.rate.read, nebius.commercial.scenario.read]
+  nebius:
+    tenantId: ${NEBIUS_TENANT_ID}
+    projectIdsEnv: NEBIUS_PROJECT_IDS # or list them: projects: [{ id: project-…, name: sandbox, regions: [eu-north1] }]
+    auth:
+      # A read-only (viewers) service account; the key is a file mounted from your secret store.
+      serviceAccount: { idEnv: NEBIUS_SA_ID, publicKeyIdEnv: NEBIUS_SA_PUBLIC_KEY_ID, privateKeyFileEnv: NEBIUS_SA_PRIVATE_KEY_FILE }
+    syncIntervalMinutes: 15
+    fastSyncSeconds: 120 # while a cluster, node group or VM is changing state (0 = off)
+    timeoutMs: 15000
+    maxConcurrency: 12
+  # Billing export pull: FOCUS files from the export bucket (read-only, SigV4). Variable names only.
+  billing:
+    export:
+      bucketEnv: NEBIUS_BILLING_EXPORT_BUCKET
+      regionEnv: NEBIUS_BILLING_EXPORT_REGION
+      prefixEnv: NEBIUS_BILLING_EXPORT_PREFIX
+      accessKeyIdEnv: NEBIUS_BILLING_EXPORT_ACCESS_KEY_ID
+      secretAccessKeyEnv: NEBIUS_BILLING_EXPORT_SECRET_ACCESS_KEY
+  # AI services page: Token Factory and Hugging Face checks. Variable names only; unset variables leave them not configured.
+  ai:
+    tokenFactory: { apiKeyEnv: NEBIUS_API_KEY }
+    huggingface: { tokenEnv: HF_TOKEN }
+  # kubernetes:
+  #   clusters:
+  #     - name: sandbox-inference
+  #       url: https://<api-server>:443   # https only; from config, never from a request
+  #       tokenEnv: K8S_SANDBOX_INFERENCE_TOKEN   # K8S_<NAME>_TOKEN
+  #       caFile: /etc/nebius-estate/sandbox-inference-ca.crt
+  #       mk8sClusterId: ${MK8S_CLUSTER_ID_SANDBOX_INFERENCE}
+  # prometheus:
+  #   url: https://<prometheus>   # https; tokenEnv: PROMETHEUS_TOKEN if it needs a bearer token
+  # commercial:
+  #   defaultRateBook: <rate book id>  # for run-rate and provisioning estimates; default: first by id
+  # budgets:  # DEPRECATED: enter budgets on the Budgets & credits page; listed ones show there read-only
+  #   - { id: sandbox-monthly, project: project-…, amount: '1000', currency: USD, period: 2026-10, source: <approval ref> }

@@ -1,0 +1,126 @@
+# Three clients in one pod, each printing one `NIP-CHECK {json}` line that tests/validate/ml-services.sh
+# reads; a container exits 1 when its check fails and 0 when it passes or is skipped (its host is empty):
+#   registry    log in as `iam` with a token (container-registry/authentication), copy a pinned public
+#               image into the registry (push), pull it back by digest
+#   mlflow      probe DNS and TCP 443 of the endpoint, then log a run with one metric to the tracking
+#               server and read it back (mlflow/quickstart#configure-connection-to-mlflow-tracking);
+#               the code is mlflow_check.py, mounted from ConfigMap ml-services-check-scripts
+#   postgresql  psql `select 1` with sslmode=verify-full against the Nebius CA certificate
+#               (postgresql/databases/connect)
+# Inputs: ConfigMap ml-services-check (REGISTRY_URL, SOURCE_IMAGE, RUN_ID, MLFLOW_HOST,
+# MLFLOW_TRACKING_USERNAME, MLFLOW_EXPERIMENT, PG_HOST, PG_DB, PG_USER, PG_CA_URL) and Secret
+# ml-services-check (REGISTRY_TOKEN, MLFLOW_TRACKING_PASSWORD, PGPASSWORD). The pull from a node without a
+# pull secret is a separate pod the script starts with the pushed digest. Tolerates the GPU taint so
+# it also runs on a cluster without CPU nodes (it requests no GPU).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ml-services-check
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 900
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ml-services-check
+    spec:
+      restartPolicy: Never
+      tolerations:
+        - { key: nvidia.com/gpu, operator: Exists, effect: NoSchedule }
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: registry
+          image: gcr.io/go-containerregistry/crane/debug:v0.22.1@sha256:e78770b31258a3846f878036d9c1f63fbe4c871f9f56990bf77fd95c013e3c1b
+          command: ["/busybox/sh", "-c"]
+          args:
+            - |
+              set -u
+              if [ -z "${REGISTRY_URL:-}" ]; then echo 'NIP-CHECK {"check":"registry","skipped":true}'; exit 0; fi
+              ref="${REGISTRY_URL}/nip-check:${RUN_ID}"; ok=false; pushed=""; pulled=""; push_s=-1; pull_s=-1
+              t0=$(date +%s)
+              if printf '%s' "${REGISTRY_TOKEN}" | crane auth login "${REGISTRY_URL%%/*}" -u iam --password-stdin \
+                 && crane copy --platform linux/amd64 "${SOURCE_IMAGE}" "${ref}" && pushed=$(crane digest "${ref}"); then
+                t1=$(date +%s); push_s=$((t1 - t0))
+                if crane pull "${REGISTRY_URL}/nip-check@${pushed}" /tmp/pulled.tar; then
+                  pulled="${pushed}"; pull_s=$(( $(date +%s) - t1 )); ok=true
+                fi
+              fi
+              echo "NIP-CHECK {\"check\":\"registry\",\"ok\":${ok},\"image\":\"${ref}\",\"pushed_digest\":\"${pushed}\",\"pulled_digest\":\"${pulled}\",\"push_s\":${push_s},\"pull_s\":${pull_s}}"
+              [ "${ok}" = true ]
+          envFrom:
+            - configMapRef: { name: ml-services-check }
+            - secretRef: { name: ml-services-check }
+          env:
+            - { name: HOME, value: /tmp }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { memory: 512Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          volumeMounts: [{ name: tmp-registry, mountPath: /tmp }]
+        - name: mlflow
+          image: ghcr.io/mlflow/mlflow:v2.21.2@sha256:436a0de96fcda76ae2424cb36f2c1bfdf9cc05c49491888a481f166e09c8e17d
+          # mlflow_check.py (ConfigMap ml-services-check-scripts): DNS + TCP probe of the endpoint, then
+          # the run; on failure the cause class, the endpoint host and a bounded message with the cause.
+          command: ["python", "/opt/nip-check/mlflow_check.py"]
+          envFrom:
+            - configMapRef: { name: ml-services-check }
+            - secretRef: { name: ml-services-check }
+          env:
+            - { name: HOME, value: /tmp }
+            - { name: PYTHONDONTWRITEBYTECODE, value: "1" }
+            # Bounded client retries (mlflow 2.21.2 defaults: 7 retries, 120 s timeout each), so a
+            # failing request ends well inside activeDeadlineSeconds and still prints its NIP-CHECK line.
+            - { name: MLFLOW_HTTP_REQUEST_MAX_RETRIES, value: "3" }
+            - { name: MLFLOW_HTTP_REQUEST_TIMEOUT, value: "60" }
+          resources:
+            requests: { cpu: 250m, memory: 512Mi }
+            limits: { memory: 1Gi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          volumeMounts:
+            - { name: tmp-mlflow, mountPath: /tmp }
+            - { name: scripts, mountPath: /opt/nip-check, readOnly: true }
+        - name: postgresql
+          image: postgres:16.10-alpine3.22@sha256:029660641a0cfc575b14f336ba448fb8a75fd595d42e1fa316b9fb4378742297
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -u
+              if [ -z "${PG_HOST:-}" ]; then echo 'NIP-CHECK {"check":"postgresql","skipped":true}'; exit 0; fi
+              ok=false; one=""; ver=""
+              if wget -qO /tmp/root.crt "${PG_CA_URL}"; then
+                export PGSSLROOTCERT=/tmp/root.crt PGSSLMODE=verify-full PGCONNECT_TIMEOUT=15
+                conn="host=${PG_HOST} port=5432 dbname=${PG_DB} user=${PG_USER}"
+                one=$(psql "${conn}" -tAc 'select 1') && ver=$(psql "${conn}" -tAc 'show server_version' | tr -d '\042\134')
+              fi
+              [ "${one}" = 1 ] && ok=true
+              echo "NIP-CHECK {\"check\":\"postgresql\",\"ok\":${ok},\"select_1\":\"${one}\",\"server_version\":\"${ver}\",\"sslmode\":\"verify-full\"}"
+              [ "${ok}" = true ]
+          envFrom:
+            - configMapRef: { name: ml-services-check }
+            - secretRef: { name: ml-services-check }
+          env:
+            - { name: HOME, value: /tmp }
+          resources:
+            requests: { cpu: 100m, memory: 64Mi }
+            limits: { memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          volumeMounts: [{ name: tmp-postgresql, mountPath: /tmp }]
+      volumes:
+        - { name: tmp-registry, emptyDir: { sizeLimit: 1Gi } }
+        - { name: tmp-mlflow, emptyDir: { sizeLimit: 256Mi } }
+        - { name: tmp-postgresql, emptyDir: { sizeLimit: 16Mi } }
+        - { name: scripts, configMap: { name: ml-services-check-scripts } }

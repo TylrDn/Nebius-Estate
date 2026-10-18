@@ -1,0 +1,141 @@
+{
+  "tenant_id": "tenant-e00mock",
+  "allowances": {
+    "tenant-e00mock": [
+      {
+        "metadata": {
+          "name": "compute.instance.non-gpu.vcpu",
+          "id": "quotaallowance-t1"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "64"
+        },
+        "status": {
+          "unit": "count",
+          "usage": "0",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.count",
+          "id": "quotaallowance-t2"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "12"
+        },
+        "status": {
+          "unit": "count",
+          "usage": "0",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.gpu.h100",
+          "id": "quotaallowance-t3"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "32"
+        },
+        "status": {
+          "unit": "count",
+          "usage": "0",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.gpu.l40s",
+          "id": "quotaallowance-t4"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "32"
+        },
+        "status": {
+          "unit": "count",
+          "usage": "0",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.instance.preemptible.count",
+          "id": "quotaallowance-t5"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "8"
+        },
+        "status": {
+          "unit": "count",
+          "usage": "0",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "mk8s.cluster.count",
+          "id": "quotaallowance-t6"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "2"
+        },
+        "status": {
+          "unit": "count",
+          "usage": "0",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.disk.size.network-ssd",
+          "id": "quotaallowance-t7"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "5497558138880"
+        },
+        "status": {
+          "unit": "byte",
+          "usage": "0",
+          "state": "STATE_ACTIVE"
+        }
+      },
+      {
+        "metadata": {
+          "name": "compute.filesystem.size.network-ssd",
+          "id": "quotaallowance-t8"
+        },
+        "spec": {
+          "region": "eu-north1",
+          "limit": "5497558138880"
+        },
+        "status": {
+          "unit": "byte",
+          "usage": "0",
+          "state": "STATE_ACTIVE"
+        }
+      }
+    ],
+    "project-e00mock": [
+      {
+        "metadata": {
+          "name": "compute.instance.gpu.l40s"
+        },
+        "spec": {
+          "region": "eu-north1"
+        },
+        "status": {
+          "unit": "count",
+          "usage": "0"
+        }
+      }
+    ]
+  }
+}

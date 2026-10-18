@@ -1,0 +1,22 @@
+# Egress the checks need: DNS, HTTPS (Container Registry, MLflow, the PostgreSQL CA certificate) and
+# PostgreSQL (5432). A no-op where egress is open; required in a default-deny namespace.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ml-services-check-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: ml-services-check
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+    - ports:
+        - { protocol: TCP, port: 443 }
+        - { protocol: TCP, port: 5432 }

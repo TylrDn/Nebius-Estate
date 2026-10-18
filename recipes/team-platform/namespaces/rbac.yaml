@@ -1,0 +1,72 @@
+# Identity for SkyPilot (kubernetes.remote_identity in skypilot/config.yaml),
+# following the SkyPilot Kubernetes permission contract for a namespace-restricted
+# user whose service account is pre-created by the platform (so SkyPilot itself
+# never creates RBAC objects). Everything is namespace-scoped EXCEPT one deliberate cluster-wide grant at
+# the bottom: read-only access to Nodes, which SkyPilot needs to discover GPU
+# capacity. It confers no write or cross-namespace workload access.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: skypilot
+  namespace: team-research
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: skypilot
+  namespace: team-research
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/exec", "pods/portforward", "services", "configmaps", "secrets", "persistentvolumeclaims", "events"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # No RBAC writes and no ServiceAccount writes: SkyPilot creates its own ServiceAccount, Role and
+  # RoleBinding only in the default remote_identity mode (SERVICE_ACCOUNT). Here the platform
+  # pre-creates them (this file) and skypilot/config.yaml names this account in remote_identity,
+  # so SkyPilot only has to read it. Granting roles/rolebindings writes would let the team bind
+  # itself any verb in the namespace (Trivy KSV-0050: escalation to namespace admin).
+  - apiGroups: [""]
+    resources: ["serviceaccounts"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: skypilot
+  namespace: team-research
+subjects:
+  - kind: ServiceAccount
+    name: skypilot
+    namespace: team-research
+roleRef:
+  kind: Role
+  name: skypilot
+  apiGroup: rbac.authorization.k8s.io
+---
+# Read-only view of nodes is what SkyPilot needs cluster-wide to discover GPU capacity.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: skypilot-node-reader
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: skypilot-node-reader-team-research
+subjects:
+  - kind: ServiceAccount
+    name: skypilot
+    namespace: team-research
+roleRef:
+  kind: ClusterRole
+  name: skypilot-node-reader
+  apiGroup: rbac.authorization.k8s.io

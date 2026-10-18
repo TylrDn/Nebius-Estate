@@ -1,0 +1,19 @@
+# InfiniBand topology as Nebius exposes it on GPU nodes, widest level first
+# (https://docs.nebius.com/kubernetes/gpu/topology-aware-scheduling#how-to-view-topology-labels-in-your-cluster):
+#   gpu-cluster-id  one high-speed network domain (a GPU cluster)
+#   tier-2          wider locality (spine-level switches)
+#   tier-1          narrower locality (rack-level switches)
+#   hostname        one node; the lowest level, so Kueue assigns pods to nodes
+# tier-0 (multi-node NVLink) is set only on nodes that have it, so it is not a level here: a node
+# without one of the levels' labels cannot be placed by this topology. Same levels as the docs'
+# example (#how-to-enable-topology-aware-scheduling).
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: Topology
+metadata:
+  name: nip-ib
+spec:
+  levels:
+    - nodeLabel: topology.nebius.com/gpu-cluster-id
+    - nodeLabel: topology.nebius.com/tier-2
+    - nodeLabel: topology.nebius.com/tier-1
+    - nodeLabel: kubernetes.io/hostname

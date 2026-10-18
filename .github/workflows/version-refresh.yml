@@ -1,0 +1,55 @@
+name: Upstream version drift
+
+# Weekly: compare platform/versions.yaml with what upstream publishes and keep one
+# open issue current. Read-only against upstream; never changes pins by itself.
+
+on:
+  schedule:
+    - cron: "17 6 * * 1" # Mondays 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Compare pins with upstream
+        id: cmp
+        run: |
+          set +e
+          python3 scripts/check-upstream-versions.py | tee drift.md
+          pins=${PIPESTATUS[0]}
+          # Official docs: changed/new/removed pages, redirects, and repo links that no longer resolve.
+          { echo; echo "## docs.nebius.com"; python3 scripts/nebius-docs.py check; } | tee -a drift.md
+          docs=${PIPESTATUS[0]}
+          code=0; [[ $pins == 3 || $docs == 3 ]] && code=3; [[ $pins == 1 || $pins == 2 || $docs == 1 || $docs == 2 ]] && code=1
+          echo "code=${code}" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the drift issue (gh CLI, preinstalled on the runner)
+        if: steps.cmp.outputs.code == '3'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Automated weekly check ($(date -u +%F)). Re-verify each drifted row against its source, update \`platform/versions.yaml\` with a new \`verified\` date, run \`make compat-matrix\`; for docs changes read the changed pages, update what depends on them, run \`make docs-catalog\`; open a PR."
+            echo
+            cat drift.md
+          } > body.md
+          # The label may not exist yet: create it on first use (--force makes this idempotent).
+          gh label create version-drift --color fbca04 --description "platform/versions.yaml differs from upstream" --force
+          issue="$(gh issue list --label version-drift --state open --json number --jq '.[0].number // empty')"
+          if [[ -n "${issue}" ]]; then
+            gh issue edit "${issue}" --body-file body.md
+          else
+            gh issue create --title "Upstream version drift detected" --label version-drift --body-file body.md
+          fi
+
+      - name: Fail the run when drift exists
+        if: steps.cmp.outputs.code != '0'
+        run: exit 1

@@ -1,0 +1,11 @@
+# Captured on a single preemptible B300 with NO GPU cluster (docs/evidence/raw/2026-10-08-mk8s-b300,
+# 2026-10-08): NCCL prints NET/IB with a /RoCE suffix on a plain NIC. Sizes trimmed.
+gpu-smoke-vxr7j:83:83 [0] NCCL INFO NCCL version 2.27.7+cuda13.0
+gpu-smoke-vxr7j:83:114 [0] NCCL INFO NET/IB : Using [0]mlx5_0:1/RoCE [RO]; OOB eth0:<ip-redacted><0>
+gpu-smoke-vxr7j:83:114 [0] NCCL INFO Using network IBext_v10
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)
+           8             2     float     sum      -1     8.80    0.00    0.00      0     8.72    0.00    0.00      0
+   268435456      67108864     float     sum      -1    9.80 27391.37    0.00      0     9.75 27531.84    0.00      0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 0

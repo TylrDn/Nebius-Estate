@@ -1,0 +1,3 @@
+ddp-sanity-master-0:41:41 [0] NCCL INFO NCCL version 2.27.5+cuda13.0
+Traceback (most recent call last):
+torch.distributed.DistBackendError: NCCL error in: ProcessGroupNCCL.cpp, unhandled system error

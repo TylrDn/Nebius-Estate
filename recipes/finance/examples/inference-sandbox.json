@@ -1,0 +1,10 @@
+{
+  "name": "r1-inference-sandbox-8h",
+  "region": "eu-north1",
+  "items": [
+    {"name": "gpu-node", "platform": "gpu-h100-sxm", "preset": "1gpu-16vcpu-200gb", "count": 1, "hours": 8, "preemptible": "compare"},
+    {"name": "cpu-nodes", "platform": "cpu-d3", "preset": "8vcpu-32gb", "count": 2, "hours": 8},
+    {"name": "boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 793, "count": 1, "hours": 8},
+    {"name": "shared-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 64, "count": 1, "hours": 8}
+  ]
+}

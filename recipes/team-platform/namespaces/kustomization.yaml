@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Namespaced objects (quota, RBAC, the ingress-isolation NetworkPolicy) belong to the team namespace;
+# without this the component's policy would land in whatever namespace the kubectl context uses.
+namespace: team-research
+resources:
+  - namespace.yaml
+  - quota.yaml
+  - rbac.yaml
+components:
+  - ../../../workloads/components/ingress-isolation

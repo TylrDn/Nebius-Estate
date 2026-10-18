@@ -1,0 +1,9 @@
+{
+  "name": "r1-inference-l40s-r1-only-session",
+  "region": "eu-north1",
+  "items": [
+    {"name": "gpu-node", "platform": "gpu-l40s-a", "preset": "1gpu-8vcpu-32gb", "count": 1, "hours": 3, "preemptible": true},
+    {"name": "gpu-boot-disk", "disk_type": "NETWORK_SSD", "size_gib": 512, "count": 1, "hours": 3},
+    {"name": "r1-own-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 64, "count": 1, "hours": 3}
+  ]
+}

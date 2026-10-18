@@ -1,0 +1,10 @@
+# Trivy misconfiguration exceptions, scoped by path. Keep short and reviewed (docs/security.md).
+misconfigurations:
+  - id: KSV-0053
+    paths:
+      - recipes/team-platform/namespaces/rbac.yaml
+    statement: SkyPilot needs pods/exec inside the team namespace to run tasks (SkyPilot Kubernetes permission contract); the Role is namespace-scoped and bound to one ServiceAccount.
+  - id: KSV-0056
+    paths:
+      - recipes/team-platform/namespaces/rbac.yaml
+    statement: SkyPilot creates Services for its task pods inside the team namespace only; no cluster-wide networking rights are granted.

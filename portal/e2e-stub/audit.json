@@ -1,0 +1,32 @@
+{
+  "_note": "Test data for the e2e stub and backend unit tests: invented audit events in the shape of GET /audit/v2/audit-events (camelCase, verified live 2026-10-11). Times are set by the stub from minutesAgo before the request's end. never-copied-stub-value marks fields the portal must not copy.",
+  "tenant": "tenant-e00mocktest",
+  "events": {
+    "eu-north1": [
+      { "minutesAgo": 5, "id": "auditevent-e00mock1", "type": "ai.nebius.compute.instance.create", "service": { "name": "COMPUTE" }, "action": "CREATE", "status": "DONE",
+        "authentication": { "authenticated": true, "subject": { "serviceAccountId": "serviceaccount-e00mockci", "name": "nip-ci" }, "authenticationType": "ACCESS_TOKEN", "tokenCredential": { "maskedToken": "never-copied-stub-value" } },
+        "authorization": { "authorized": true },
+        "resource": { "metadata": { "id": "computeinstance-e00mocknew", "name": "nip-sandbox-gpu-vm", "type": "instance" } },
+        "request": { "clientIp": "never-copied-stub-value", "userAgent": "never-copied-stub-value", "parameters": { "spec": { "cloudInitUserData": "never-copied-stub-value" } } },
+        "response": { "payload": { "status": { "code": 0 } } } },
+      { "minutesAgo": 9, "id": "auditevent-e00mock2", "type": "ai.nebius.vpc.subnet.list", "service": { "name": "VIRTUAL_NETWORKS" }, "action": "LIST", "status": "DONE",
+        "authentication": { "authenticated": true, "subject": { "serviceAccountId": "serviceaccount-e00mockportal", "name": "nip-portal-viewer" } },
+        "authorization": { "authorized": true },
+        "resource": { "metadata": { "type": "subnet" } } },
+      { "minutesAgo": 30, "id": "auditevent-e00mock3", "type": "ai.nebius.iam.accesspermit.create", "service": { "name": "IAM" }, "action": "CREATE", "status": "DONE",
+        "authentication": { "authenticated": true, "subject": { "tenantUserId": "tenantuseraccount-e00mockowner", "name": "Platform Owner" } },
+        "authorization": { "authorized": false },
+        "resource": { "metadata": { "id": "accesspermit-e00mockdenied", "type": "accesspermit" } },
+        "response": { "status": { "code": 7, "message": "PermissionDenied" } } },
+      { "minutesAgo": 60, "id": "auditevent-e00mock5", "type": "ai.nebius.vpc.subnet.delete", "service": { "name": "VIRTUAL_NETWORKS" }, "action": "DELETE", "status": "ERROR",
+        "authentication": { "authenticated": true, "subject": { "tenantUserId": "tenantuseraccount-e00mockowner", "name": "Platform Owner" } },
+        "authorization": { "authorized": true },
+        "resource": { "metadata": { "id": "vpcsubnet-e00mockinuse", "name": "nip-sandbox-subnet", "type": "subnet" } },
+        "response": { "statusCode": "FAILED_PRECONDITION", "errorMessage": "" } },
+      { "minutesAgo": 2000, "id": "auditevent-e00mock4", "type": "ai.nebius.storage.bucket.delete", "service": { "name": "STORAGE" }, "action": "DELETE", "status": "DONE",
+        "authentication": { "authenticated": true, "subject": { "tenantUserId": "tenantuseraccount-e00mockowner", "name": "Platform Owner" } },
+        "authorization": { "authorized": true },
+        "resource": { "metadata": { "id": "storagebucket-e00mockold", "name": "nip-sandbox-scratch", "type": "bucket" } } }
+    ]
+  }
+}

@@ -1,0 +1,456 @@
+# Inputs of the documentation catalog (scripts/nebius-docs.py; `make docs-catalog`, `make docs-check`).
+# Hand-maintained. The generated catalog is nebius-docs.json / nebius-docs.md next to this file.
+
+[scope]
+# Generated per-command/per-method references: catalogued at section level, not page by page.
+reference_only = ["cli", "rest-api", "legal"]
+
+[[key_pages]]
+url = "https://docs.nebius.com/compute/quickstart-host-model"
+why = "Fastest path: a VM serving a model"
+
+[[key_pages]]
+url = "https://docs.nebius.com/kubernetes/quickstart"
+why = "First Managed Kubernetes cluster"
+
+[[key_pages]]
+url = "https://docs.nebius.com/compute/virtual-machines/containers"
+why = "Containers on VMs without Kubernetes"
+
+[[key_pages]]
+url = "https://docs.nebius.com/compute/"
+why = "Compute: VMs, GPUs, disks, clusters"
+
+[[key_pages]]
+url = "https://docs.nebius.com/compute/clusters/gpu/"
+why = "GPU clusters and InfiniBand fabrics (R3)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/slurm-soperator/"
+why = "Soperator / Managed Slurm (R4)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/kubernetes/"
+why = "Managed Kubernetes (R1, R3, R5)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/compute/storage/types"
+why = "Disk and shared filesystem types (R8)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/object-storage/"
+why = "Object Storage (R2 state, R8 datasets)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/postgresql/"
+why = "Managed PostgreSQL"
+
+[[key_pages]]
+url = "https://docs.nebius.com/container-registry/"
+why = "Container Registry"
+
+[[key_pages]]
+url = "https://docs.nebius.com/serverless/"
+why = "Serverless AI jobs and endpoints (R6)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/mlflow/"
+why = "Managed MLflow"
+
+[[key_pages]]
+url = "https://docs.nebius.com/applications/"
+why = "Applications marketplace (o11y, operators)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/3p-integrations/"
+why = "Third-party integrations"
+
+[[key_pages]]
+url = "https://docs.nebius.com/observability/monitoring"
+why = "Monitoring"
+
+[[key_pages]]
+url = "https://docs.nebius.com/observability/logging"
+why = "Logging"
+
+[[key_pages]]
+url = "https://docs.nebius.com/observability/traces/ingest"
+why = "Trace ingestion"
+
+[[key_pages]]
+url = "https://docs.nebius.com/vpc/"
+why = "VPC networking (R7)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/tunnels/"
+why = "Tunnels"
+
+[[key_pages]]
+url = "https://docs.nebius.com/signup-billing/sign-up"
+why = "Sign-up"
+
+[[key_pages]]
+url = "https://docs.nebius.com/signup-billing/"
+why = "Billing, budgets, billing export"
+
+[[key_pages]]
+url = "https://docs.nebius.com/iam/"
+why = "IAM: tenants, projects, groups, service accounts"
+
+[[key_pages]]
+url = "https://docs.nebius.com/overview/quotas"
+why = "Quotas"
+
+[[key_pages]]
+url = "https://docs.nebius.com/overview/support"
+why = "Support"
+
+[[key_pages]]
+url = "https://docs.nebius.com/overview/regions"
+why = "Regions"
+
+[[key_pages]]
+url = "https://docs.nebius.com/overview/data-portability"
+why = "Data portability"
+
+[[key_pages]]
+url = "https://docs.nebius.com/changelog"
+why = "Platform changelog (watch weekly)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/audit-logs/"
+why = "Audit logs"
+
+[[key_pages]]
+url = "https://docs.nebius.com/kms/"
+why = "Key Management Service"
+
+[[key_pages]]
+url = "https://docs.nebius.com/mysterybox/"
+why = "SecretStash (formerly MysteryBox) secrets"
+
+[[key_pages]]
+url = "https://docs.nebius.com/tutorials/"
+why = "Tutorials"
+
+[[key_pages]]
+url = "https://docs.nebius.com/cli/"
+why = "nebius CLI reference"
+
+[[key_pages]]
+url = "https://docs.nebius.com/terraform-provider/"
+why = "Terraform provider reference"
+
+[[key_pages]]
+url = "https://docs.nebius.com/grpc-api/"
+why = "gRPC API"
+
+[[key_pages]]
+url = "https://docs.nebius.com/rest-api/"
+why = "REST API (portal inventory connector)"
+
+[[key_pages]]
+url = "https://docs.nebius.com/sdk/"
+why = "SDKs"
+
+[[key_pages]]
+url = "https://docs.nebius.com/docs-ai"
+why = "Docs for AI agents (llms.txt, MCP)"
+
+# Task index: what to read for a job, linked to the exact section (path#anchor), and where this repo does it.
+# Every anchor and repo path is checked by `make docs-links`.
+
+[[tasks]]
+task = "Create a GPU node group with drivers preinstalled"
+docs = ["/kubernetes/gpu/set-up#how-to-add-nodes-with-gpus-to-a-cluster", "/kubernetes/gpu/set-up#gpu-drivers-and-other-components", "/compute/storage/boot-disk-images#images-for-gpu-vms"]
+repo = ["terraform/modules/node-group", "platform/regions.yaml", "runbooks/deploy.md"]
+
+[[tasks]]
+task = "Pick the GPU platform, preset and driver preset for a region"
+docs = ["/compute/virtual-machines/types#presets-for-gpu-platforms", "/compute/virtual-machines/types#presets-compatible-with-gpu-clusters", "/kubernetes/gpu/set-up#gpu-drivers-and-other-components"]
+repo = ["platform/regions.yaml", "terraform/stacks/inference", "terraform/stacks/training"]
+
+[[tasks]]
+task = "Put 8-GPU nodes on InfiniBand (GPU cluster and fabric)"
+docs = ["/compute/clusters/gpu#infiniband-fabrics", "/kubernetes/gpu/clusters#how-to-enable-infiniband-for-a-node-group", "/compute/resources/quotas-limits#infiniband"]
+repo = ["terraform/modules/gpu-cluster", "terraform/stacks/training", "platform/regions.yaml"]
+
+[[tasks]]
+task = "Prove multi-node NCCL over InfiniBand on Managed Kubernetes"
+docs = ["/kubernetes/gpu/nccl-test#run-the-nccl-tests", "/compute/clusters/gpu/test#testing-the-port-state", "/kubernetes/gpu/topology-aware-scheduling#how-to-view-topology-labels-in-your-cluster"]
+repo = ["workloads/training", "tests/validate/run-training.sh", "runbooks/incident.md"]
+
+[[tasks]]
+task = "Install the GPU Operator and Network Operator instead of the driver image (MIG, custom device plugin)"
+docs = ["/kubernetes/gpu/set-up#how-to-install-the-drivers-and-components-on-existing-node-groups", "/kubernetes/node-groups/autoscaling#more-gpu-nodes-than-required"]
+repo = ["terraform/modules/gpu-operator", "terraform/modules/network-operator", "scripts/wait-for-ofed.sh"]
+
+[[tasks]]
+task = "Autoscale a GPU node group without pinning it to CoreDNS/Cilium"
+docs = ["/kubernetes/node-groups/autoscaling#set-up-autoscaling-for-new-node-groups", "/kubernetes/networking/add-ons#how-the-add-ons-affect-autoscaling-node-groups"]
+repo = ["terraform/modules/node-group", "terraform/stacks/inference"]
+
+[[tasks]]
+task = "Run GPU nodes on preemptible (spot) capacity"
+docs = ["/kubernetes/node-groups/manage#preemptible-node-groups", "/compute/virtual-machines/preemptible#how-to-create-a-preemptible-vm"]
+repo = ["terraform/modules/node-group", "docs/capacity.md"]
+
+[[tasks]]
+task = "Use a capacity reservation (capacity block group) for a node group"
+docs = ["/kubernetes/node-groups/reservations#how-to-add-reservations-to-node-groups", "/compute/virtual-machines/reservations#billing-for-reservations", "/compute/virtual-machines/capacity-advisor#how-to-get-data-from-the-capacity-advisor"]
+repo = ["terraform/modules/node-group", "runbooks/capacity-request.md", "docs/capacity.md"]
+
+[[tasks]]
+task = "Roll a node group template change without losing capacity (surge, drain timeout)"
+docs = ["/kubernetes/node-groups/manage#deployment-strategy-and-quotas", "/kubernetes/node-groups/manage#node-group-parameters", "/kubernetes/gpu/set-up#how-to-change-the-driver-preset"]
+repo = ["terraform/modules/node-group", "docs/change-management.md"]
+
+[[tasks]]
+task = "Upgrade the Kubernetes version (control plane, then node groups)"
+docs = ["/kubernetes/manage-versions#how-to-upgrade-a-kubernetes-version", "/kubernetes/versions#available-kubernetes-versions", "/kubernetes/version-deprecation#when-a-version-becomes-deprecated"]
+repo = ["runbooks/upgrade.md", "platform/regions.yaml", "platform/stages.yaml"]
+
+[[tasks]]
+task = "Handle node maintenance events and GPU auto-repair"
+docs = ["/kubernetes/maintenance/manage#how-to-launch-maintenance-manually-in-managed-kubernetes", "/kubernetes/maintenance/health-checks#issues-with-gpus-on-a-node", "/compute/virtual-machines/maintenance-reasons#reason-codes"]
+repo = ["runbooks/maintenance.md", "runbooks/incident.md"]
+
+[[tasks]]
+task = "Mount a shared filesystem into pods (ReadWriteMany model cache)"
+docs = ["/kubernetes/storage/filesystem-over-csi#create-a-node-group-and-mount-the-filesystem-to-nodes", "/kubernetes/storage/filesystem-over-csi#install-the-csi-driver"]
+repo = ["terraform/modules/filestore", "terraform/modules/filestore-csi", "terraform/modules/node-group"]
+
+[[tasks]]
+task = "Restrict or remove the public control-plane endpoint"
+docs = ["/kubernetes/networking/limit-access-to-public-endpoint#how-to-set-an-allowlist-to-access-a-managed-kubernetes-cluster", "/kubernetes/clusters/manage#how-to-create-clusters", "/kubernetes/networking/requirements#private-ip-address-allocations"]
+repo = ["terraform/modules/mk8s-cluster", "platform/stages.yaml", "docs/change-management.md"]
+
+[[tasks]]
+task = "Run Slurm (Soperator): deploy, add users, run the NCCL all-reduce job"
+docs = ["/slurm-soperator/deploy/overview#self-deployment-in-nebius-ai-cloud", "/slurm-soperator/users/manage#how-to-create-a-user", "/slurm-soperator/jobs/examples/nccl-all-reduce#how-to-run-the-test"]
+repo = ["terraform/stacks/soperator", "runbooks/soperator-jobs.md", "docs/soperator-compatibility.md"]
+
+[[tasks]]
+task = "Share one GPU cluster between teams with SkyPilot or Kueue"
+docs = ["/kubernetes/skypilot#add-managed-kubernetes-clusters-to-skypilot", "/kubernetes/gpu/topology-aware-scheduling#how-to-enable-topology-aware-scheduling"]
+repo = ["recipes/team-platform", "workloads/kueue", "runbooks/team-scheduling.md"]
+
+[[tasks]]
+task = "Stage a dataset from Object Storage onto a shared filesystem"
+docs = ["/object-storage/buckets/filesystem-buckets#data-transfers", "/compute/storage/types#filesystem-performance"]
+repo = ["workloads/data/copy-job", "runbooks/data.md"]
+
+[[tasks]]
+task = "Pull an external S3-compatible bucket into the dataset bucket once"
+docs = ["/object-storage/transfer/stop-condition#stop-condition-developer-tools", "/object-storage/transfer/access#required-permissions", "/object-storage/transfer/requirements#supported-external-storage-services"]
+repo = ["terraform/stacks/data", "runbooks/data.md"]
+
+[[tasks]]
+task = "Choose a bucket storage class offered in the region"
+docs = ["/object-storage/storage-classes#enhanced-throughput-storage-class", "/object-storage/resources/quotas-limits#quotas", "/object-storage/configure-storage-classes#for-a-new-bucket"]
+repo = ["terraform/stacks/data", "platform/regions.yaml"]
+
+[[tasks]]
+task = "Expire replaced checkpoint versions and abort stale multipart uploads"
+docs = ["/object-storage/objects/configure-lifecycle-rules#how-to-configure-expiration-lifecycle-rules", "/object-storage/objects/lifecycles#automatic-deletion-of-incomplete-uploads"]
+repo = ["terraform/stacks/data"]
+
+[[tasks]]
+task = "Restore a checkpoint from a previous object version"
+docs = ["/object-storage/buckets/versioning#how-to-enable-bucket-versioning", "/object-storage/performance-cost-best-practices#use-object-versioning-only-if-required"]
+repo = ["runbooks/data.md"]
+
+[[tasks]]
+task = "Store Terraform state in a versioned Object Storage bucket"
+docs = ["/object-storage/store-terraform-state#how-to-store-the-terraform-state-file"]
+repo = ["terraform/modules/foundation/state-bucket", "scripts/bootstrap-backend.sh"]
+
+[[tasks]]
+task = "Size a shared filesystem for bandwidth, inodes and file size"
+docs = ["/compute/storage/types#filesystem-specifications", "/compute/storage/types#filesystem-performance", "/compute/storage/manage#how-to-resize-a-shared-filesystem"]
+repo = ["terraform/modules/filestore", "docs/capacity.md"]
+
+[[tasks]]
+task = "Tune virtiofs read-ahead on nodes that mount the shared filesystem"
+docs = ["/compute/storage/image-recommendations#adjust-the-virtiofs-settings"]
+repo = ["terraform/modules/node-group"]
+
+[[tasks]]
+task = "Measure Object Storage transfer throughput"
+docs = ["/object-storage/transfer/testing-transfer-speed#how-to-test-data-transfer-speed", "/object-storage/monitoring#bucket-monitoring-metrics"]
+repo = ["tests/validate/data.sh"]
+
+[[tasks]]
+task = "Mount a bucket in Kubernetes with Mountpoint for S3"
+docs = ["/object-storage/interfaces/mountpoint-s3#kubernetes-clusters", "/object-storage/interfaces/mountpoint-s3#performance"]
+repo = ["docs/solutions/storage-and-data.md"]
+
+[[tasks]]
+task = "Run a batch job on Serverless AI and read its final state"
+docs = ["/serverless/jobs/manage#how-to-create-a-job", "/serverless/lifecycle#job-statuses", "/serverless/lifecycle#failed-vs-error"]
+repo = ["recipes/serverless/job.sh"]
+
+[[tasks]]
+task = "Serve a model on a Serverless AI endpoint with token auth"
+docs = ["/serverless/endpoints/manage#how-to-create-an-endpoint", "/serverless/endpoints/manage#how-to-call-an-endpoint", "/serverless/endpoints/manage#traffic-and-connection-limits"]
+repo = ["recipes/serverless/endpoint.sh"]
+
+[[tasks]]
+task = "Submit SkyPilot tasks to Managed Kubernetes clusters"
+docs = ["/3p-integrations/skypilot-mk8s#run-a-job", "/3p-integrations/skypilot-mk8s#optional-limit-clusters-that-skypilot-uses"]
+repo = ["recipes/team-platform/skypilot"]
+
+[[tasks]]
+task = "Create a read-only service account for automation"
+docs = ["/iam/service-accounts/manage#creating-a-service-account", "/iam/authorization/groups/manage#setting-up-custom-groups", "/iam/authorization/groups/members#adding-a-service-account"]
+repo = ["docs/portal/nebius-setup.md", ".env.example"]
+
+[[tasks]]
+task = "Register an authorized key and use it from the CLI or Terraform"
+docs = ["/iam/service-accounts/authorized-keys#creating-a-key-pair", "/iam/service-accounts/authorized-keys#uploading-the-public-key", "/iam/service-accounts/authorized-keys#updating-the-configuration"]
+repo = ["terraform/modules/foundation/ci-service-account/main.tf", "scripts/ci-token.sh", "runbooks/credential-rotation.md"]
+
+[[tasks]]
+task = "Mint an expiring Object Storage access key for a service account"
+docs = ["/iam/service-accounts/access-keys#creating-a-key-pair", "/iam/service-accounts/access-keys#configuring-your-aws-cli-profile"]
+repo = ["scripts/bootstrap-backend.sh", "runbooks/data.md", "runbooks/credential-rotation.md"]
+
+[[tasks]]
+task = "Scope a group to one bucket or project with access permits"
+docs = ["/iam/authorization/groups#custom-groups", "/iam/authorization/groups/manage#setting-up-custom-groups", "/iam/authorization/roles#object-storage"]
+repo = ["terraform/modules/foundation/state-identity/main.tf", "scripts/bootstrap-backend.sh"]
+
+[[tasks]]
+task = "Choose the least-privilege general role for an identity"
+docs = ["/iam/authorization/roles#general-roles", "/iam/authorization/groups#default-groups"]
+repo = ["terraform/modules/foundation/ci-service-account/variables.tf", "docs/security.md"]
+
+[[tasks]]
+task = "Grant a transfer job access to source and destination buckets"
+docs = ["/object-storage/transfer/access#required-permissions", "/object-storage/transfer/access#credentials-for-s3-compatible-storage-services"]
+repo = ["terraform/stacks/data/main.tf", "runbooks/data.md"]
+
+[[tasks]]
+task = "Create a subnet that cannot hold public addresses"
+docs = ["/vpc/addressing/disable-public-addresses#creating-a-subnet-without-public-ip-addresses", "/vpc/addressing/custom-private-addresses#how-to-allocate-addresses"]
+repo = ["terraform/stacks/network/main.tf", "terraform/stacks/network/variables.tf"]
+
+[[tasks]]
+task = "Route private-subnet egress through a custom NAT gateway"
+docs = ["/vpc/routing/custom-nat-gateway#set-up-routing", "/vpc/routing/overview#custom-routing-tables", "/vpc/routing/overview#default-egress-gateway"]
+repo = ["terraform/stacks/network/edge.tf", "tests/validate/network.sh", "runbooks/network.md"]
+
+[[tasks]]
+task = "Order security rules for deny-by-default ingress"
+docs = ["/vpc/security-groups/overview#security-rule-priorities", "/vpc/security-groups/overview#default-security-groups", "/vpc/security-groups/manage#adding-vms-to-security-groups"]
+repo = ["terraform/stacks/network/main.tf", "docs/solutions/networking-and-security.md"]
+
+[[tasks]]
+task = "Open and remove a temporary SSH rule on the bastion"
+docs = ["/vpc/security-groups/manage#adding-security-rules-to-security-groups", "/vpc/security-groups/manage#deleting-security-rules"]
+repo = ["runbooks/network.md"]
+
+[[tasks]]
+task = "Search and export tenant audit events"
+docs = ["/audit-logs/events/view#how-to-view-events", "/audit-logs/events/export#how-to-export-events", "/iam/authorization/roles#audit-logs"]
+repo = ["docs/security.md", "runbooks/credential-rotation.md", "docs/solutions/networking-and-security.md"]
+
+[[tasks]]
+task = "Store a secret in SecretStash and read it without state exposure"
+docs = ["/mysterybox/secrets/create#how-to-create-a-secret-with-a-version", "/mysterybox/secrets/get#how-to-get-a-payload", "/iam/authorization/roles#secretstash"]
+repo = ["terraform/modules/o11y/main.tf", "terraform/stacks/data/main.tf"]
+
+[[tasks]]
+task = "Expose a service without inbound ports using Nebius Tunnels"
+docs = ["/tunnels/overview#authentication-and-access", "/tunnels/connect#setting-up-access-for-the-tunnel-agent", "/tunnels/resources/quotas-limits#traffic"]
+repo = ["docs/solutions/networking-and-security.md"]
+
+[[tasks]]
+task = "Exchange a service-account JWT for an access token"
+docs = ["/grpc-api/auth#create-a-jwt", "/grpc-api/auth#get-an-access-token", "/iam/wif#how-it-works"]
+repo = ["portal/plugins/nebius-estate-backend/src/inventory/nebius.ts", "docs/portal/nebius-setup.md"]
+
+[[tasks]]
+task = "Confirm encryption at rest for disks and buckets"
+docs = ["/security/encryption#disks-in-compute", "/security/encryption#buckets-in-object-storage"]
+repo = ["docs/solutions/networking-and-security.md"]
+
+[[tasks]]
+task = "Request a quota increase before an apply"
+docs = ["/overview/quotas#change-quotas"]
+repo = ["docs/capacity.md", "runbooks/capacity-request.md"]
+
+[[tasks]]
+task = "Re-check quota that may have been reduced while idle"
+docs = ["/overview/quotas#automatic-quota-reduction"]
+repo = ["docs/capacity.md"]
+
+[[tasks]]
+task = "Cap a project's GPUs from a capacity block group"
+docs = ["/overview/limits/project-limits#how-project-limits-work", "/overview/limits/manage-project-limits#how-to-set-a-custom-project-limit"]
+repo = ["docs/capacity.md", "platform/stages.yaml"]
+
+[[tasks]]
+task = "Check GPU availability before reserving capacity"
+docs = ["/compute/virtual-machines/capacity-advisor#how-to-get-data-from-the-capacity-advisor"]
+repo = ["runbooks/capacity-request.md"]
+
+[[tasks]]
+task = "Pick a region for a GPU platform and service"
+docs = ["/overview/regions#availability-of-platforms-per-region", "/overview/regions#availability-of-services-per-region"]
+repo = ["platform/regions.yaml", "docs/solutions/regions.md"]
+
+[[tasks]]
+task = "Set a budget alert for a stage project"
+docs = ["/signup-billing/budgets#how-to-create-a-budget"]
+repo = ["docs/cost.md"]
+
+[[tasks]]
+task = "Attribute Compute cost by nip-* labels"
+docs = ["/signup-billing/usage/cost-allocation-labels#how-to-set-labels-on-resources", "/signup-billing/usage/cost-allocation-labels#how-to-view-the-cost-allocation-breakdown-by-labels"]
+repo = ["docs/cost.md", "terraform/modules/node-group/main.tf"]
+
+[[tasks]]
+task = "Export FOCUS usage data for the portal import"
+docs = ["/signup-billing/usage/export#one-time-exports", "/signup-billing/usage/export#periodic-export", "/signup-billing/usage/focus-fields#nebius-specific-fields"]
+repo = ["docs/portal/billing-and-pricing.md", "portal/packages/nebius-domain/src/billing.ts"]
+
+[[tasks]]
+task = "Cap preemptible GPU spend with a pricing policy"
+docs = ["/signup-billing/manage-pricing-policy#how-to-create-a-pricing-policy", "/signup-billing/pricing-policy#following-the-spot-price"]
+repo = ["docs/decisions/0007-capacity-on-demand-vs-preemptible.md", "terraform/modules/node-group/main.tf"]
+
+[[tasks]]
+task = "Configure the Nebius observability agent"
+docs = ["/observability/agents/nebius-o11y-agent#configuration-parameters", "/observability/metrics/ingest/nebius-o11y-agent#collected-targets"]
+repo = ["terraform/modules/o11y/main.tf"]
+
+[[tasks]]
+task = "View Nebius-provided GPU and node metrics in Grafana"
+docs = ["/observability/metrics/grafana#how-to-connect-grafana-data-source"]
+repo = ["terraform/modules/o11y/main.tf", "recipes/observability/grafana/datasources.yaml", "runbooks/alerting.md"]
+
+[[tasks]]
+task = "Query cluster logs during an incident"
+docs = ["/observability/logs/nebius-cli#running-log-queries"]
+repo = ["recipes/observability/logs.sh", "runbooks/observability.md", "runbooks/incident.md"]
+
+[[tasks]]
+task = "Know metrics and log retention limits"
+docs = ["/observability/resources/quotas-limits#metrics-constraints", "/observability/resources/quotas-limits#logs-constraints"]
+repo = ["docs/dr.md"]
+
+[[tasks]]
+task = "Add GB300 NVL72 racks to a Managed Kubernetes cluster (NVLink instance groups)"
+docs = ["/terraform-provider/reference/resources/compute_v1_nvl_instance_group#required", "/terraform-provider/reference/resources/mk8s_v1_node_group#nested-schema-for-templatenvlink", "/kubernetes/node-groups/reservations#how-to-add-reservations-to-node-groups"]
+repo = ["terraform/stacks/nvl", "runbooks/nvl.md"]
+
+[[tasks]]
+task = "Check the provider source and pin before upgrading"
+docs = ["/terraform-provider/manage/migrate#how-to-check-your-registry"]
+repo = ["platform/versions.yaml"]
+
+[[tasks]]
+task = "Escalate to Nebius support at the right priority"
+docs = ["/overview/support#priorities-and-response-times"]
+repo = ["runbooks/incident.md"]

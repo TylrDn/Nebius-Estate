@@ -1,0 +1,11 @@
+{
+  "step": "checkpoint-restore",
+  "status": "fail",
+  "timestamp": "2026-10-12T19:31:42Z",
+  "context": "<unrelated-context>",
+  "details": {
+    "error": "command failed",
+    "line": 40,
+    "command": "good_v=\"$(put \"$good\")\""
+  }
+}

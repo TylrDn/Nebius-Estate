@@ -1,0 +1,57 @@
+# One ClusterQueue per team, both in cohort nip-gpu: each team owns a nominal GPU share and may
+# borrow what the other leaves idle; when the owner wants its share back, Kueue preempts the
+# borrower's workloads (reclaimWithinCohort). Base sizing is one 8-GPU node per team; the stage
+# overlays resize it so the cohort never promises more GPUs than the stage may run
+# (policy/kueue.rego checks it against platform/stages.yaml max_gpu_nodes.training x 8).
+# CPU and memory are covered too: Kueue does not admit a workload that requests a resource the
+# queue does not cover. Per 8 GPUs: 112 vCPU and 1400Gi, below the 8gpu-128vcpu-1600gb preset to
+# leave room for system pods; read the real allocatable with kubectl describe node.
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: ClusterQueue
+metadata:
+  name: nip-team-nlp
+spec:
+  cohortName: nip-gpu
+  namespaceSelector:
+    matchLabels:
+      nip.nebius.io/team: nlp
+  queueingStrategy: BestEffortFIFO
+  preemption:
+    reclaimWithinCohort: Any
+    withinClusterQueue: LowerPriority
+  resourceGroups:
+    - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
+      flavors:
+        - name: nip-gpu-ib
+          resources:
+            - name: cpu
+              nominalQuota: 112
+            - name: memory
+              nominalQuota: 1400Gi
+            - name: nvidia.com/gpu
+              nominalQuota: 8
+---
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: ClusterQueue
+metadata:
+  name: nip-team-vision
+spec:
+  cohortName: nip-gpu
+  namespaceSelector:
+    matchLabels:
+      nip.nebius.io/team: vision
+  queueingStrategy: BestEffortFIFO
+  preemption:
+    reclaimWithinCohort: Any
+    withinClusterQueue: LowerPriority
+  resourceGroups:
+    - coveredResources: ["cpu", "memory", "nvidia.com/gpu"]
+      flavors:
+        - name: nip-gpu-ib
+          resources:
+            - name: cpu
+              nominalQuota: 112
+            - name: memory
+              nominalQuota: 1400Gi
+            - name: nvidia.com/gpu
+              nominalQuota: 8

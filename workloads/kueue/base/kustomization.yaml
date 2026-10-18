@@ -1,0 +1,11 @@
+# R16 team scheduling: Kueue objects for one GPU cluster with topology-aware placement (TAS).
+# Built only through overlays/<stage>, which size the team quotas to the stage's training cap.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespaces.yaml
+  - topology.yaml
+  - resource-flavor.yaml
+  - cluster-queues.yaml
+  - local-queues.yaml
+  - networkpolicies.yaml

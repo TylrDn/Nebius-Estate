@@ -1,0 +1,22 @@
+# Nebius Estate — base configuration, shared by every run. Load one of:
+#   app-config.local.yaml       one operator on this machine (yarn start, make portal-dev)
+#   app-config.production.yaml  a served deployment (docs/portal/nebius-setup.md)
+
+app:
+  title: Nebius Estate
+  baseUrl: http://localhost:3000
+  extensions:
+    # Only the Nebius Estate themes (packages/app/src/modules/appModule.tsx).
+    - theme:app/light: false
+    - theme:app/dark: false
+
+organization:
+  name: Nebius Estate
+
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+
+permission:
+  enabled: true

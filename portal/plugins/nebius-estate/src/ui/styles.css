@@ -1,0 +1,2801 @@
+/*
+ * Nebius Estate design tokens and components.
+ * Dark-first operations cockpit; the light theme is a full peer, not an afterthought.
+ * Tokens switch on body[data-theme-mode] (set by Backstage's UnifiedThemeProvider).
+ * All component classes are prefixed `ne-` to stay out of Backstage/MUI styles.
+ */
+
+:root,
+body[data-theme-mode='light'] {
+  --ne-bg: #f4f6f9;
+  --ne-bg-sunken: #eceff4;
+  --ne-surface: #ffffff;
+  --ne-surface-2: #f8f9fb;
+  --ne-surface-hover: #f1f4f8;
+  --ne-border: #dde2ea;
+  --ne-border-strong: #c5ccd8;
+  --ne-text: #111722;
+  --ne-text-2: #3b4555;
+  /* Muted is metadata; faint is the quietest text. Faint cannot get lighter and stay AA on the sunken
+     surface (4.7:1 now), so the levels are told apart by a darker muted instead. */
+  --ne-muted: #4a5466;
+  --ne-faint: #5f6a7d;
+  --ne-accent: #066a80;
+  --ne-accent-strong: #04566a;
+  --ne-accent-soft: rgba(10, 127, 153, 0.1);
+  --ne-ok: #136b45;
+  --ne-ok-soft: rgba(31, 138, 91, 0.11);
+  --ne-warn: #7f4b00;
+  --ne-warn-soft: rgba(201, 125, 0, 0.13);
+  --ne-danger: #a82b23;
+  --ne-danger-soft: rgba(196, 58, 49, 0.1);
+  --ne-info: #2b58b8;
+  --ne-info-soft: rgba(59, 111, 216, 0.1);
+  --ne-neutral-soft: rgba(103, 115, 136, 0.12);
+  --ne-violet: #5f3fbf;
+  --ne-chart-1: #0a7f99;
+  --ne-chart-2: #7b5cd6;
+  --ne-chart-3: #c27c0e;
+  --ne-chart-4: #3b6fd8;
+  --ne-chart-5: #1f8a5b;
+  --ne-chart-6: #b0466b;
+  --ne-shadow: 0 1px 2px rgba(17, 23, 34, 0.06), 0 1px 1px rgba(17, 23, 34, 0.03);
+  --ne-shadow-lg: 0 12px 40px rgba(17, 23, 34, 0.18);
+  --ne-focus: 0 0 0 2px var(--ne-surface), 0 0 0 4px var(--ne-accent);
+}
+
+/*
+ * Type scale (readability review 2026-10-11): six sizes. Nothing smaller than the caption (12 px) carries text.
+ * rem-based, so a browser's text-size setting scales every one of them.
+ */
+:root {
+  --ne-fs-caption: 0.75rem; /* 12 px: badges, table headers, sources, footers, hints */
+  --ne-fs-small: 0.8125rem; /* 13 px: table cells, callouts, controls */
+  --ne-fs-body: 0.875rem; /* 14 px */
+  --ne-fs-card-title: 0.9375rem; /* 15 px */
+  --ne-fs-title: 1.375rem; /* 22 px */
+  --ne-fs-tile: 1.625rem; /* 26 px */
+  /* Comfortable measure for running text. */
+  --ne-measure: 80ch;
+}
+
+body[data-theme-mode='dark'] {
+  --ne-bg: #0b0e14;
+  --ne-bg-sunken: #080a0f;
+  --ne-surface: #11151d;
+  --ne-surface-2: #151a24;
+  --ne-surface-hover: #1a2030;
+  --ne-border: #232a37;
+  --ne-border-strong: #313a4b;
+  --ne-text: #e7ebf2;
+  --ne-text-2: #c3cad6;
+  --ne-muted: #a3adbe;
+  --ne-faint: #919bad;
+  --ne-accent: #4cc3d9;
+  --ne-accent-strong: #7ad5e6;
+  --ne-accent-soft: rgba(76, 195, 217, 0.12);
+  --ne-ok: #48c28a;
+  --ne-ok-soft: rgba(72, 194, 138, 0.12);
+  --ne-warn: #e8b04a;
+  --ne-warn-soft: rgba(232, 176, 74, 0.13);
+  --ne-danger: #f27a70; /* 4.67:1 on a selected row (surface + accent and danger tints); #f07167 was 4.34 */
+  --ne-danger-soft: rgba(240, 113, 103, 0.12);
+  --ne-info: #7aa2f7;
+  --ne-info-soft: rgba(122, 162, 247, 0.12);
+  --ne-neutral-soft: rgba(141, 151, 169, 0.13);
+  --ne-violet: #b49cff;
+  --ne-chart-1: #4cc3d9;
+  --ne-chart-2: #b49cff;
+  --ne-chart-3: #e8b04a;
+  --ne-chart-4: #7aa2f7;
+  --ne-chart-5: #48c28a;
+  --ne-chart-6: #f28fb0;
+  --ne-shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset, 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ne-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.ne-root {
+  --ne-font: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --ne-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  --ne-radius: 8px;
+  --ne-radius-sm: 6px;
+  font-family: var(--ne-font);
+  font-size: var(--ne-fs-body);
+  line-height: 1.45;
+  color: var(--ne-text);
+  background: var(--ne-bg);
+  min-height: 100vh;
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+}
+
+.ne-root *,
+.ne-root *::before,
+.ne-root *::after {
+  box-sizing: border-box;
+}
+
+.ne-root a {
+  color: var(--ne-accent);
+  text-decoration: none;
+}
+.ne-root a:hover {
+  text-decoration: underline;
+}
+/* A badge that is a link keeps its tone's colour, not the link colour (G2.13); it still underlines on hover. */
+.ne-root a.ne-tone-ok {
+  color: var(--ne-ok);
+}
+.ne-root a.ne-tone-warn {
+  color: var(--ne-warn);
+}
+.ne-root a.ne-tone-danger {
+  color: var(--ne-danger);
+}
+.ne-root a.ne-tone-info {
+  color: var(--ne-info);
+}
+.ne-root a.ne-tone-accent {
+  color: var(--ne-accent);
+}
+.ne-root a.ne-tone-neutral {
+  color: var(--ne-muted);
+}
+.ne-root :focus-visible {
+  outline: none;
+  box-shadow: var(--ne-focus);
+  border-radius: 4px;
+}
+
+.ne-num {
+  font-variant-numeric: tabular-nums;
+}
+.ne-mono {
+  font-family: var(--ne-mono);
+  font-size: 0.78125rem;
+}
+.ne-muted {
+  color: var(--ne-muted);
+}
+.ne-faint {
+  color: var(--ne-faint);
+}
+.ne-nowrap {
+  white-space: nowrap;
+}
+/* A visually hidden table cannot shrink to 1 px: it is moved off to the left so it never widens the page. */
+table.ne-sr-only {
+  left: -10000px;
+}
+.ne-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+/* The skip link shows where it is when the keyboard reaches it (W1F.S1). */
+.ne-skip:focus {
+  z-index: 100;
+  top: 8px;
+  left: 8px;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 6px 12px;
+  overflow: visible;
+  clip: auto;
+  border-radius: 6px;
+  background: var(--ne-surface);
+  color: var(--ne-accent-strong);
+  box-shadow: var(--ne-focus);
+}
+
+/* ------------------------------------------------------------------ shell */
+
+.ne-page {
+  padding: 0 28px 48px;
+  max-width: 1560px;
+}
+
+.ne-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--ne-bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ne-border);
+  margin: 0 -28px 20px;
+  padding: 14px 28px 12px;
+}
+/* F1.29: a stub run says so on every page and in the nav; warn colours pass AA on both themes. */
+.ne-testdata {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: -4px 0 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--ne-warn);
+  border-radius: 8px;
+  background: var(--ne-warn-soft);
+  color: var(--ne-warn);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.ne-testdata svg {
+  flex: none;
+  margin-top: 2px;
+}
+.ne-testdata-mark {
+  display: block;
+  margin: 0 10px 8px;
+  padding: 3px 6px;
+  border: 1px solid var(--ne-warn);
+  border-radius: 6px;
+  background: var(--ne-warn-soft);
+  color: var(--ne-warn);
+  font-size: var(--ne-fs-caption);
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+.ne-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .ne-header-row {
+    flex-wrap: wrap;
+  }
+}
+.ne-crumbs {
+  display: flex;
+  gap: 6px;
+  font-size: var(--ne-fs-caption);
+  color: var(--ne-muted);
+  margin-bottom: 4px;
+  list-style: none;
+  padding: 0;
+}
+.ne-crumbs li + li::before {
+  content: '/';
+  margin-right: 6px;
+  color: var(--ne-faint);
+}
+.ne-title {
+  font-size: var(--ne-fs-title);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.ne-subtitle {
+  color: var(--ne-muted);
+  margin: 2px 0 0;
+  max-width: 72ch;
+}
+.ne-header-aside {
+  flex: none;
+  justify-content: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* "On this page" (PageShell contents): section links in the sticky header of a long page. */
+.ne-toc {
+  display: flex;
+  align-items: baseline;
+  gap: 4px 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: var(--ne-fs-small);
+}
+.ne-toc-label {
+  font-size: var(--ne-fs-caption);
+  font-weight: 650;
+  color: var(--ne-muted);
+}
+.ne-toc ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.ne-toc a {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--ne-border);
+  background: var(--ne-surface);
+  overflow-wrap: anywhere;
+}
+.ne-toc a:hover {
+  border-color: var(--ne-accent);
+  text-decoration: none;
+}
+/* A section scrolled to (contents link, #hash) lands below the sticky header, not under it. */
+.ne-page [id] {
+  scroll-margin-top: calc(var(--ne-header-h, 0px) + 12px);
+}
+@media (max-width: 600px) {
+  .ne-page [id] {
+    scroll-margin-top: 12px;
+  }
+}
+
+.ne-filterbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------- controls */
+
+.ne-select,
+.ne-input {
+  height: 2rem;
+  border: 1px solid var(--ne-border);
+  background: var(--ne-surface);
+  color: var(--ne-text);
+  border-radius: var(--ne-radius-sm);
+  padding: 0 10px;
+  font: inherit;
+  font-size: 0.8125rem;
+  min-width: 0;
+}
+.ne-select:hover,
+.ne-input:hover {
+  border-color: var(--ne-border-strong);
+}
+.ne-input::placeholder {
+  color: var(--ne-faint);
+}
+.ne-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.ne-field > label,
+.ne-label {
+  font-size: 0.75rem;
+  font-weight: 550;
+  color: var(--ne-text-2);
+}
+.ne-field-hint {
+  font-size: var(--ne-fs-caption);
+  max-width: var(--ne-measure);
+  color: var(--ne-muted);
+}
+.ne-field-error {
+  font-size: var(--ne-fs-caption);
+  color: var(--ne-danger);
+}
+/* A field of checkboxes (Budgets: the project condition); the legend reads as a field label. */
+fieldset.ne-checklist {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
+}
+.ne-checklist > legend {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+  font-weight: 550;
+  color: var(--ne-text-2);
+}
+.ne-checklist > label {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ne-text);
+  flex-wrap: nowrap;
+}
+.ne-field[data-invalid='true'] .ne-input,
+.ne-field[data-invalid='true'] .ne-select,
+.ne-input[aria-invalid='true'] {
+  border-color: var(--ne-danger);
+}
+.ne-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.ne-search svg {
+  position: absolute;
+  left: 9px;
+  color: var(--ne-faint);
+  pointer-events: none;
+}
+.ne-search .ne-input {
+  padding-left: 30px;
+  width: 240px;
+}
+
+.ne-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 2rem;
+  max-width: 100%;
+  padding: 2px 12px;
+  border-radius: var(--ne-radius-sm);
+  border: 1px solid var(--ne-border);
+  background: var(--ne-surface);
+  color: var(--ne-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  cursor: pointer;
+  white-space: nowrap;
+}
+/* Enlarged text (browser text size): a label longer than the line wraps instead of widening the page. */
+@media (max-width: 600px) {
+  .ne-btn {
+    white-space: normal;
+    text-align: left;
+  }
+}
+.ne-btn:hover:not(:disabled) {
+  background: var(--ne-surface-hover);
+  border-color: var(--ne-border-strong);
+}
+.ne-btn:disabled,
+.ne-btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ne-btn-primary {
+  background: var(--ne-accent);
+  border-color: var(--ne-accent);
+  color: #05141a;
+}
+body[data-theme-mode='light'] .ne-btn-primary {
+  color: #fff;
+}
+.ne-btn-primary:hover:not(:disabled) {
+  background: var(--ne-accent-strong);
+  border-color: var(--ne-accent-strong);
+}
+.ne-btn-ghost {
+  border-color: transparent;
+  background: transparent;
+}
+.ne-btn-sm {
+  min-height: 1.625rem;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+}
+
+.ne-seg {
+  max-width: 100%;
+  overflow-x: auto;
+  display: inline-flex;
+  border: 1px solid var(--ne-border);
+  border-radius: var(--ne-radius-sm);
+  overflow: hidden;
+  background: var(--ne-surface);
+}
+.ne-seg button {
+  border: 0;
+  background: transparent;
+  color: var(--ne-muted);
+  font: inherit;
+  font-size: 0.78125rem;
+  padding: 0 10px;
+  height: 1.875rem;
+  cursor: pointer;
+}
+.ne-seg button + button {
+  border-left: 1px solid var(--ne-border);
+}
+/* On a phone a two-word option wraps onto a second line instead of being clipped (Costs metrics, F1.19). */
+@media (max-width: 600px) {
+  .ne-seg button {
+    height: auto;
+    min-height: 1.875rem;
+    padding: 4px 8px;
+    line-height: 1.25;
+  }
+}
+.ne-seg button[aria-pressed='true'] {
+  background: var(--ne-accent-soft);
+  color: var(--ne-text);
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------------- badges */
+
+.ne-badge {
+  flex: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 1.375rem;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: var(--ne-fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: var(--ne-neutral-soft);
+  color: var(--ne-text-2);
+  white-space: nowrap;
+}
+/* Long labels (disclaimers) wrap instead of truncating. */
+.ne-badge-wrap {
+  flex: initial;
+  height: auto;
+  min-height: 22px;
+  padding: 3px 8px;
+  white-space: normal;
+  border-radius: 10px;
+  line-height: 1.35;
+}
+.ne-badge-dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ne-tone-ok {
+  background: var(--ne-ok-soft);
+  color: var(--ne-ok);
+}
+.ne-tone-warn {
+  background: var(--ne-warn-soft);
+  color: var(--ne-warn);
+}
+.ne-tone-danger {
+  background: var(--ne-danger-soft);
+  color: var(--ne-danger);
+}
+.ne-tone-info {
+  background: var(--ne-info-soft);
+  color: var(--ne-info);
+}
+.ne-tone-accent {
+  background: var(--ne-accent-soft);
+  color: var(--ne-accent);
+}
+.ne-tone-neutral {
+  background: var(--ne-neutral-soft);
+  color: var(--ne-muted);
+}
+
+/* The normal state (StatusPill ok, "headroom"): text with a dot, no pill, so badges stand for what needs a look. */
+.ne-quiet {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--ne-fs-caption);
+  font-weight: 550;
+  color: var(--ne-text-2);
+  white-space: nowrap;
+}
+.ne-quiet::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ne-ok);
+}
+
+.ne-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.25rem;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-family: var(--ne-mono);
+  font-size: var(--ne-fs-caption);
+  background: var(--ne-surface-2);
+  border: 1px solid var(--ne-border);
+  color: var(--ne-text-2);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ cards */
+
+.ne-grid {
+  display: grid;
+  gap: 14px;
+  /* A tall card does not stretch its neighbours into mostly-empty boxes; tiles in a row still match (below). */
+  align-items: start;
+}
+.ne-grid-tiles {
+  align-items: stretch;
+}
+.ne-grid-tiles {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.ne-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.ne-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.ne-grid-main {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+/* A list beside its editor (Commercial scenarios); stacks on narrow screens. */
+.ne-grid-side {
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+}
+@media (max-width: 1100px) {
+  .ne-grid-2,
+  .ne-grid-3,
+  .ne-grid-main,
+  .ne-grid-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ne-card {
+  background: var(--ne-surface);
+  border: 1px solid var(--ne-border);
+  border-radius: var(--ne-radius);
+  box-shadow: var(--ne-shadow);
+  min-width: 0;
+}
+.ne-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ne-border);
+}
+.ne-card-title {
+  font-size: var(--ne-fs-card-title);
+  font-weight: 650;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ne-card-body {
+  padding: 14px 16px;
+}
+.ne-card-foot {
+  padding: 9px 16px;
+  border-top: 1px solid var(--ne-border);
+  font-size: var(--ne-fs-caption);
+  color: var(--ne-muted);
+  overflow-wrap: anywhere;
+}
+.ne-card-foot-text,
+.ne-card-body p,
+.ne-tile-reason {
+  max-width: var(--ne-measure);
+}
+.ne-section {
+  margin-top: 22px;
+}
+.ne-section-title.ne-section {
+  margin-top: 26px;
+}
+.ne-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ne-muted);
+  margin: 0 0 10px;
+}
+
+/* ------------------------------------------------------------------ tiles */
+
+.ne-tile {
+  position: relative;
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ne-tile-label {
+  font-size: 0.75rem;
+  color: var(--ne-muted);
+  font-weight: 550;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ne-tile-value {
+  font-size: var(--ne-fs-tile);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+/* The unit starts with a real space (the markup), so "37.8 %" reads and copies as the tables write it (W1F.S6). */
+.ne-tile-unit {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ne-muted);
+  white-space: pre-wrap;
+}
+.ne-tile-unavailable {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ne-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+}
+.ne-tile-reason {
+  font-size: var(--ne-fs-caption);
+  color: var(--ne-muted);
+}
+/* A figure that is not in the headline (Budgets: the run-rate projection), set apart by a rule above it. */
+.ne-tile-projected {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--ne-border);
+  font-size: 12.5px;
+  color: var(--ne-text-2);
+}
+.ne-tile-projected .ne-num {
+  font-weight: 600;
+  color: var(--ne-text);
+}
+.ne-tile-source {
+  overflow-wrap: anywhere;
+  margin-top: 6px;
+  font-size: var(--ne-fs-caption);
+  color: var(--ne-faint);
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+/* A source line in parts (TileSource, #60): each part after a dot; the dot that starts a line falls in the clipped margin. */
+.ne-tile-source-parts {
+  display: block;
+  overflow: hidden;
+}
+.ne-tile-source-parts > span {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -1em;
+}
+.ne-tile-source-parts > span > span {
+  position: relative;
+  padding-left: 1em;
+  min-width: 0;
+}
+.ne-tile-source-parts > span > span::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  width: 1em;
+  text-align: center;
+}
+.ne-tile-age {
+  white-space: nowrap;
+}
+.ne-tile-accent {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: var(--ne-radius) 0 0 var(--ne-radius);
+}
+
+/* ------------------------------------------------------------------ table */
+
+.ne-table-wrap {
+  overflow-x: auto;
+}
+/*
+ * The wrapper scrolls sideways, so it is the header's scroll container and a page scroll would carry the
+ * header away. A long table (DataTable with 20+ rows) gets a viewport-high box of its own on a wide screen,
+ * where the sticky header holds. On a phone the table stacks into cards, in a box of its own as well.
+ */
+@media (min-width: 601px) {
+  .ne-table-wrap-tall {
+    max-height: max(360px, calc(100vh - 220px));
+    overflow-y: auto;
+  }
+}
+/* On a phone a long table stacks into cards; a box of three quarters of the screen keeps it from becoming the page. */
+@media (max-width: 600px) {
+  .ne-table-wrap-tall {
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+}
+/*
+ * The cue under a table box that scrolls: how many rows it hides, and a click scrolls on (F1.20). Sticky, so over a box
+ * taller than what is left of the screen it holds at the foot of the screen instead of sitting under the fold.
+ */
+.ne-table-more {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 1.75rem;
+  border: 0;
+  border-top: 1px solid var(--ne-border);
+  background: var(--ne-surface-2);
+  color: var(--ne-accent-strong);
+  font: inherit;
+  font-size: var(--ne-fs-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+.ne-table-more:hover {
+  background: var(--ne-surface-hover);
+}
+/* Nothing below: kept in the layout (no jump), out of sight and out of the accessibility tree. */
+.ne-table-more-done {
+  visibility: hidden;
+}
+.ne-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--ne-fs-small);
+}
+.ne-table th {
+  text-align: left;
+  font-size: var(--ne-fs-caption);
+  font-weight: 650;
+  color: var(--ne-muted);
+  letter-spacing: 0.02em;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--ne-border);
+  background: var(--ne-surface-2);
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+}
+/* A header allowed to wrap (Column.wrapHeader): balanced lines, never a lone last word ("h" of "24 h", #62). */
+.ne-table th.ne-th-wrap {
+  white-space: normal;
+  text-wrap: balance;
+}
+.ne-table th button {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ne-table th button:focus-visible {
+  box-shadow: var(--ne-focus);
+}
+.ne-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--ne-border);
+  vertical-align: top;
+}
+.ne-table tr:last-child td {
+  border-bottom: 0;
+}
+.ne-table tbody tr[data-clickable='true'] {
+  cursor: pointer;
+}
+.ne-table tbody tr[data-clickable='true']:hover,
+.ne-table tbody tr[data-clickable='true']:focus-visible {
+  background: var(--ne-surface-hover);
+  outline: none;
+}
+.ne-table tbody tr[aria-selected='true'] {
+  background: var(--ne-accent-soft);
+}
+.ne-table .ne-right {
+  text-align: right;
+}
+.ne-table-compact td,
+.ne-table-compact th {
+  padding: 6px 10px;
+}
+
+/* A stacked table's sort control on a phone (W1F.S1). */
+.ne-table-sort { padding: 8px 12px; border-bottom: 1px solid var(--ne-border); font-size: var(--ne-fs-small); }
+.ne-table-sort label { display: flex; align-items: center; gap: 8px; }
+.ne-table-sort .ne-select { flex: 1; min-width: 0; min-height: 2rem; }
+
+/* A stacked table (DataTable `stack`): on a phone every row is a card of labelled cells. */
+@media (max-width: 600px) {
+  .ne-table-stack,
+  .ne-table-stack tbody,
+  .ne-table-stack tr,
+  .ne-table-stack td {
+    display: block;
+    width: 100%;
+  }
+  .ne-table-stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+  .ne-table-stack tbody tr {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--ne-border);
+  }
+  .ne-table-stack tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .ne-table-stack td,
+  .ne-table-stack td.ne-right {
+    border-bottom: 0;
+    padding: 4px 12px;
+    text-align: left;
+  }
+  .ne-table-stack td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: var(--ne-fs-caption);
+    font-weight: 650;
+    color: var(--ne-muted);
+  }
+  /* Column minimums for the wide layout do not apply to a stacked cell. */
+  .ne-table-stack td > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .ne-table-stack td:empty {
+    display: none;
+  }
+  /* A group header row spanning every column (API capabilities) is one full-width line. */
+  .ne-table-stack tbody th[colspan] {
+    display: block;
+    width: 100%;
+  }
+  /* Wide-layout column minimums (e.g. .ne-u1-cap) do not apply to a stacked cell. */
+  .ne-table-stack td {
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* ------------------------------------------------------------- states */
+
+.ne-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 36px 20px;
+  color: var(--ne-muted);
+}
+/* Links inside running text are underlined: colour alone is not enough (WCAG 1.4.1, axe link-in-text-block). */
+.ne-root .ne-state a,
+.ne-root .ne-callout a,
+.ne-root .ne-field-hint a,
+.ne-root p a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ne-state-title {
+  color: var(--ne-text);
+  font-weight: 650;
+  font-size: 0.875rem;
+}
+.ne-state-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 4px;
+}
+.ne-skel {
+  background: linear-gradient(90deg, var(--ne-surface-2) 0%, var(--ne-surface-hover) 50%, var(--ne-surface-2) 100%);
+  background-size: 200% 100%;
+  animation: ne-shimmer 1.4s ease-in-out infinite;
+  border-radius: 4px;
+}
+@keyframes ne-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.ne-callout > div {
+  min-width: 0;
+  max-width: var(--ne-measure);
+  overflow-wrap: anywhere;
+}
+.ne-evidence-row {
+  flex-wrap: wrap;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--ne-border);
+}
+.ne-callout {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--ne-radius);
+  border: 1px solid var(--ne-border);
+  background: var(--ne-surface);
+  font-size: var(--ne-fs-small);
+}
+.ne-callout svg {
+  flex: none;
+  margin-top: 2px;
+}
+.ne-callout[data-tone='warn'] {
+  border-color: color-mix(in srgb, var(--ne-warn) 35%, var(--ne-border));
+  background: var(--ne-warn-soft);
+}
+.ne-callout[data-tone='danger'] {
+  border-color: color-mix(in srgb, var(--ne-danger) 35%, var(--ne-border));
+  background: var(--ne-danger-soft);
+}
+.ne-callout[data-tone='info'] {
+  border-color: color-mix(in srgb, var(--ne-info) 30%, var(--ne-border));
+  background: var(--ne-info-soft);
+}
+.ne-callout-title {
+  font-weight: 650;
+  margin-bottom: 2px;
+}
+
+/* ----------------------------------------------------------------- drawer */
+
+.ne-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 12, 0.45);
+  z-index: 1200;
+}
+.ne-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(560px, 100vw);
+  background: var(--ne-surface);
+  border-left: 1px solid var(--ne-border);
+  box-shadow: var(--ne-shadow-lg);
+  z-index: 1201;
+  display: flex;
+  flex-direction: column;
+  animation: ne-slide 160ms ease-out;
+}
+@keyframes ne-slide {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.ne-drawer-head {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--ne-border);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.ne-drawer-body {
+  padding: 14px 18px 28px;
+  overflow-y: auto;
+}
+
+.ne-kv {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 6px 12px;
+  font-size: 0.8125rem;
+  margin: 0;
+}
+.ne-kv dt {
+  color: var(--ne-muted);
+  /* #63: a long label name (compute_nebius_com_node_group_id) wraps in its column instead of running over its value. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ne-kv dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* On a phone the name sits above its value: a 150 px name column left values ~90 px wide (W1F.N5). */
+@media (max-width: 600px) {
+  .ne-kv {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .ne-kv dt {
+    font-size: var(--ne-fs-caption);
+    font-weight: 650;
+  }
+  .ne-kv dd + dt {
+    margin-top: 8px;
+  }
+}
+
+/* ------------------------------------------------------------------- tabs */
+
+/* Tabs wrap onto a second line rather than scroll a label out of sight at 390 px (F1.51: "Rul…", "Orpha…"). */
+.ne-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  border-bottom: 1px solid var(--ne-border);
+  margin-bottom: 14px;
+}
+.ne-tab {
+  all: unset;
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--ne-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.ne-tab[aria-selected='true'] {
+  color: var(--ne-text);
+  border-bottom-color: var(--ne-accent);
+}
+.ne-tab:focus-visible {
+  box-shadow: var(--ne-focus);
+}
+
+/* ----------------------------------------------------------------- charts */
+
+.ne-barlist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ne-barlist-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 34%) 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78125rem;
+}
+/* Labels wrap, never cut: "default-project-eu…" twice told two projects apart by nothing (W1F.N4). */
+.ne-barlist-label {
+  overflow-wrap: anywhere;
+  color: var(--ne-text-2);
+}
+.ne-bar-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--ne-surface-2);
+  overflow: hidden;
+}
+.ne-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+.ne-meter {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ne-surface-2);
+  overflow: hidden;
+}
+.ne-meter > div {
+  height: 100%;
+  border-radius: 3px;
+}
+pre.ne-code {
+  font-family: var(--ne-mono);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  background: var(--ne-bg-sunken);
+  border: 1px solid var(--ne-border);
+  border-radius: var(--ne-radius-sm);
+  padding: 10px 12px;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--ne-text-2);
+}
+pre.ne-code .ne-add {
+  color: var(--ne-ok);
+  background: var(--ne-ok-soft);
+  display: block;
+}
+pre.ne-code .ne-del {
+  color: var(--ne-danger);
+  background: var(--ne-danger-soft);
+  display: block;
+}
+pre.ne-code .ne-hunk {
+  color: var(--ne-info);
+  display: block;
+}
+
+/* --------------------------------------------------------------- graph */
+
+.ne-graph {
+  width: 100%;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 1px 1px, var(--ne-border) 1px, transparent 0) 0 0 / 18px 18px,
+    var(--ne-bg-sunken);
+  border-radius: 0 0 var(--ne-radius) var(--ne-radius);
+}
+.ne-graph svg {
+  display: block;
+}
+/* An indented tree (#21, a narrow box) is not read left to right: the legend leaves that out. */
+.ne-card:has(.ne-graph[data-layout='tree']) .ne-graph-dir {
+  display: none;
+}
+.ne-xgraph-note {
+  margin: 0;
+  padding: 6px 16px;
+  font-size: var(--ne-fs-caption);
+}
+.ne-gnode {
+  cursor: pointer;
+}
+.ne-gnode rect {
+  fill: var(--ne-surface);
+  stroke: var(--ne-border-strong);
+  stroke-width: 1;
+}
+.ne-gnode:hover rect,
+.ne-gnode:focus-visible rect {
+  stroke: var(--ne-accent);
+}
+.ne-gnode:focus-visible {
+  outline: none;
+}
+.ne-gnode[data-selected='true'] rect {
+  stroke: var(--ne-accent);
+  stroke-width: 2;
+  fill: var(--ne-accent-soft);
+}
+.ne-gnode[data-dim='true'] {
+  opacity: 0.32;
+}
+.ne-gnode text {
+  fill: var(--ne-text);
+  font-size: 0.71875rem;
+  font-family: var(--ne-font);
+}
+.ne-gnode .ne-gnode-type {
+  fill: var(--ne-muted);
+  font-size: 0.625rem;
+}
+.ne-gtoggle {
+  cursor: pointer;
+}
+.ne-gtoggle rect {
+  fill: var(--ne-surface-2);
+  stroke: var(--ne-border-strong);
+}
+.ne-gtoggle text {
+  fill: var(--ne-text-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: var(--ne-font);
+}
+.ne-gtoggle:hover rect,
+.ne-gtoggle:focus-visible rect {
+  stroke: var(--ne-accent);
+}
+.ne-gtoggle:focus-visible {
+  outline: none;
+}
+.ne-gedge {
+  fill: none;
+  stroke: var(--ne-border-strong);
+  stroke-width: 1.2;
+}
+.ne-gedge[data-relation='contains'] {
+  stroke-dasharray: 3 3;
+}
+.ne-gedge[data-hot='true'] {
+  stroke: var(--ne-accent);
+  stroke-width: 1.8;
+}
+
+/* ------------------------------------------------------------------ nav */
+
+.ne-nav {
+  width: 232px;
+  flex: none;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  background: var(--ne-bg-sunken);
+  border-right: 1px solid var(--ne-border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  font-family: var(--ne-font, 'Inter', ui-sans-serif, system-ui, sans-serif);
+}
+.ne-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 18px 14px;
+  color: var(--ne-text);
+  text-decoration: none !important;
+}
+.ne-nav-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--ne-accent) 0%, var(--ne-violet) 100%);
+  color: #05141a;
+}
+.ne-nav-brand-name {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+}
+.ne-nav-brand-sub {
+  font-size: var(--ne-fs-caption);
+  color: var(--ne-muted);
+}
+.ne-nav-group {
+  padding: 6px 10px;
+}
+.ne-nav-group-label {
+  font-size: var(--ne-fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ne-faint);
+  padding: 8px 10px 4px;
+}
+.ne-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 2.125rem;
+  padding: 0 10px;
+  border-radius: 6px;
+  color: var(--ne-text-2) !important;
+  text-decoration: none !important;
+  font-size: 0.84375rem;
+  font-weight: 520;
+}
+.ne-nav-link svg {
+  color: var(--ne-muted);
+  flex: none;
+}
+.ne-nav-link:hover {
+  background: var(--ne-surface-hover);
+  color: var(--ne-text) !important;
+}
+.ne-nav-link[aria-current='page'] {
+  background: var(--ne-accent-soft);
+  color: var(--ne-text) !important;
+  box-shadow: inset 2px 0 0 var(--ne-accent);
+}
+.ne-nav-link[aria-current='page'] svg {
+  color: var(--ne-accent);
+}
+.ne-nav-foot {
+  margin-top: auto;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--ne-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  /* On a phone the header is a third of the screen: it scrolls away with the page. */
+  .ne-header {
+    position: static;
+    backdrop-filter: none;
+  }
+  .ne-header-aside {
+    max-width: 100%;
+  }
+  .ne-grid-tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .ne-nav {
+    width: 64px;
+    /* Above the page, so a link's label (below) is not painted under the content. */
+    z-index: 40;
+  }
+  /* Icon-only links: the label shows beside the icon on keyboard focus, hover or tap. */
+  .ne-nav-link:focus-visible .ne-nav-link-label,
+  .ne-nav-link:hover .ne-nav-link-label {
+    display: block;
+    position: fixed;
+    left: 60px;
+    z-index: 30;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--ne-text);
+    color: var(--ne-bg);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    box-shadow: var(--ne-shadow-lg);
+    pointer-events: none;
+  }
+  .ne-nav-brand-text,
+  .ne-nav-link span,
+  .ne-nav-group-label,
+  .ne-nav-foot-text {
+    display: none;
+  }
+  /*
+   * On a phone the banner is one line (the endpoints are in its title) and takes the breadcrumb's place (the title
+   * below repeats it), so a test run keeps the live layout's first screen; the nav mark stays on screen.
+   */
+  .ne-testdata-detail {
+    display: none;
+  }
+  .ne-testdata {
+    margin: 0 0 6px;
+    padding: 3px 8px;
+  }
+  .ne-header:has(.ne-testdata) .ne-crumbs {
+    display: none;
+  }
+  .ne-testdata-mark {
+    margin: 0 4px 8px;
+    padding: 3px 2px;
+    font-size: 0.625rem;
+    letter-spacing: 0;
+  }
+  .ne-page {
+    padding: 0 14px 40px;
+  }
+  .ne-header {
+    margin: 0 -14px 16px;
+    padding: 12px 14px;
+  }
+  .ne-search .ne-input {
+    width: 160px;
+  }
+}
+
+/* On a phone the filters are one control that names what is applied (#24); the intro is its first sentence. */
+@media (max-width: 600px) {
+  .ne-refresh-age {
+    display: none;
+  }
+}
+.ne-filter-fold {
+  margin-top: 10px;
+}
+.ne-filter-fold > summary {
+  cursor: pointer;
+  font-size: var(--ne-fs-small);
+  font-weight: 600;
+  color: var(--ne-text-2);
+  overflow-wrap: anywhere;
+}
+.ne-filter-fold > summary svg {
+  vertical-align: -2px;
+}
+.ne-filter-fold-applied {
+  font-weight: 400;
+  color: var(--ne-muted);
+}
+.ne-filter-fold > summary:focus-visible,
+.ne-subtitle-more > summary:focus-visible {
+  box-shadow: var(--ne-focus);
+  outline: none;
+  border-radius: 4px;
+}
+.ne-subtitle-first,
+.ne-subtitle-more p {
+  margin: 0;
+}
+.ne-subtitle-more > summary {
+  cursor: pointer;
+  font-size: var(--ne-fs-caption);
+  color: var(--ne-accent);
+}
+/* On a phone the search takes a row of its own, so its placeholder reads whole (G1.19), like the type select below it. */
+@media (max-width: 600px) {
+  .ne-filterbar .ne-search {
+    flex: 1 1 100%;
+  }
+  .ne-filterbar .ne-search .ne-input {
+    width: 100%;
+  }
+}
+
+/* ------------------------------------------------------------- utilities */
+
+.ne-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ne-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ne-stack-xs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.ne-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ne-steps {
+  display: flex;
+  gap: 0;
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  flex-wrap: wrap;
+}
+.ne-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78125rem;
+  color: var(--ne-muted);
+  padding: 6px 14px 6px 0;
+}
+.ne-steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  width: 20px;
+  height: 1.25rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: var(--ne-fs-caption);
+  font-weight: 700;
+  border: 1px solid var(--ne-border-strong);
+}
+.ne-steps li[data-state='done'] {
+  color: var(--ne-text-2);
+}
+.ne-steps li[data-state='done']::before {
+  background: var(--ne-ok-soft);
+  border-color: var(--ne-ok);
+  color: var(--ne-ok);
+}
+.ne-steps li[data-state='current'] {
+  color: var(--ne-text);
+  font-weight: 600;
+}
+.ne-steps li[data-state='current']::before {
+  background: var(--ne-accent);
+  border-color: var(--ne-accent);
+  color: #05141a;
+}
+
+.ne-markdown {
+  font-size: 0.84375rem;
+  line-height: 1.6;
+  color: var(--ne-text-2);
+}
+/* Links in running text are underlined, not only on hover (MUI's underlineHover; WCAG 1.4.1 link-in-text-block). */
+.ne-markdown a {
+  text-decoration: underline;
+}
+.ne-markdown table {
+  border-collapse: collapse;
+  font-size: 0.78125rem;
+  margin: 10px 0;
+  display: block;
+  overflow-x: auto;
+}
+/* "table" raises these above Backstage's own Markdown cell rule (same specificity, injected later: 24 px padding,
+   word-break: break-word). */
+.ne-markdown table th,
+.ne-markdown table td {
+  border: 1px solid var(--ne-border);
+  padding: 5px 8px;
+  vertical-align: top;
+  /* A cell keeps its words ("intended?", not "intende|d?"); a table wider than its box scrolls, focusable (Markdown.tsx). */
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+.ne-markdown code {
+  font-family: var(--ne-mono);
+  font-size: 0.75rem;
+  background: var(--ne-surface-2);
+  padding: 1px 4px;
+  border-radius: 3px;
+  /* #51: a long path or command in running text wraps instead of widening the document (427 px at 390). */
+  overflow-wrap: anywhere;
+}
+.ne-markdown pre {
+  background: var(--ne-bg-sunken);
+  border: 1px solid var(--ne-border);
+  border-radius: 6px;
+  padding: 10px;
+  overflow-x: auto;
+}
+/* One box per code block (G5.11): Backstage's CodeSnippet nests its own <pre> (inline #444 background) in ours,
+   and inline-code styling painted every line of the block again. */
+.ne-markdown pre pre {
+  background: transparent !important;
+  border: 0;
+  border-radius: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.ne-markdown pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  /* A code block keeps its lines and scrolls sideways (a tab stop when it does: Markdown.tsx). */
+  overflow-wrap: normal;
+}
+.ne-markdown pre pre {
+  color: var(--ne-text) !important;
+  /* The highlighter's inline overflowX: auto would make this inner box the scroller; the outer box scrolls (#39). */
+  overflow: visible !important;
+}
+/* Highlighted tokens (#39): the theme's palette, AA on the code background, not the highlighter's inline colours. */
+.ne-markdown pre [data-ne-tok='comment'] {
+  color: var(--ne-code-comment) !important;
+}
+.ne-markdown pre [data-ne-tok='string'] {
+  color: var(--ne-code-string) !important;
+}
+.ne-markdown pre [data-ne-tok='keyword'] {
+  color: var(--ne-code-keyword) !important;
+}
+.ne-markdown pre [data-ne-tok='other'] {
+  color: inherit !important;
+}
+:root,
+body[data-theme-mode='light'] {
+  --ne-code-comment: #5a6476;
+  --ne-code-string: #136b45;
+  --ne-code-keyword: #8a2f1c;
+}
+body[data-theme-mode='dark'] {
+  --ne-code-comment: #919bad;
+  --ne-code-string: #8fd6a8;
+  --ne-code-keyword: #f2a385;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ne-root *,
+  .ne-drawer,
+  .ne-skel {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media print {
+  .ne-nav,
+  .ne-filterbar,
+  .ne-no-print {
+    display: none !important;
+  }
+  .ne-root {
+    background: #fff;
+    color: #000;
+  }
+  .ne-card {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  .ne-header {
+    position: static;
+  }
+}
+
+/* U2 overview */
+.ne-ov-setup {
+  font-size: 0.75rem;
+  color: var(--ne-muted);
+  overflow-wrap: anywhere;
+}
+.ne-ov-setup code {
+  font-size: var(--ne-fs-caption);
+}
+.ne-ov-break {
+  overflow-wrap: anywhere;
+}
+.ne-ov-small {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ne-muted);
+}
+.ne-ov-sub {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--ne-border);
+}
+.ne-ov-kv {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 10px;
+  margin: 0;
+  font-size: 0.75rem;
+}
+.ne-ov-kv dt {
+  color: var(--ne-muted);
+}
+.ne-ov-kv dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.ne-ov-source {
+  margin-top: 4px;
+  font-size: var(--ne-fs-caption);
+  color: var(--ne-faint);
+  overflow-wrap: anywhere;
+}
+.ne-ov-details {
+  font-size: 0.75rem;
+  color: var(--ne-muted);
+}
+.ne-ov-details summary {
+  cursor: pointer;
+  /* WCAG 2.2 target size (2.5.8): at the 12 px text size two toggles in one tile were 16 px tall and touching. */
+  min-height: 24px;
+  line-height: 24px;
+}
+.ne-ov-details summary:focus-visible {
+  box-shadow: var(--ne-focus);
+  outline: none;
+}
+.ne-ov-details ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ne-ov-attention {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+.ne-ov-mini {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0 0 0 10px;
+  font-size: 0.75rem;
+  color: var(--ne-muted);
+}
+.ne-ov-pills {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+/* "partial (3 calls refused)" wraps in a narrow State column rather than widening the table (F1.14). */
+.ne-ov-pills .ne-badge {
+  height: auto;
+  min-height: 22px;
+  padding: 3px 8px;
+  white-space: normal;
+  border-radius: 10px;
+  line-height: 1.35;
+  align-items: baseline;
+}
+.ne-ov-pills .ne-badge-dot::before {
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* U5 pricing */
+.u5-live {
+  gap: 14px;
+  min-width: 0;
+}
+.u5-wrap,
+.u5-figure {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.u5-figure {
+  font-size: 1.375rem;
+}
+/* Updating (the "updating…" badge says so): marked with a dotted underline, not faded, so the figure and its unit
+   keep their contrast (opacity 0.6 put the unit at 3.67:1 in the dark theme). */
+.u5-figure[data-updating='true'] {
+  text-decoration: underline dotted var(--ne-border-strong);
+  text-underline-offset: 4px;
+}
+.u5-skus,
+.u5-unpriced {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.u5-skus code {
+  font-family: var(--ne-mono);
+  font-size: var(--ne-fs-caption);
+}
+.u5-unpriced {
+  margin-top: 4px;
+  color: var(--ne-muted);
+}
+
+/* U3 capacity */
+.ne-cap-subhead {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ne-text);
+  margin: 0 0 10px;
+}
+.ne-cap-wrap {
+  overflow-wrap: anywhere;
+}
+/* A dotted id (quota names) breaks at its dots (<wbr> after each), and inside a segment only when one is wider than the line (G2.14). */
+.ne-cap-id {
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.ne-cap-gpu-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+  gap: 10px;
+}
+.ne-cap-gpu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--ne-border);
+  border-left: 3px solid var(--ne-border-strong);
+  border-radius: var(--ne-radius-sm);
+  background: var(--ne-surface-2);
+}
+.ne-cap-gpu[data-level='under'] {
+  border-left-color: var(--ne-ok);
+}
+.ne-cap-gpu[data-level='near'],
+.ne-cap-gpu[data-level='zero-limit'] {
+  border-left-color: var(--ne-warn);
+  background: var(--ne-warn-soft);
+}
+.ne-cap-gpu[data-level='over'] {
+  border-left-color: var(--ne-danger);
+  background: var(--ne-danger-soft);
+}
+.ne-cap-gpu-model {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ne-text);
+}
+.ne-cap-usage {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+.ne-cap-usage-figures {
+  font-size: 0.78125rem;
+  gap: 6px;
+}
+.ne-cap-usage [data-level='over'] {
+  color: var(--ne-danger);
+  font-weight: 600;
+}
+.ne-cap-usage [data-level='near'],
+.ne-cap-usage [data-level='zero-limit'] {
+  color: var(--ne-warn);
+  font-weight: 600;
+}
+.ne-cap-search .ne-input {
+  width: min(240px, 100%);
+}
+.ne-cap-search {
+  max-width: 100%;
+}
+.ne-cap-check {
+  font-size: 0.78125rem;
+  color: var(--ne-text-2);
+  gap: 6px;
+  cursor: pointer;
+}
+.ne-cap-unavailable-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+.ne-cap-unavailable code {
+  font-family: var(--ne-mono);
+  font-size: 0.75rem;
+  background: var(--ne-surface-2);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.ne-cap-presets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.75rem;
+}
+.ne-cap-missing {
+  color: var(--ne-warn);
+  font-family: inherit;
+}
+.ne-cap-price-note {
+  margin: 10px 0 0;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.ne-cap-price-note p {
+  margin: 0 0 4px;
+}
+@media (max-width: 600px) {
+  .ne-cap-search,
+  .ne-cap-search .ne-input {
+    width: 100%;
+  }
+}
+
+/* U1 integrations */
+
+.ne-u1-wrap {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* Matrix paths break at their separators (<wbr>) first; a column has its share of the card, so a word breaks only
+   when it alone is wider than that share (#57). */
+.ne-matrix-path {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ne-u1-sub {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--ne-border);
+}
+.ne-u1-subtitle {
+  font-size: var(--ne-fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ne-muted);
+  margin: 0 0 8px;
+}
+.ne-u1-gaps {
+  font-size: 0.78125rem;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+.ne-u1-caps .ne-u1-group th {
+  position: static;
+  background: var(--ne-bg-sunken);
+  color: var(--ne-text-2);
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  white-space: normal;
+  border-top: 1px solid var(--ne-border);
+}
+.ne-u1-caps tbody:first-of-type .ne-u1-group th {
+  border-top: 0;
+}
+.ne-u1-cap {
+  min-width: 220px;
+  max-width: 340px;
+}
+.ne-u1-path {
+  font-size: var(--ne-fs-caption);
+  overflow-wrap: anywhere;
+}
+.ne-u1-detail-cell {
+  min-width: 240px;
+  max-width: 420px;
+}
+.ne-u1-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.ne-u1-detail code {
+  font-family: var(--ne-mono);
+  font-size: var(--ne-fs-caption);
+}
+.ne-u1-err {
+  font-size: var(--ne-fs-caption);
+  overflow-wrap: anywhere;
+}
+.ne-u1-list {
+  margin: 2px 0 0;
+  padding-left: 16px;
+}
+.ne-u1-health {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 130px;
+}
+.ne-u1-pp td {
+  background: var(--ne-surface-2);
+}
+.ne-u1-pp-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 16px;
+  display: grid;
+  gap: 4px;
+}
+.ne-u1-pp-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+}
+.ne-u1-spark {
+  display: block;
+  max-width: 100%;
+}
+.ne-u1-spark-ok {
+  fill: var(--ne-ok);
+}
+.ne-u1-spark-neutral {
+  fill: var(--ne-border-strong);
+}
+.ne-u1-spark-fail rect {
+  fill: var(--ne-danger);
+}
+
+/* U4 explorer */
+
+.ne-xgraph-bar {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--ne-border);
+  font-size: 0.75rem;
+}
+.ne-xglyph {
+  fill: none;
+  stroke: var(--ne-muted);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ne-xtype {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.ne-xtype svg {
+  flex: none;
+}
+.ne-gnode .ne-xdefault {
+  fill: var(--ne-accent);
+  font-weight: 600;
+}
+.ne-gnode[data-fold='true'] rect {
+  fill: var(--ne-surface-2);
+  stroke-dasharray: 4 3;
+}
+.ne-gnode[data-fold='true']:hover rect,
+.ne-gnode[data-fold='true']:focus-visible rect {
+  stroke: var(--ne-accent);
+}
+.ne-gedge[data-cross='true'] {
+  stroke: var(--ne-info);
+  stroke-dasharray: 1 3;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+.ne-gedge[data-cross='true'][data-hot='true'] {
+  stroke: var(--ne-accent);
+  opacity: 1;
+}
+.ne-xsummary {
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.ne-xcmd {
+  font-size: 0.75rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.ne-btn.ne-xrel {
+  height: auto;
+  min-height: 26px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.ne-xrel-label {
+  color: var(--ne-accent);
+  font-size: var(--ne-fs-caption);
+  font-weight: 600;
+}
+
+/* Links inside running text are underlined, not told apart by colour alone (WCAG 1.4.1). */
+.ne-ov-setup a,
+.ne-cap-unavailable-body a,
+.ne-u1-detail a,
+.ne-callout a,
+.ne-tile-reason a,
+.ne-card-foot a,
+.ne-muted a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* A badge on a tinted surface (callout, card header) keeps its contrast: opaque surface behind it. */
+.ne-callout .ne-badge,
+.ne-between .ne-badge {
+  background-image: linear-gradient(var(--ne-surface), var(--ne-surface));
+  background-blend-mode: normal;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+/* Overview connector table: the issue column wraps instead of running past the card. */
+.ne-ov-issue {
+  /* 150 px: with every connector listed, the table's column minimums must stay under the 1440 px card (12 px headers). */
+  min-width: 150px;
+  max-width: 360px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* A phone's two-column connector table (W1F.N5) fits its card only without that minimum. */
+@media (max-width: 600px) {
+  .ne-ov-issue {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+}
+
+/* Capacity availability matrix */
+.ne-advice-best {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8125rem;
+}
+.ne-advice-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ne-discovery-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 0.8125rem;
+  /* Long quota and resource ids (compute.filesystem.size.network-ssd) wrap instead of widening a 390 px page. */
+  overflow-wrap: anywhere;
+}
+
+.ne-cap-blocked {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ne-danger);
+}
+
+/* Allowance check rows: title and badge on one line, the sentence under it, a rule between rows (#59). */
+.ne-cap-allowance-row {
+  padding: 8px 0;
+  border-top: 1px solid var(--ne-border);
+}
+.ne-cap-allowance-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+/* Capacity cards: the effective limit, project caps and the K8s line per region (W1-P14, W1-P15). */
+.ne-cap-effective {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ne-cap-caps {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ne-text-2);
+}
+.ne-cap-k8s {
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+}
+
+/* A limit 0 outside the estate's regions or in another service: a fact, not an alarm. */
+.ne-cap-gpu[data-level='zero-limit'][data-urgent='false'] {
+  border-left-color: var(--ne-border-strong);
+  background: var(--ne-surface-2);
+}
+
+/* ------------------------------------------------- Fleet, Alerts and Logs (OPERATE) */
+
+/* Sequential heat scale (low → high), one per theme; "not observed" is its own swatch, never the low end. */
+:root,
+body[data-theme-mode='light'] {
+  --ne-heat-0: #e3f2f4;
+  --ne-heat-1: #c3e4ea;
+  --ne-heat-2: #9fd2dc;
+  --ne-heat-3: #7bbecd;
+  --ne-heat-4: #58a8bb;
+  --ne-heat-5: #3c90a6;
+  --ne-heat-6: #2c788f;
+  --ne-heat-7: #226177;
+  --ne-heat-8: #1a4b5f;
+  --ne-heat-9: #123647;
+  --ne-heat-none: #f1f3f6;
+  /* Stripes of the "not observed" hatch: ≥ 4:1 against 0 % (heat-0) and the card, so idle never reads as no data. */
+  --ne-heat-hatch: #6b7588;
+}
+body[data-theme-mode='dark'] {
+  --ne-heat-0: #17303a;
+  --ne-heat-1: #1b4651;
+  --ne-heat-2: #1f5d68;
+  --ne-heat-3: #23747d;
+  --ne-heat-4: #3a8c88;
+  --ne-heat-5: #5aa38a;
+  --ne-heat-6: #83b787;
+  --ne-heat-7: #afc87d;
+  --ne-heat-8: #d9d471;
+  --ne-heat-9: #fde26a;
+  --ne-heat-none: #0e1219;
+  --ne-heat-hatch: #8d97a9;
+}
+.ne-heat-c0 { fill: var(--ne-heat-0); background: var(--ne-heat-0); }
+.ne-heat-c1 { fill: var(--ne-heat-1); background: var(--ne-heat-1); }
+.ne-heat-c2 { fill: var(--ne-heat-2); background: var(--ne-heat-2); }
+.ne-heat-c3 { fill: var(--ne-heat-3); background: var(--ne-heat-3); }
+.ne-heat-c4 { fill: var(--ne-heat-4); background: var(--ne-heat-4); }
+.ne-heat-c5 { fill: var(--ne-heat-5); background: var(--ne-heat-5); }
+.ne-heat-c6 { fill: var(--ne-heat-6); background: var(--ne-heat-6); }
+.ne-heat-c7 { fill: var(--ne-heat-7); background: var(--ne-heat-7); }
+.ne-heat-c8 { fill: var(--ne-heat-8); background: var(--ne-heat-8); }
+.ne-heat-c9 { fill: var(--ne-heat-9); background: var(--ne-heat-9); }
+/*
+ * "Not observed" is a hatch, not a colour next to the low end (WCAG 1.4.11): the cell is left transparent and
+ * the row shows the hatch behind it; the legend swatch carries the same hatch.
+ */
+.ne-heat-cnone { fill: transparent; background: repeating-linear-gradient(135deg, var(--ne-heat-none) 0 3px, var(--ne-heat-hatch) 3px 5px); }
+
+.ne-heat {
+  display: grid;
+  grid-template-columns: minmax(120px, 230px) minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 3px;
+  align-items: center;
+}
+.ne-heat-group {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  font-size: var(--ne-fs-caption);
+  font-weight: 650;
+  color: var(--ne-muted);
+  /* Names and ids as written: never uppercased (a resource id is case-significant). */
+  overflow-wrap: anywhere;
+}
+.ne-heat-label {
+  all: unset;
+  cursor: pointer;
+  font-size: 0.78125rem;
+  color: var(--ne-text);
+  /* Wraps instead of "nip-legacy-teardown-gpu-0 · GP…": the label is how two runs of a name are told apart (W1F.N4). */
+  overflow-wrap: anywhere;
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+.ne-heat-label:hover { background: var(--ne-surface-hover); }
+.ne-heat-label:focus-visible { box-shadow: var(--ne-focus); }
+.ne-heat-label[aria-pressed='true'] { background: var(--ne-accent-soft); color: var(--ne-accent-strong); }
+.ne-heat-row { display: block; width: 100%; height: 18px; border-radius: 3px; overflow: hidden; background: repeating-linear-gradient(135deg, var(--ne-heat-none) 0 3px, var(--ne-heat-hatch) 3px 5px); }
+.ne-heat-row[data-selected='true'] { outline: 2px solid var(--ne-accent); outline-offset: 1px; }
+.ne-heat-axis {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--ne-fs-caption);
+  color: var(--ne-faint);
+  margin-top: 4px;
+}
+.ne-heat-legend { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.75rem; color: var(--ne-muted); }
+.ne-heat-scale { display: inline-flex; border-radius: 3px; overflow: hidden; border: 1px solid var(--ne-border); }
+.ne-heat-swatch { display: inline-block; width: 14px; height: 10px; }
+.ne-heat-swatch.ne-heat-cnone { width: 22px; }
+.ne-heat-hover { min-height: 18px; font-size: 0.75rem; color: var(--ne-text-2); }
+@media (max-width: 600px) {
+  .ne-heat { grid-template-columns: minmax(0, 1fr); }
+  .ne-heat-axis { grid-column: 1; }
+  .ne-heat-label { white-space: normal; overflow-wrap: anywhere; }
+}
+
+/* Each service card as tall as its own content, not the tallest in its row (#61). */
+.ne-svc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; align-items: start; }
+.ne-svc-item { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 10px; padding: 6px 0; border-top: 1px solid var(--ne-border); font-size: 0.78125rem; }
+.ne-svc-item:first-child { border-top: 0; }
+.ne-svc-figs { display: flex; flex-wrap: wrap; gap: 4px 10px; color: var(--ne-text-2); }
+
+.ne-fix { display: flex; flex-direction: column; gap: 14px; }
+.ne-fix-section h3 { margin: 0 0 6px; font-size: 0.8125rem; font-weight: 650; display: flex; align-items: center; gap: 6px; }
+.ne-fix-section ol, .ne-fix-section ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+/* #39: no height of its own; the drawer scrolls, and a box inside it would be a scroll region with no tab stop. */
+.ne-fix-runbook { border: 1px solid var(--ne-border); border-radius: 8px; padding: 4px 12px; background: var(--ne-surface-2); min-width: 0; }
+.ne-evidence-q { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.75rem; overflow-wrap: anywhere; background: var(--ne-bg-sunken); border-radius: 6px; padding: 6px 8px; }
+
+.ne-loglist { position: relative; overflow: auto; height: 460px; box-sizing: border-box; border: 1px solid var(--ne-border); border-radius: 8px; background: var(--ne-bg-sunken); }
+.ne-loglist-inner { position: relative; }
+.ne-logrow {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5rem;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 0 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  color: var(--ne-text);
+  cursor: pointer;
+  white-space: pre;
+  overflow: hidden;
+}
+.ne-logrow:hover { background: var(--ne-surface-hover); }
+.ne-logrow:focus-visible { box-shadow: inset 0 0 0 2px var(--ne-accent); }
+.ne-logrow[aria-pressed='true'] { background: var(--ne-accent-soft); }
+/* #41: faint fails AA on the selection colour (light); the selected row's time takes the muted text colour. */
+.ne-logrow[aria-pressed='true'] .ne-logrow-time { color: var(--ne-muted); }
+.ne-logrow-time { color: var(--ne-faint); flex: none; }
+.ne-logrow-text { overflow: hidden; text-overflow: ellipsis; }
+/* The previous result while a new one reads (G3.6). */
+.ne-logs-stale .ne-card-body { opacity: 0.5; transition: opacity 120ms ease-in; }
+/* A phone: rows in the flow, each line wrapped in full (W1F.S5). */
+.ne-loglist-wrap { height: auto; max-height: 70vh; }
+.ne-loglist-wrap .ne-logrow { position: static; height: auto; min-height: 1.5rem; align-items: flex-start; padding: 4px 10px; white-space: pre-wrap; overflow: visible; }
+.ne-loglist-wrap .ne-logrow-text { overflow: visible; overflow-wrap: anywhere; min-width: 0; }
+/* #63: on a phone the time sits above its line, so the line has the row's width (the time took a third of it). */
+.ne-loglist-wrap .ne-logrow { flex-direction: column; align-items: stretch; gap: 0; }
+.ne-logdetail { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.75rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ne-textarea { height: auto; padding: 6px 10px; min-height: 64px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78125rem; width: 100%; box-sizing: border-box; }
+
+/* Walkthrough fixes (2026-10-11): notice for filter values from a link that cannot apply. */
+.ne-filter-notice {
+  margin-top: 10px;
+}
+.ne-filter-notice .ne-btn {
+  margin-left: 6px;
+}
+.ne-chips-wrap .ne-btn { white-space: normal; height: auto; min-height: 28px; text-align: left; max-width: 100%; }
+/* Walkthrough 3: buttons whose text is a document title or path wrap instead of widening the page (WCAG 1.4.10). */
+.ne-btn.ne-btn-wrap { white-space: normal; height: auto; min-height: 28px; text-align: left; max-width: 100%; overflow-wrap: anywhere; }
+
+/* A recipe card's evidence rows: kind badge and document button, one row each, set tight (G5.7 added rows to R2 and R13). */
+.ne-ev-rows { margin: 0; padding-left: 16px; line-height: 1.35; }
+.ne-ev-rows li + li { margin-top: 2px; }
+/* A solution's proof chips (W1-P11): recipe, level and last live date, one row each, wrapping on a phone. */
+.ne-proof-chips { list-style: none; margin: 0; padding: 0; line-height: 1.35; }
+.ne-proof-chips li { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; }
+.ne-proof-chips li + li { margin-top: 2px; }
+.ne-proof-chips li > .ne-mono:first-child { min-width: 3ch; }
+
+/* Results of the last valid input while the current one is invalid (Costs range): greyed and frozen, text keeps its contrast. */
+.ne-frozen {
+  filter: grayscale(1);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Detail one click away (a healthy connector's card, an evidence item's method and cost). */
+.ne-more {
+  margin-top: 10px;
+  font-size: var(--ne-fs-small);
+}
+.ne-more > summary {
+  cursor: pointer;
+  color: var(--ne-accent);
+  font-weight: 550;
+  width: fit-content;
+}
+.ne-more > summary:focus-visible {
+  box-shadow: var(--ne-focus);
+  outline: none;
+  border-radius: 4px;
+}
+.ne-more[open] > summary {
+  margin-bottom: 8px;
+}
+.ne-u1-meta {
+  font-size: var(--ne-fs-caption);
+  margin-top: 2px;
+}
+
+/* Overview "Needs attention": a full-width strip under the title, one cell per item, counts first. */
+.ne-attn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 8px 20px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ne-attn-grid > li {
+  min-width: 0;
+  padding: 6px 10px;
+  border-radius: var(--ne-radius-sm);
+  border: 1px solid var(--ne-border);
+}
+.ne-attn-grid > li[data-active='true'] {
+  border-color: var(--ne-border-strong);
+  background: var(--ne-surface-2);
+}
+.ne-attn-grid .ne-ov-details {
+  margin-top: 4px;
+}
+/* An id line that would wrap onto two lines: one line, cut with an ellipsis, the full id in its title. */
+.ne-ellipsis {
+  max-width: 30ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* On a phone the id wraps instead: a tooltip is no way to read it there (W1F.F1.37b); so may a long project name. */
+@media (max-width: 600px) {
+  .ne-ellipsis {
+    max-width: 100%;
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .ne-xproj .ne-nowrap {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+/* Descriptive text (card bodies, section explanations): readable, not metadata grey. */
+.ne-text-2 {
+  color: var(--ne-text-2);
+}
+
+/* App shell (app layout): below the sticky nav on a long page, the nav's own surface, not the theme's grey. */
+.ne-shell {
+  background: var(--ne-bg-sunken);
+}
+/* A choice that holds nothing yet (a log bucket Nebius has not created): still usable, visibly quieter. */
+.ne-btn.ne-btn-quiet {
+  border-style: dashed;
+  background: transparent;
+  color: var(--ne-muted);
+  font-weight: 500;
+}
+
+/* Reference sections (F1.13): folded under a title and a hint, opened by a click or a link to their id. */
+.ne-ref > .ne-ref-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  cursor: pointer;
+  padding: 10px 14px;
+  border: 1px solid var(--ne-border);
+  border-radius: var(--ne-radius);
+  background: var(--ne-surface);
+  list-style: none;
+}
+.ne-ref > .ne-ref-summary::-webkit-details-marker {
+  display: none;
+}
+.ne-ref > .ne-ref-summary::before {
+  content: '▸';
+  color: var(--ne-faint);
+  width: 1ch;
+}
+.ne-ref[open] > .ne-ref-summary::before {
+  content: '▾';
+}
+.ne-ref > .ne-ref-summary:hover {
+  border-color: var(--ne-border-strong);
+}
+.ne-ref > .ne-ref-summary:focus-visible {
+  box-shadow: var(--ne-focus);
+  outline: none;
+}
+.ne-ref-title {
+  margin: 0;
+  font-size: var(--ne-fs-body);
+  font-weight: 600;
+  color: var(--ne-text);
+}
+.ne-ref-hint {
+  color: var(--ne-text-2);
+  font-size: var(--ne-fs-small);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ne-ref[open] > .ne-ref-body {
+  margin-top: 10px;
+}
+
+/* Capacity: a long quota table folded under its title and row count (F1.13). */
+.ne-cap-fold > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  cursor: pointer;
+  width: fit-content;
+  max-width: 100%;
+}
+.ne-cap-fold > summary .ne-cap-subhead {
+  margin: 0;
+  color: var(--ne-accent);
+}
+.ne-cap-fold > summary:focus-visible {
+  box-shadow: var(--ne-focus);
+  outline: none;
+  border-radius: 4px;
+}
+.ne-cap-fold-hint {
+  font-size: var(--ne-fs-caption);
+}
+
+/* Overview: connector health as one line and a link (F1.15); the table is on Integrations. */
+.ne-ov-connectors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 12px 16px;
+}
+.ne-ov-connectors-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.ne-ov-connectors-line {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+/* Each count is its filter (W1-P29): a link that reads as the count, underlined on hover; the active one is outlined. */
+.ne-chip-link {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.ne-int-chips {
+  border-bottom: 1px solid var(--ne-border);
+}
+.ne-ov-connectors-line a.ne-chip-link-na {
+  color: var(--ne-muted);
+}
+.ne-chip-link:hover {
+  text-decoration-style: solid;
+}
+.ne-chip-link[aria-current='true'] {
+  font-weight: 650;
+  outline: 1px solid var(--ne-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Overview "Needs attention": label and count on one line; a long label wraps beside its count (F1.15). */
+.ne-attn-row {
+  gap: 8px;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+.ne-attn-row > a {
+  min-width: 0;
+}
+.ne-attn-row > :last-child {
+  flex-shrink: 0;
+  max-width: 60%;
+}
+/* A worded zero (the near-limit sentence) takes the row's width under its label instead of wrapping in a narrow column. */
+.ne-attn-row.ne-attn-row-wide {
+  flex-wrap: wrap;
+}
+.ne-attn-row.ne-attn-row-wide > :last-child {
+  flex-shrink: 1;
+  max-width: 100%;
+}
+/* A phone opens on a short list of what needs a look, one row each (#25); the full list is a tap away. A wide screen
+   renders the list without a fold (#44). */
+.ne-attn-fold > .ne-attn-summary {
+  display: block;
+  cursor: pointer;
+  margin-top: 4px;
+  line-height: 1.9;
+  list-style: none;
+}
+.ne-attn-fold > .ne-attn-summary::-webkit-details-marker {
+  display: none;
+}
+.ne-attn-fold > .ne-attn-summary:focus-visible {
+  box-shadow: var(--ne-focus);
+  outline: none;
+  border-radius: 4px;
+}
+.ne-attn-fold[open] > .ne-attn-summary {
+  margin-bottom: 6px;
+}
+.ne-attn-sum-row {
+  display: block;
+}
+.ne-attn-sum-row .ne-badge {
+  min-width: 2.2em;
+  justify-content: center;
+}
+.ne-attn-more {
+  display: inline-block;
+  color: var(--ne-accent);
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+/* Solutions (F1.23): every card's actions in one row at the foot of its body. */
+.ne-sol-actions {
+  gap: 6px;
+  margin-top: 12px;
+}
+
+/* A pressed choice (a log bucket or preset) reads as selected: accent border and tint, in both themes (F1.24). */
+.ne-btn[aria-pressed='true'] {
+  border-color: var(--ne-accent);
+  background: var(--ne-accent-soft);
+  color: var(--ne-accent-strong);
+}
+.ne-btn[aria-pressed='true']:hover:not(:disabled) {
+  border-color: var(--ne-accent-strong);
+  background: var(--ne-accent-soft);
+}
+
+/* Nebius docs page (#11): page lists, and buttons that read as links (they open the page drawer). */
+.ne-docs-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+.ne-docs-list > li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ne-docs-path {
+  font-size: var(--ne-fs-caption);
+  overflow-wrap: anywhere;
+}
+.ne-linkbtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--ne-accent);
+  cursor: pointer;
+  text-align: left;
+}
+.ne-linkbtn:hover {
+  text-decoration: underline;
+}
+.ne-linkbtn:focus-visible {
+  box-shadow: var(--ne-focus);
+  outline: none;
+  border-radius: 3px;
+}
+
+/* Day-one setup (W1-P25): one row per step, its state first, the next step's link last. */
+.ne-setup-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ne-setup-list > li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 9px 16px;
+  border-top: 1px solid var(--ne-border);
+}
+.ne-setup-list > li:first-child {
+  border-top: 0;
+}
+.ne-setup-list .ne-badge {
+  flex: none;
+  min-width: 7.5em;
+  justify-content: center;
+}
+.ne-setup-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ne-setup-next {
+  flex: none;
+  max-width: 40%;
+  text-align: right;
+}
+/* On a phone a step is one flowing paragraph (state, step, detail, next step), not four stacked rows: the Integrations
+   page keeps under its 8,000 px phone budget (N5). */
+@media (max-width: 600px) {
+  .ne-setup-list > li {
+    display: block;
+    padding: 8px 12px;
+  }
+  .ne-setup-list .ne-badge {
+    min-width: 0;
+    margin-right: 6px;
+  }
+  /* Inside the paragraph the link is told apart by more than colour (WCAG link-in-text-block). */
+  .ne-setup-list a.ne-setup-next {
+    max-width: none;
+    margin-left: 6px;
+    overflow-wrap: anywhere;
+    text-decoration: underline;
+  }
+}
+
+/* A form field two grid columns wide (a select whose options are long names); one column on a phone. */
+.ne-grid-span2 {
+  grid-column: span 2;
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .ne-grid-span2 {
+    grid-column: auto;
+  }
+}

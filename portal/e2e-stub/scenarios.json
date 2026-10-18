@@ -1,0 +1,298 @@
+{
+  "_note": "Test data: invented scenarios against the test rate book.",
+  "scenarios": [
+    {
+      "id": "test-sandbox-inference",
+      "name": "Sandbox inference smoke test",
+      "recipe": "inference",
+      "region": "eu-north1",
+      "currency": "XTS",
+      "rateBookId": "test-xts",
+      "capacityType": "preemptible",
+      "asOf": "2026-10-10",
+      "runtime": {
+        "activeHours": 6,
+        "warmupHours": 0.75,
+        "teardownHours": 0.5
+      },
+      "monthlyHours": 730,
+      "footprints": {
+        "min": {
+          "nodeGroups": [
+            {
+              "name": "system",
+              "role": "system",
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb",
+              "count": 2,
+              "bootDiskGib": 128
+            },
+            {
+              "name": "gpu",
+              "role": "gpu",
+              "platform": "gpu-h100-sxm",
+              "preset": "1gpu-16vcpu-200gb",
+              "count": 0,
+              "bootDiskGib": 512
+            }
+          ],
+          "filesystemGib": 64,
+          "extraSsdGib": 25,
+          "ioM3Gib": 0,
+          "objectStorageGib": 0,
+          "publicIps": 0
+        },
+        "expected": {
+          "nodeGroups": [
+            {
+              "name": "system",
+              "role": "system",
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb",
+              "count": 2,
+              "bootDiskGib": 128
+            },
+            {
+              "name": "gpu",
+              "role": "gpu",
+              "platform": "gpu-h100-sxm",
+              "preset": "1gpu-16vcpu-200gb",
+              "count": 1,
+              "bootDiskGib": 512
+            }
+          ],
+          "filesystemGib": 64,
+          "extraSsdGib": 25,
+          "ioM3Gib": 0,
+          "objectStorageGib": 0,
+          "publicIps": 0
+        },
+        "max": {
+          "nodeGroups": [
+            {
+              "name": "system",
+              "role": "system",
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb",
+              "count": 2,
+              "bootDiskGib": 128
+            },
+            {
+              "name": "gpu",
+              "role": "gpu",
+              "platform": "gpu-h100-sxm",
+              "preset": "1gpu-16vcpu-200gb",
+              "count": 2,
+              "bootDiskGib": 512
+            }
+          ],
+          "filesystemGib": 64,
+          "extraSsdGib": 25,
+          "ioM3Gib": 0,
+          "objectStorageGib": 0,
+          "publicIps": 0
+        }
+      },
+      "discountRuleIds": [],
+      "commitments": [],
+      "quoteValidityDays": 7,
+      "notes": "Preemptible: the GPU price is variable. Includes an expired SSD rate on purpose (coverage warning)."
+    },
+    {
+      "id": "test-training-2x8",
+      "name": "Training capacity: 2 \u00d7 8 H100, one week",
+      "recipe": "training",
+      "region": "eu-north1",
+      "currency": "XTS",
+      "rateBookId": "test-xts",
+      "capacityType": "reserved",
+      "asOf": "2026-10-10",
+      "runtime": {
+        "activeHours": 168,
+        "warmupHours": 4,
+        "teardownHours": 2
+      },
+      "monthlyHours": 730,
+      "footprints": {
+        "min": {
+          "nodeGroups": [
+            {
+              "name": "system",
+              "role": "system",
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb",
+              "count": 2,
+              "bootDiskGib": 128
+            },
+            {
+              "name": "gpu",
+              "role": "gpu",
+              "platform": "gpu-h100-sxm",
+              "preset": "8gpu-128vcpu-1600gb",
+              "count": 0,
+              "bootDiskGib": 1023
+            }
+          ],
+          "filesystemGib": 1024,
+          "extraSsdGib": 25,
+          "ioM3Gib": 0,
+          "objectStorageGib": 0,
+          "publicIps": 0
+        },
+        "expected": {
+          "nodeGroups": [
+            {
+              "name": "system",
+              "role": "system",
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb",
+              "count": 2,
+              "bootDiskGib": 128
+            },
+            {
+              "name": "gpu",
+              "role": "gpu",
+              "platform": "gpu-h100-sxm",
+              "preset": "8gpu-128vcpu-1600gb",
+              "count": 2,
+              "bootDiskGib": 1023
+            }
+          ],
+          "filesystemGib": 1024,
+          "extraSsdGib": 25,
+          "ioM3Gib": 0,
+          "objectStorageGib": 0,
+          "publicIps": 0
+        },
+        "max": {
+          "nodeGroups": [
+            {
+              "name": "system",
+              "role": "system",
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb",
+              "count": 2,
+              "bootDiskGib": 128
+            },
+            {
+              "name": "gpu",
+              "role": "gpu",
+              "platform": "gpu-h100-sxm",
+              "preset": "8gpu-128vcpu-1600gb",
+              "count": 4,
+              "bootDiskGib": 1023
+            }
+          ],
+          "filesystemGib": 1024,
+          "extraSsdGib": 25,
+          "ioM3Gib": 0,
+          "objectStorageGib": 0,
+          "publicIps": 0
+        }
+      },
+      "discountRuleIds": [
+        "demo-gpu-commit-15"
+      ],
+      "commitments": [],
+      "marginPercent": "18",
+      "quoteValidityDays": 14
+    },
+    {
+      "id": "test-b300-reserved",
+      "name": "B300 reserved serving (missing rate)",
+      "recipe": "inference",
+      "region": "uk-south1",
+      "currency": "XTS",
+      "rateBookId": "test-xts",
+      "capacityType": "reserved",
+      "asOf": "2026-10-10",
+      "runtime": {
+        "activeHours": 720,
+        "warmupHours": 0,
+        "teardownHours": 0
+      },
+      "monthlyHours": 730,
+      "footprints": {
+        "min": {
+          "nodeGroups": [
+            {
+              "name": "system",
+              "role": "system",
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb",
+              "count": 2,
+              "bootDiskGib": 128
+            },
+            {
+              "name": "gpu",
+              "role": "gpu",
+              "platform": "gpu-b300-sxm",
+              "preset": "1gpu-24vcpu-346gb",
+              "count": 1,
+              "bootDiskGib": 512
+            }
+          ],
+          "filesystemGib": 64,
+          "extraSsdGib": 25,
+          "ioM3Gib": 0,
+          "objectStorageGib": 0,
+          "publicIps": 0
+        },
+        "expected": {
+          "nodeGroups": [
+            {
+              "name": "system",
+              "role": "system",
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb",
+              "count": 2,
+              "bootDiskGib": 128
+            },
+            {
+              "name": "gpu",
+              "role": "gpu",
+              "platform": "gpu-b300-sxm",
+              "preset": "1gpu-24vcpu-346gb",
+              "count": 2,
+              "bootDiskGib": 512
+            }
+          ],
+          "filesystemGib": 64,
+          "extraSsdGib": 25,
+          "ioM3Gib": 0,
+          "objectStorageGib": 0,
+          "publicIps": 0
+        },
+        "max": {
+          "nodeGroups": [
+            {
+              "name": "system",
+              "role": "system",
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb",
+              "count": 2,
+              "bootDiskGib": 128
+            },
+            {
+              "name": "gpu",
+              "role": "gpu",
+              "platform": "gpu-b300-sxm",
+              "preset": "1gpu-24vcpu-346gb",
+              "count": 4,
+              "bootDiskGib": 512
+            }
+          ],
+          "filesystemGib": 64,
+          "extraSsdGib": 25,
+          "ioM3Gib": 0,
+          "objectStorageGib": 0,
+          "publicIps": 0
+        }
+      },
+      "discountRuleIds": [],
+      "commitments": [],
+      "quoteValidityDays": 14,
+      "notes": "No reserved B300 rate exists in the test rate book: the estimate reports the missing component instead of guessing."
+    }
+  ]
+}

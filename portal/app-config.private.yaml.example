@@ -1,0 +1,25 @@
+# Operator overlay for one machine. Copy to app-config.private.yaml (git-ignored) and fill in.
+# `yarn start` and `yarn config:check` load it after app-config.yaml and app-config.local.yaml
+# when the file exists, and skip it when it does not. Keep real endpoints here, never in the
+# committed files. Secrets still come from the environment (.env): this file names variables only.
+# Setup: docs/portal/nebius-setup.md#private-overlay.
+#
+# Managed Kubernetes clusters need NO entry here: they are discovered from the MK8s API every sync
+# (endpoint, CA, the portal's own Nebius token) and reconnect by themselves after a rebuild. List a
+# cluster below only if it is not MK8s; an external Prometheus likewise.
+#
+# nebiusEstate:
+#   # nebius: { mk8s: { endpoint: private } }       # only when the backend runs inside the cluster's VPC
+#   kubernetes:
+#     clusters:
+#       - name: sandbox-inference
+#         url: https://<api-server-host>:443          # https only; read from config, never from a request
+#         tokenEnv: K8S_SANDBOX_INFERENCE_TOKEN       # K8S_<NAME>_TOKEN per cluster; read-only service account token
+#         caFile: /absolute/path/to/sandbox-inference-ca.crt
+#         mk8sClusterId: <mk8scluster-id>             # links the cluster to the Nebius inventory (enables scoping)
+#   prometheus:
+#     # In-cluster Prometheus through a port-forward on this machine, e.g.
+#     #   kubectl -n monitoring port-forward svc/<prometheus-service> 9090:9090
+#     # http is accepted only for loopback on a loopback-only backend; https otherwise.
+#     url: http://127.0.0.1:9090
+#     # tokenEnv: PROMETHEUS_TOKEN                    # only if the endpoint needs a bearer token

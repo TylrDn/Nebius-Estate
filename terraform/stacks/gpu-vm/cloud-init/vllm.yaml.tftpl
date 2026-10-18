@@ -1,0 +1,62 @@
+#cloud-config
+# R10 GPU VM quickstart: serve one model through vLLM's OpenAI-compatible API in a container.
+# The GPU image families ship the NVIDIA driver and Container Toolkit
+# (docs.nebius.com/compute/storage/boot-disk-images#gpu-drivers-and-other-components) and Docker
+# (docs.nebius.com/compute/virtual-machines/docker-subnet-conflict), so nothing is installed here.
+# A systemd unit starts the container on every boot, as the host-model quickstart does for its server
+# (docs.nebius.com/compute/quickstart-host-model#make-open-webui-start-automatically).
+${admin_user}
+write_files:
+  - path: /usr/local/sbin/nip-vllm
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/bin/sh
+      # Run by vllm.service. The API key is generated on the VM at first start and never leaves it
+      # (not in user data, plan or state): read it with `sudo cat /etc/vllm/env`.
+      set -eu
+      if [ ! -s /etc/vllm/env ]; then
+        mkdir -p /etc/vllm
+        (umask 077 && printf 'VLLM_API_KEY=%s\n' "$(openssl rand -hex 24)" > /etc/vllm/env.tmp)
+        mv /etc/vllm/env.tmp /etc/vllm/env
+      fi
+      mkdir -p ${cache_dir}
+      docker rm -f vllm >/dev/null 2>&1 || true
+      docker pull ${image}
+      exec docker run --rm --name vllm --gpus all --ipc=host \
+        -p ${bind}${port}:${port} \
+        --env-file /etc/vllm/env -e HF_HOME=/cache \
+        -v ${cache_dir}:/cache \
+        ${image} \
+        ${args}
+  - path: /etc/systemd/system/vllm.service
+    owner: root:root
+    permissions: '0644'
+    content: |
+      [Unit]
+      Description=vLLM OpenAI-compatible server (nip gpu-vm)
+      Requires=docker.service
+      After=docker.service network-online.target
+      Wants=network-online.target
+%{ if mount ~}
+      RequiresMountsFor=/mnt/fs
+%{ endif ~}
+
+      [Service]
+      ExecStart=/usr/local/sbin/nip-vllm
+      ExecStop=/usr/bin/docker stop vllm
+      Restart=always
+      RestartSec=15
+      TimeoutStartSec=0
+
+      [Install]
+      WantedBy=multi-user.target
+runcmd:
+%{ if mount ~}
+  # Shared filesystem (docs.nebius.com/compute/storage/use#shared-filesystems): virtiofs by mount
+  # tag; nofail so the VM still boots if the filesystem is gone.
+  - mkdir -p /mnt/fs
+  - grep -qs ' /mnt/fs ' /etc/fstab || echo '${mount_tag} /mnt/fs virtiofs rw,nofail 0 0' >> /etc/fstab
+%{ endif ~}
+  - systemctl daemon-reload
+  - systemctl enable --now vllm.service

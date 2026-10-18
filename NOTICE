@@ -1,0 +1,67 @@
+Nebius Infrastructure Patterns
+Copyright 2026 Taylor Dean (original contributions)
+
+Original contributions are licensed under the Apache License, Version 2.0 (LICENSE).
+Third-party material retains its applicable licenses and notices.
+
+This is an independent project, not affiliated with, sponsored by, or endorsed by
+Nebius B.V. or its affiliates. Product names identify compatibility; trademarks
+remain with their respective owners.
+
+Included adaptations and third-party software
+--------------------------------------------
+Nebius Solutions Library
+Copyright 2024 Nebius B.V.
+https://github.com/nebius/nebius-solutions-library
+Apache License, Version 2.0; complete upstream license retained in
+third_party/licenses/nebius-solutions-library-LICENSE.
+Baseline: d1c15caa37d330db88cb20bfef8dfceee4852032 (soperator-v4.1.13-2).
+Separate NVL/GB300 reference: fba7148cecd8bd38bccf60ba194ab8f5fdb02194.
+Adaptations include the Soperator patch (installations/example/main.tf and
+variables.tf), Slurm overrides, filestore-csi, device-plugin, gpu-operator,
+network-operator, and portions of workloads/training/nccl/base/mpijob.yaml.
+See docs/source-provenance.md for source paths, refs, changes and influence.
+
+Nebius Serverless AI Cookbook
+https://github.com/nebius/serverless-ai-cookbook
+Source: 6c150ce951dac480177af09116ec53d9c2fa7670.
+Apache License, Version 2.0; third_party/licenses/serverless-ai-cookbook-LICENSE.
+recipes/serverless adapts endpoint CLI examples and references batch-job patterns;
+local lifecycle, measurement and safety wrappers were added.
+
+Backstage
+Copyright 2020 The Backstage Authors
+https://github.com/backstage/backstage
+Portal scaffolding was generated with @backstage/create-app 0.9.2 (v1.55.0)
+and modified. Apache License, Version 2.0. Complete upstream LICENSE and NOTICE
+are retained in third_party/licenses/backstage-LICENSE and backstage-NOTICE.
+portal/playwright.config.ts retains Copyright 2023 The Backstage Authors.
+Local Yarn patches adapt the modern and legacy route resolvers to React Router 7.
+See docs/security/react-router-7-compatibility.md for exact packages and changes.
+
+Material-table core 3.2.5
+Copyright (c) 2018 Mehmet Baran
+https://github.com/material-table-core/core
+MIT License; complete text retained in third_party/licenses/material-table-core-LICENSE.
+The local Yarn patch adapts the UUID import. See docs/material-table-uuid-patch.md.
+
+js-yaml 3.15.2
+Copyright (C) 2011-2015 by Vitaly Puzrin
+https://github.com/nodeca/js-yaml
+MIT License; complete text retained in third_party/licenses/js-yaml-LICENSE.
+The local Yarn patch preserves CLI version output with argparse 2.
+See docs/js-yaml-argparse-patch.md.
+
+Yarn 4.13.0
+Copyright (c) 2016-present, Yarn Contributors. All rights reserved.
+https://github.com/yarnpkg/berry/tree/@yarnpkg/cli/4.13.0
+portal/.yarn/releases/yarn-4.13.0.cjs is distributed under BSD-2-Clause.
+The complete license is in third_party/licenses/yarn-4.13.0-LICENSE.md;
+additional third-party notices embedded in the bundle are retained.
+
+Documentation and distributions
+------------------------------
+Documentation references and metadata do not license full upstream prose.
+See docs/source-provenance.md for documentation reuse limits and the conditional
+artifact distribution checklist. Dependencies, images and fetched upstream trees
+retain their own terms; their distribution requires a separate artifact review.

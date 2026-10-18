@@ -1,0 +1,17 @@
+{
+  "name": "s5-soperator-4x8-h200-month",
+  "region": "eu-north1",
+  "items": [
+    {"name": "gpu-workers", "platform": "gpu-h200-sxm", "preset": "8gpu-128vcpu-1600gb", "count": 4, "hours": 730, "preemptible": "compare"},
+    {"name": "worker-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 1023, "count": 4, "hours": 730},
+    {"name": "system-nodes", "platform": "cpu-d3", "preset": "8vcpu-32gb", "count": 3, "hours": 730},
+    {"name": "controller", "platform": "cpu-d3", "preset": "4vcpu-16gb", "count": 1, "hours": 730},
+    {"name": "login", "platform": "cpu-d3", "preset": "16vcpu-64gb", "count": 1, "hours": 730},
+    {"name": "cpu-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 128, "count": 4, "hours": 730},
+    {"name": "login-boot-disk", "disk_type": "NETWORK_SSD", "size_gib": 256, "count": 1, "hours": 730},
+    {"name": "spool-pvc", "disk_type": "NETWORK_SSD_IO_M3", "size_gib": 279, "count": 1, "hours": 730},
+    {"name": "jail-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 2048, "count": 1, "hours": 730},
+    {"name": "data-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 2048, "count": 1, "hours": 730},
+    {"name": "spool-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 128, "count": 1, "hours": 730}
+  ]
+}

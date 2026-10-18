@@ -1,0 +1,123 @@
+name: Nebius stage setup
+description: >-
+  Shared by the plan and apply jobs of terraform.yml: builds the pinned toolbox image
+  (platform/versions.yaml, tools/toolbox), mints the stage service account's short-lived token
+  inside it (scripts/ci-token.sh), writes the stage/stack backend.hcl and exports the run labels.
+  Every later step runs `make ci-docker TARGETS=...`, so the pipeline uses exactly the tools
+  `make ci` uses. Expects the stage environment's secrets in env (NEBIUS_*, NIP_SA_*, AWS_*).
+  An empty sa-private-key selects the federated path (R13): the job's GitHub OIDC token is swapped
+  for a Nebius token at STS, and the job needs `permissions: id-token: write` (runbooks/identity.md).
+inputs:
+  stage: { description: "sandbox | staging | prod", required: true }
+  stack: { description: "network | data | inference | training | gpu-vm | ml-services | governance", required: true }
+  sa-private-key: { description: "PEM of the stage CI service account (environment secret); empty = federated path (R13, no key)", required: false, default: "" }
+  state-bucket: { description: "state bucket name (foundation output)", required: true }
+  run: { description: "nip-run label (empty: gh-<run id>)", required: false, default: "" }
+  ttl-hours: { description: "sandbox only: hours until nip-ttl-expires", required: false, default: "4" }
+  ttl-expires: { description: "sandbox only: reuse this RFC 3339 expiry (the apply job passes the plan job's, so both plans carry the same labels)", required: false, default: "" }
+outputs:
+  ttl-expires: { description: "the nip-ttl-expires label value used (sandbox), else empty", value: "${{ steps.labels.outputs.ttl-expires }}" }
+runs:
+  using: composite
+  steps:
+    - name: Refuse a user token in the runner
+      shell: bash
+      run: |
+        if [[ -n "${NEBIUS_IAM_TOKEN:-}" ]]; then
+          echo "::error::NEBIUS_IAM_TOKEN is set; the pipeline must act as the stage's service account."; exit 1
+        fi
+
+    - name: Build the pinned toolbox
+      shell: bash
+      run: make toolbox
+
+    - name: Service-account token (scripts/ci-token.sh, inside the toolbox)
+      shell: bash
+      env:
+        SA_PEM: ${{ inputs.sa-private-key }}
+      run: |
+        # No CLI profile outlives this step: ci-token.sh creates it in a throwaway config inside this
+        # one container, reading the key by path, and deletes it after minting; the key file is
+        # deleted as soon as the token exists. Every later step uses TF_VAR_iam_token only
+        # (tf-run.sh checks it in CI; wait-for-ofed.sh hands it to the CLI).
+        umask 077
+        mkdir -p "$RUNNER_TEMP/secrets"
+        if [[ -n "$SA_PEM" ]]; then
+          printf '%s' "$SA_PEM" > "$RUNNER_TEMP/secrets/sa.pem"
+          token="$(docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" \
+            -v "$RUNNER_TEMP/secrets:/secrets:ro" -e NIP_SA_ID -e NIP_SA_KEY_ID -e NEBIUS_PROJECT_ID \
+            -e NIP_SA_KEY_FILE=/secrets/sa.pem nip-toolbox \
+            bash -c 'source scripts/ci-token.sh >&2 && printf "%s" "$TF_VAR_iam_token"')"
+          federated=0
+        else
+          # Federated (R13): no key in the environment. The GitHub OIDC request variables exist only
+          # in jobs granted id-token: write; ci-token.sh swaps that token at Nebius STS.
+          [[ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]] || { echo "::error::no NIP_SA_PRIVATE_KEY and no id-token: write on this job: neither credential path is available (runbooks/identity.md)"; exit 1; }
+          token="$(docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" -e NIP_SA_ID -e NIP_CI_FEDERATED=1 \
+            -e ACTIONS_ID_TOKEN_REQUEST_URL -e ACTIONS_ID_TOKEN_REQUEST_TOKEN nip-toolbox \
+            bash -c 'source scripts/ci-token.sh >&2 && printf "%s" "$TF_VAR_iam_token"')"
+          federated=1
+        fi
+        rm -rf "$RUNNER_TEMP/secrets"
+        [[ -n "$token" ]] || { echo "::error::no token minted"; exit 1; }
+        echo "::add-mask::$token"
+        echo "TF_VAR_iam_token=$token" >> "$GITHUB_ENV"
+        # tf-run.sh checks the token instead of a CLI profile in CI (NIP_CI=1), on either path.
+        echo "NIP_CI_FEDERATED=$federated" >> "$GITHUB_ENV"
+        echo "NIP_CI=1" >> "$GITHUB_ENV"
+
+    - name: Backend config, run labels, toolbox pass-through
+      id: labels
+      shell: bash
+      env:
+        STAGE: ${{ inputs.stage }}
+        STACK: ${{ inputs.stack }}
+        STATE_BUCKET: ${{ inputs.state-bucket }}
+        RUN_LABEL: ${{ inputs.run }}
+        TTL_HOURS: ${{ inputs.ttl-hours }}
+        TTL_EXPIRES: ${{ inputs.ttl-expires }}
+      run: |
+        # Same shape scripts/bootstrap-backend.sh writes locally; bucket name from the foundation output.
+        cat > "terraform/live/${STAGE}/${STACK}/backend.hcl" <<HCL
+        bucket = "${STATE_BUCKET}"
+        key    = "stages/${STAGE}/${STACK}.tfstate"
+        region = "${NEBIUS_REGION}"
+        endpoints = {
+          s3 = "https://storage.${NEBIUS_REGION}.nebius.cloud:443"
+        }
+        HCL
+        # Labels (docs/cost.md#required-labels). staging/prod sizing files set their own labels, and
+        # *.auto.tfvars outrank TF_VAR_*, so this only takes effect where the sizing file leaves them out.
+        run="${RUN_LABEL:-gh-${GITHUB_RUN_ID}}"
+        labels="$(jq -cn --arg env "$STACK" --arg run "$run" '{"nip-env":$env,"nip-owner":"platform","nip-run":$run}')"
+        if [[ "$STAGE" == sandbox ]]; then
+          [[ "$TTL_HOURS" =~ ^[0-9]+$ && "$TTL_HOURS" -ge 1 && "$TTL_HOURS" -le 24 ]] || { echo "::error::ttl-hours must be 1-24"; exit 1; }
+          expires="${TTL_EXPIRES:-$(date -u -d "+${TTL_HOURS} hours" +%FT%TZ)}"
+          labels="$(jq -c --arg e "$expires" '. + {"nip-ttl-expires":$e}' <<<"$labels")"
+          echo "ttl-expires=$expires" >> "$GITHUB_OUTPUT"
+        fi
+        # An empty TF_VAR_* is a parse error for a list variable: export the allowlist only when set.
+        [[ -z "${NIP_ALLOWED_CIDRS:-}" ]] || echo "TF_VAR_allowed_cidrs=${NIP_ALLOWED_CIDRS}" >> "$GITHUB_ENV"
+        # No stack defaults a subnet name (docs/naming.md item 14); R10 also needs the login key.
+        [[ -z "${NIP_SUBNET_ID:-}" ]] || echo "TF_VAR_subnet_id=${NIP_SUBNET_ID}" >> "$GITHUB_ENV"
+        # R7's subnet requires its service range and workload security groups as well.
+        # Forward only to stacks declaring these inputs; empty values keep stack defaults.
+        if [[ "$STACK" == inference || "$STACK" == training ]]; then
+          [[ -z "${NIP_SERVICE_CIDR:-}" ]] || echo "TF_VAR_service_cidr=${NIP_SERVICE_CIDR}" >> "$GITHUB_ENV"
+          [[ -z "${NIP_NODE_SERVICE_ACCOUNT_ID:-}" ]] || echo "TF_VAR_node_service_account_id=${NIP_NODE_SERVICE_ACCOUNT_ID}" >> "$GITHUB_ENV"
+        fi
+        if [[ "$STACK" == inference || "$STACK" == training || "$STACK" == gpu-vm ]]; then
+          [[ -z "${NIP_SECURITY_GROUP_IDS:-}" ]] || echo "TF_VAR_security_group_ids=${NIP_SECURITY_GROUP_IDS}" >> "$GITHUB_ENV"
+        fi
+        # The login key goes to R10 (gpu-vm) only: the cluster stacks would turn it into a NOPASSWD
+        # sudo user on every node (modules/node-group cloud-init); they keep ssh_public_key = null.
+        if [[ "$STACK" == gpu-vm && -n "${NIP_SSH_PUBLIC_KEY:-}" ]]; then
+          echo "TF_VAR_ssh_public_key=${NIP_SSH_PUBLIC_KEY}" >> "$GITHUB_ENV"
+        fi
+        {
+          echo "TF_VAR_labels=$labels"
+          echo "TF_VAR_parent_id=${NEBIUS_PROJECT_ID}"
+          echo "TF_VAR_region=${NEBIUS_REGION}"
+          echo "TOOLBOX_ENV=TF_VAR_iam_token TF_VAR_parent_id TF_VAR_region TF_VAR_labels TF_VAR_allowed_cidrs TF_VAR_subnet_id TF_VAR_service_cidr TF_VAR_security_group_ids TF_VAR_node_service_account_id TF_VAR_ssh_public_key AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY TF_IN_AUTOMATION TF_INPUT NIP_CI NIP_CI_FEDERATED"
+        } >> "$GITHUB_ENV"
+        echo "labels: $labels"

@@ -1,0 +1,24 @@
+# parent_id and region come from: source scripts/bootstrap-backend.sh <stage> training (iam_token belongs to the live root's providers)
+cluster_name      = "nip-sandbox-training" # optional: null derives nip-<stage>-training (docs/naming.md)
+k8s_version       = "1.36" # pin it: the backend default moves (platform/regions.yaml lists the accepted versions)
+etcd_cluster_size = 3 # HA etcd is free; keep 3
+
+# Plan-only by default. For a real multi-node NCCL run (separate spend approval):
+# gpu_node_count = 2        # 2 x 8 x H100 in eu-north1 fabric-3
+gpu_node_count     = 0
+enable_gpu_cluster = true
+# infiniband_fabric = "fabric-3"   # (region, platform) default from platform/regions.yaml
+# B300 example (uk-south1 / eu-west2 / us-north1): the region default is already gpu-b300-sxm /
+# 8gpu-192vcpu-2768gb in fabric <region>-a; nothing to set.
+
+enable_filestore   = true
+filestore_size_gib = 256
+
+# Required labels (docs/cost.md): who/what this run is and when it must be gone.
+# scripts/leftovers.sh finds anything that outlives the TTL.
+labels = {
+  "nip-env"         = "training"
+  "nip-owner"       = "platform"
+  "nip-run"         = "ticket-123"            # a ticket, date or run id
+  "nip-ttl-expires" = "2026-10-31T18:00:00Z"  # RFC 3339 UTC, inside the approved session
+}

@@ -1,0 +1,17 @@
+# The queue a team submits to: label a Job (or PyTorchJob, MPIJob, ...) with
+# kueue.x-k8s.io/queue-name: gpu in the team's namespace.
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: LocalQueue
+metadata:
+  name: gpu
+  namespace: team-nlp
+spec:
+  clusterQueue: nip-team-nlp
+---
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: LocalQueue
+metadata:
+  name: gpu
+  namespace: team-vision
+spec:
+  clusterQueue: nip-team-vision

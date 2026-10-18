@@ -1,0 +1,82 @@
+# Terraform state, plans, and local working dirs (P3: state is a security boundary)
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.plan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Variable files may hold secrets; commit only examples
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+# Committed tfvars layers: the Soperator profiles and the per-stage sizing files carry no secrets
+# (SSH key is a public key, left empty; project/tenant ids come from the environment)
+!terraform/stacks/soperator/profiles/*.tfvars
+!terraform/live/*/soperator/stage.tfvars
+!terraform/live/*/*/*.auto.tfvars
+
+# Keep the provider lock file
+!.terraform.lock.hcl
+!terraform/stacks/soperator/.terraform.lock.hcl
+
+# Our own override fragments for the vendored Soperator recipe (installed by scripts/fetch-soperator.sh)
+!terraform/stacks/soperator/overrides/**/*_override.tf
+
+# Generated partial backend config (bucket/key/endpoint only; still local)
+backend.hcl
+
+# Credentials and cluster access
+kubeconfig*
+*.kubeconfig
+.kube/
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+secrets/
+credentials*.json
+*.token
+# SSH private keys (no extension), secret folders, cost/run ledgers
+id_rsa
+id_ed25519
+*_ed25519
+!*_ed25519.pub
+*.jsonl
+
+# Local results that may contain customer data
+results/private/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Upstream Soperator recipe fetched at a pinned tag (scripts/fetch-soperator.sh)
+terraform/stacks/soperator/upstream/
+terraform_backend_override.tf
+
+# Live comparison state (endpoint id + token)
+results/*.state
+# Raw step output of a live run carries real resource ids: only scrubbed copies under
+# results/<date>/ are committed (scripts/scrub-evidence.py; docs/evidence/README.md "What is committed")
+/results/*.json
+/results/*.log
+
+# Python bytecode (scripts are run, never built)
+__pycache__/
+*.pyc
+
+# Local caches (scripts/nebius-docs.py raw page Markdown)
+.cache/
+
+# Rollback files written by scripts/quota-plan.py --apply (they carry resource ids)
+quota-rollback-*.json
+# Stage -> project/region bindings written by scripts/bootstrap-backend.sh (real ids)
+.nip-targets/

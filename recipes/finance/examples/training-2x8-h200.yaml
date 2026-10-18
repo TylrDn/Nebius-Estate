@@ -1,0 +1,32 @@
+# Footprint for recipes/finance/price.py: a two-week, two-node fine-tune (the R3 training shape).
+# Hours are the hours the resources EXIST (docs/cost.md), not the hours they are busy.
+# The project fixes the region the calculator prices in: pass --project or set NEBIUS_PROJECT_ID.
+name: r3-training-2x8-h200-14d
+region: eu-north1
+items:
+  - name: gpu-nodes
+    platform: gpu-h200-sxm
+    preset: 8gpu-128vcpu-1600gb
+    count: 2
+    hours: 336
+    preemptible: compare      # price on-demand and the current spot price side by side
+  - name: gpu-boot-disks
+    disk_type: NETWORK_SSD
+    size_gib: 1023            # gpu_boot_disk_size_gib in stacks/training
+    count: 2
+    hours: 336
+  - name: cpu-nodes
+    platform: cpu-d3
+    preset: 8vcpu-32gb
+    count: 2
+    hours: 336
+  - name: cpu-boot-disks
+    disk_type: NETWORK_SSD
+    size_gib: 128
+    count: 2
+    hours: 336
+  - name: shared-fs
+    filesystem_type: NETWORK_SSD
+    size_gib: 4096
+    count: 1
+    hours: 336

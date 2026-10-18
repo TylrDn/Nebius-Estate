@@ -1,0 +1,7 @@
+# A two-node TAS job for team-nlp: apply after an overlay (overlays/<stage>) has created the queues.
+# It occupies 16 GPUs while it runs (about a minute): a paid GPU job, so it needs the same approval
+# as any other run (AGENTS.md).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - job.yaml

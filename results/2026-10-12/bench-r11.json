@@ -1,0 +1,130 @@
+{
+  "step": "bench-r11",
+  "status": "fail",
+  "timestamp": "2026-10-12T19:16:27Z",
+  "details": {
+    "schema": "nip-bench/1",
+    "target": "r11",
+    "vantage": "operator-host",
+    "status": "fail",
+    "base_url": "https://api.tokenfactory.nebius.com",
+    "endpoint": "/v1/chat/completions",
+    "model": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "image": "vllm/vllm-openai:v0.31.0@sha256:c1c9f6fd5c109ba7f0546a59f5b2f15fb87f64c77782e90a27b648b42a8e67c3",
+    "params": {
+      "input_len": 256,
+      "output_len": 128,
+      "num_prompts": 200,
+      "warmup_prompts": 10,
+      "concurrency": [
+        1,
+        8,
+        32
+      ]
+    },
+    "placement": null,
+    "sweep_complete": true,
+    "cold_start": {
+      "server_startup_s": null,
+      "first_request_ms": null,
+      "first_request_source": null
+    },
+    "first_sweep_request_ms": 3274.14,
+    "warm": {
+      "concurrency": 1,
+      "first_point_e2e_p50_ms": 2470.91
+    },
+    "bars": {
+      "max_ttft_p99_ms": null,
+      "max_tpot_p99_ms": null,
+      "max_e2e_p99_ms": 10000,
+      "min_output_tokens_per_s": null,
+      "min_success_ratio": 1,
+      "source": "tests/load/README.md (Pass bars): e2e p99 from docs/slo.md (p95 <= 10 s, applied at p99); every request answered; the others unset until a client or a first baseline sets them"
+    },
+    "cost": {
+      "model": "per-token",
+      "usd_per_hour": null,
+      "utilisation": 1.0,
+      "usd_per_1m_output_tokens_list": 0.3,
+      "formula": "listed per-token price (R11: list-models.sh --verbose; the API states no unit)",
+      "note": null
+    },
+    "points": [
+      {
+        "concurrency": 1,
+        "prompts": 200,
+        "successful_requests": 200,
+        "failed_requests": 0,
+        "requests_per_s": 0.24,
+        "output_tokens_per_s": 30.33,
+        "ttft_ms": {
+          "p50": 340.08,
+          "p99": 9694.81
+        },
+        "tpot_ms": {
+          "p50": 16.82,
+          "p99": 53.15
+        },
+        "e2e_ms": {
+          "p50": 2470.91,
+          "p99": 14137.11
+        },
+        "cost_per_1m_output_tokens_usd": 0.3,
+        "pass": false,
+        "failures": [
+          "e2e_ms.p99 14137.11 > 10000"
+        ]
+      },
+      {
+        "concurrency": 8,
+        "prompts": 200,
+        "successful_requests": 200,
+        "failed_requests": 0,
+        "requests_per_s": 3.61,
+        "output_tokens_per_s": 462.61,
+        "ttft_ms": {
+          "p50": 279.05,
+          "p99": 534.47
+        },
+        "tpot_ms": {
+          "p50": 13.54,
+          "p99": 29.09
+        },
+        "e2e_ms": {
+          "p50": 2027.47,
+          "p99": 3948.58
+        },
+        "cost_per_1m_output_tokens_usd": 0.3,
+        "pass": true,
+        "failures": []
+      },
+      {
+        "concurrency": 32,
+        "prompts": 200,
+        "successful_requests": 200,
+        "failed_requests": 0,
+        "requests_per_s": 9.34,
+        "output_tokens_per_s": 1195.45,
+        "ttft_ms": {
+          "p50": 309.79,
+          "p99": 609.0
+        },
+        "tpot_ms": {
+          "p50": 21.79,
+          "p99": 31.37
+        },
+        "e2e_ms": {
+          "p50": 3118.04,
+          "p99": 4353.65
+        },
+        "cost_per_1m_output_tokens_usd": 0.3,
+        "pass": true,
+        "failures": []
+      }
+    ],
+    "max_passing_concurrency": null,
+    "method": "tests/load/README.md",
+    "generator_exit_code": 0
+  }
+}

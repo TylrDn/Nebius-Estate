@@ -1,0 +1,41 @@
+# vLLM serving rules (metrics exposed by vLLM on /metrics, scraped through the pod annotations in
+# workloads/inference/base/deployment.yaml). Latency objectives are in docs/slo.md.
+groups:
+  - name: nip-inference
+    rules:
+      - alert: VllmNoReplicasReady
+        expr: kube_deployment_status_replicas_available{namespace="inference"} == 0 and kube_deployment_spec_replicas{namespace="inference"} > 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "No ready vLLM replica in {{ $labels.namespace }}/{{ $labels.deployment }}"
+          description: "The Deployment wants replicas and none is Available. Check pod events, the model download (PVC) and GPU scheduling (runbooks/incident.md)."
+          runbook: runbooks/incident.md#vllm-pod-pending
+          docs: https://docs.nebius.com/kubernetes/gpu/set-up#how-to-add-nodes-with-gpus-to-a-cluster
+      - alert: VllmHighE2eLatency
+        expr: histogram_quantile(0.95, sum by (le, model_name) (rate(vllm:e2e_request_latency_seconds_bucket[5m]))) > 10
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "vLLM p95 end-to-end latency above 10 s for {{ $labels.model_name }}"
+          description: "SLO breach candidate (docs/slo.md). Check queue depth (vllm:num_requests_waiting), KV-cache usage and whether the replica count matches the load."
+          runbook: docs/slo.md#inference-vllm-per-stage
+          docs: https://docs.nebius.com/observability/metrics/ingest/nebius-o11y-agent#pod-targets
+      - alert: VllmRequestsQueueing
+        expr: avg_over_time(vllm:num_requests_waiting[5m]) > 20
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "vLLM queue above 20 waiting requests for {{ $labels.model_name }}"
+          description: "Sustained queueing: add a replica (within the stage's GPU cap) or shed load."
+          runbook: docs/slo.md#inference-vllm-per-stage
+          docs: https://docs.nebius.com/observability/metrics/ingest/nebius-o11y-agent#pod-targets
+      - alert: VllmPodRestarting
+        expr: increase(kube_pod_container_status_restarts_total{namespace="inference"}[30m]) > 2
+        for: 0m
+        labels: { severity: warning }
+        annotations:
+          summary: "vLLM container restarting in {{ $labels.namespace }}/{{ $labels.pod }}"
+          description: "More than two restarts in 30 minutes: OOM, a model that no longer fits, or a failed health probe. Read the previous container's logs."
+          runbook: runbooks/incident.md#vllm-crashloopbackoff--oom
+          docs: https://docs.nebius.com/kubernetes/troubleshooting/logs#how-to-collect-logs-by-using-kubectl

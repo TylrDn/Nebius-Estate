@@ -1,0 +1,101 @@
+# Lab 03 GPU smoke Job: driver (nvidia-smi), compute (bf16 matmul TFLOPS) and NCCL plumbing (single-rank
+# torch.distributed all_reduce) on the one preemptible B300. Applied by run.sh (same directory).
+# Image: NGC PyTorch 25.10 (CUDA 13.0.x), matching the node's driverfull preset "cuda13.0" (k8s-training locals.tf).
+# Verified live 2026-10-08: pulled and saw the B300 (sm_103), bf16 1,811 TFLOPS (results/20261008T022731Z.md).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gpu-smoke
+  namespace: default
+  labels:
+    app.kubernetes.io/name: gpu-smoke
+    lab: 03-k8s-gpu-nccl
+spec:
+  backoffLimit: 0                # one attempt: a failure is a finding, not something to retry on a billed GPU
+  activeDeadlineSeconds: 1800    # the ~10 GB image pull dominates; the tests themselves take < 1 min
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gpu-smoke
+    spec:
+      restartPolicy: Never
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: smoke
+          image: nvcr.io/nvidia/pytorch:25.10-py3
+          env:
+            - name: NCCL_DEBUG
+              value: INFO
+            - name: NCCL_DEBUG_SUBSYS
+              value: INIT
+          resources:
+            requests:
+              cpu: "4"
+              memory: 32Gi
+            limits:
+              nvidia.com/gpu: 1
+              memory: 64Gi
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+          command: ["bash", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              echo "== nvidia-smi =="
+              nvidia-smi
+              nvidia-smi --query-gpu=name,driver_version,memory.total,compute_cap --format=csv
+              echo "== torch =="
+              python - <<'PY'
+              import os, time
+              import torch
+              import torch.distributed as dist
+
+              assert torch.cuda.is_available(), "CUDA not available in the container"
+              dev = torch.device("cuda:0")
+              print(f"torch {torch.__version__}, CUDA {torch.version.cuda}, NCCL {torch.cuda.nccl.version()}, "
+                    f"GPU {torch.cuda.get_device_name(0)}, capability {torch.cuda.get_device_capability(0)}, "
+                    f"GPUs visible {torch.cuda.device_count()}")
+
+              print("== bf16 matmul ==")
+              n, iters = 8192, 50
+              a = torch.randn(n, n, device=dev, dtype=torch.bfloat16)
+              b = torch.randn(n, n, device=dev, dtype=torch.bfloat16)
+              for _ in range(5):
+                  a @ b
+              torch.cuda.synchronize()
+              t = time.perf_counter()
+              for _ in range(iters):
+                  a @ b
+              torch.cuda.synchronize()
+              dt = time.perf_counter() - t
+              print(f"bf16 {n}x{n} matmul: {2 * n**3 * iters / dt / 1e12:.1f} TFLOPS ({iters} iters, {dt:.3f} s)")
+
+              print("== nccl all_reduce, world_size=1 ==")
+              os.environ.setdefault("MASTER_ADDR", "127.0.0.1")
+              os.environ.setdefault("MASTER_PORT", "29500")
+              dist.init_process_group("nccl", rank=0, world_size=1, device_id=dev)
+              for size in (8, 1 << 20, 1 << 30):  # bytes: 8 B, 1 MiB, 1 GiB of float32
+                  x = torch.ones(size // 4, device=dev)
+                  dist.all_reduce(x)
+                  torch.cuda.synchronize()
+                  reps = 20
+                  t = time.perf_counter()
+                  for _ in range(reps):
+                      dist.all_reduce(x)
+                  torch.cuda.synchronize()
+                  per = (time.perf_counter() - t) / reps
+                  assert torch.all(x == 1).item(), "all_reduce over one rank must leave the tensor unchanged"
+                  print(f"all_reduce {size:>11} B: {per * 1e6:9.1f} us, algbw {size / per / 1e9:8.2f} GB/s "
+                        f"(busbw = algbw * 2(n-1)/n = 0 for n=1: not a fabric number)")
+              dist.destroy_process_group()
+              print("SMOKE OK")
+              PY
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 8Gi

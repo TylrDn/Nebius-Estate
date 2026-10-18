@@ -1,0 +1,16 @@
+diff --git a/dist/routing/RouteResolver.esm.js b/dist/routing/RouteResolver.esm.js
+--- a/dist/routing/RouteResolver.esm.js
++++ b/dist/routing/RouteResolver.esm.js
+@@ -106,8 +106,10 @@
+       this.routeObjects
+     );
+     const routeFunc = (...[params]) => {
+-      const encodedParams = params && mapValues(params, (value) => {
+-        if (typeof value === "string") {
++      // Modified by Taylor Dean: Router 7 encodes named parameters itself.
++      // Preserve Backstage's reserved-character handling for raw '*' splats.
++      const encodedParams = params && mapValues(params, (value, key) => {
++        if (key === '*' && typeof value === "string") {
+           return value.replaceAll(/[&?#;\/]/g, (c) => encodeURIComponent(c));
+         }
+         return value;

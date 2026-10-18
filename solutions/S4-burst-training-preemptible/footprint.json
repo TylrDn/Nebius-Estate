@@ -1,0 +1,11 @@
+{
+  "name": "s4-burst-4x8-h100-72h",
+  "region": "eu-north1",
+  "items": [
+    {"name": "gpu-nodes", "platform": "gpu-h100-sxm", "preset": "8gpu-128vcpu-1600gb", "count": 4, "hours": 72, "preemptible": "compare"},
+    {"name": "gpu-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 1023, "count": 4, "hours": 72},
+    {"name": "cpu-nodes", "platform": "cpu-d3", "preset": "8vcpu-32gb", "count": 2, "hours": 72},
+    {"name": "cpu-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 128, "count": 2, "hours": 72},
+    {"name": "ckpt-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 4096, "count": 1, "hours": 72}
+  ]
+}

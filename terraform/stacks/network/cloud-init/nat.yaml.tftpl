@@ -1,0 +1,8 @@
+#cloud-config
+# NAT gateway: the forwarding and MASQUERADE steps of docs.nebius.com/vpc/routing/custom-nat-gateway.
+# bootcmd re-applies them on every boot, so the gateway needs no package (the docs install
+# iptables-persistent) and comes up even when a package mirror is unreachable.
+${admin_user}
+bootcmd:
+  - sysctl -w net.ipv4.ip_forward=1
+  - iptables -t nat -C POSTROUTING -o eth0 -j MASQUERADE || iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE

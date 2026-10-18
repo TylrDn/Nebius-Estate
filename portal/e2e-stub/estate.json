@@ -1,0 +1,3100 @@
+{
+  "_note": "Test data for the e2e stub and backend unit tests: invented resources in the shape of the documented Nebius REST list responses. Not real resources; ids carry e00mock. Shapes mirror responses verified against the live API on 2026-10-11 (projects by id, labels null and status.default on project defaults, tenant-level lists refused with project-level permits). Values marked never-copied-stub-value test that secrets, tokens and passwords are never copied. Quota allowances mirror the live shape: no metadata.id, no spec.limit, usage omitted when not used. Deliberate cases: an undocumented tunnel connectionState (schema drift) and DNS zones not found for the legacy project. Tenant-level reads answer (tenant viewer + security-auditor granted 2026-10-11): no reservations, capacity advice without metadata.id, one project in the tenant that is not configured. Teardown (project-e00mocklegacy): a cluster DELETING with its node group past its TTL, its preemptible node VM stopped, and DCGM series of a GPU VM no longer in the instance list, labelled with a node group (mk8snodegroup-e00mockgoneold) the node-group list no longer has. Disk sizes: pvc-3f1c0e5a-tsdb is sized in spec.sizeBytes only (a CSI disk) and pvc-5d0b7e21-scratch has no size, so the live run-rate names it unpriced. Project allowance caps (with metadata.id, 2026-10-11 eu-west2 incident shape): sandbox vpc.allocation.count 13 under a tenant limit of 1000 and compute.instance.count 22 over a tenant limit of 12; staging compute.gpucluster.count with no limit (a cap of 0) under a tenant limit of 5.",
+  "lists": {
+    "/vpc/v1/networks": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "vpcnetwork-e00mocksbx",
+            "name": "default-network-e00mocksbx",
+            "parentId": "project-e00mocksandbox",
+            "labels": null
+          },
+          "spec": {},
+          "status": {
+            "state": "READY",
+            "default": true
+          }
+        }
+      ],
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "vpcnetwork-e00mockstg",
+            "name": "default-network-e00mockstg",
+            "parentId": "project-e00mockstaging",
+            "labels": null
+          },
+          "spec": {},
+          "status": {
+            "state": "READY",
+            "default": true
+          }
+        }
+      ],
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "vpcnetwork-e00mocklab",
+            "name": "default-network-e00mocklab",
+            "parentId": "project-e00mocklab",
+            "labels": null
+          },
+          "spec": {},
+          "status": {
+            "state": "READY",
+            "default": true
+          }
+        }
+      ]
+    },
+    "/vpc/v1/subnets": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "vpcsubnet-e00mocksbx",
+            "name": "default-subnet-e00mocksbx",
+            "parentId": "project-e00mocksandbox",
+            "labels": null
+          },
+          "spec": {
+            "networkId": "vpcnetwork-e00mocksbx"
+          },
+          "status": {
+            "state": "READY",
+            "default": true
+          }
+        }
+      ],
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "vpcsubnet-e00mockstg",
+            "name": "default-subnet-e00mockstg",
+            "parentId": "project-e00mockstaging",
+            "labels": null
+          },
+          "spec": {
+            "networkId": "vpcnetwork-e00mockstg"
+          },
+          "status": {
+            "state": "READY",
+            "default": true
+          }
+        },
+        {
+          "metadata": {
+            "id": "vpcsubnet-e00mockstgwl",
+            "name": "nip-staging-workload",
+            "parentId": "project-e00mockstaging",
+            "labels": { "nip-stage": "staging", "nip-stack": "network", "nip-owner": "platform" }
+          },
+          "spec": {
+            "networkId": "vpcnetwork-e00mockstg",
+            "ipv4PrivatePools": { "useNetworkPools": false, "pools": [{ "cidrs": [{ "cidr": "10.20.0.0/24" }] }] }
+          },
+          "status": {
+            "state": "READY",
+            "ipv4PrivatePools": [{ "poolId": "vpcpool-e00mockstgauto", "cidrs": ["10.20.0.0/24"] }]
+          }
+        },
+        {
+          "metadata": {
+            "id": "vpcsubnet-e00mockstgpg",
+            "name": "postgresql-leftover-subnet",
+            "parentId": "project-e00mockstaging",
+            "labels": { "managed": "true" }
+          },
+          "spec": {
+            "networkId": "vpcnetwork-e00mockstg"
+          },
+          "status": {
+            "state": "READY"
+          }
+        }
+      ],
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "vpcsubnet-e00mocklab",
+            "name": "default-subnet-e00mocklab",
+            "parentId": "project-e00mocklab",
+            "labels": null
+          },
+          "spec": {
+            "networkId": "vpcnetwork-e00mocklab"
+          },
+          "status": {
+            "state": "READY",
+            "default": true
+          }
+        }
+      ]
+    },
+    "/mk8s/v1/clusters": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "mk8scluster-e00mockinf",
+            "name": "nip-sandbox-inference",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:12:00Z"
+          },
+          "spec": {
+            "controlPlane": {
+              "version": "1.36",
+              "subnetId": "vpcsubnet-e00mocksbx"
+            }
+          },
+          "status": {
+            "state": "RUNNING",
+            "controlPlane": {
+              "version": "1.36",
+              "endpoints": {
+                "publicEndpoint": "https://pu.mk8scluster-e00mockinf.mk8s.eu-north1.nebius.cloud:443"
+              },
+              "auth": {
+                "clusterCaCertificate": "-----BEGIN CERTIFICATE-----\nZTAwbW9jay1ub3QtYS1yZWFsLWNlcnRpZmljYXRl\n-----END CERTIFICATE-----\n"
+              }
+            }
+          }
+        }
+      ],
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "mk8scluster-e00mocktrn",
+            "name": "nip-staging-training",
+            "parentId": "project-e00mockstaging",
+            "labels": {
+              "nip-env": "training",
+              "nip-stage": "staging",
+              "nip-run": "staging",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1"
+            }
+          },
+          "spec": {
+            "controlPlane": {
+              "version": "1.35"
+            }
+          },
+          "status": {
+            "state": "RUNNING",
+            "controlPlane": {
+              "version": "1.35",
+              "endpoints": {
+                "publicEndpoint": "https://pu.mk8scluster-e00mocktrn.mk8s.eu-north1.nebius.cloud:443"
+              },
+              "auth": {
+                "clusterCaCertificate": "-----BEGIN CERTIFICATE-----\nZTAwbW9jay1ub3QtYS1yZWFsLWNlcnRpZmljYXRl\n-----END CERTIFICATE-----\n"
+              }
+            }
+          }
+        }
+      ],
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "mk8scluster-e00mocksop",
+            "name": "nip-sandbox-soperator",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "controlPlane": {
+              "version": "1.35"
+            }
+          },
+          "status": {
+            "state": "PROVISIONING",
+            "controlPlane": {
+              "version": "1.35"
+            }
+          }
+        }
+      ],
+      "project-e00mocklegacy": [
+        {
+          "metadata": {
+            "id": "mk8scluster-e00mockgone",
+            "name": "nip-legacy-teardown",
+            "parentId": "project-e00mocklegacy",
+            "labels": {
+              "nip-owner": "platform",
+              "nip-run": "teardown-e2e",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:00:00Z"
+          },
+          "spec": {
+            "controlPlane": {
+              "version": "1.35"
+            }
+          },
+          "status": {
+            "state": "DELETING",
+            "controlPlane": {
+              "version": "1.35"
+            }
+          }
+        }
+      ]
+    },
+    "/mk8s/v1/node-groups": {
+      "mk8scluster-e00mockinf": [
+        {
+          "metadata": {
+            "id": "mk8snodegroup-e00mockinfsys",
+            "name": "nip-sandbox-inference-system",
+            "parentId": "mk8scluster-e00mockinf",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "template": {
+              "resources": {
+                "platform": "cpu-d3",
+                "preset": "8vcpu-32gb"
+              }
+            },
+            "fixedNodeCount": 2
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "mk8snodegroup-e00mockinfgpu",
+            "name": "nip-sandbox-inference-gpu",
+            "parentId": "mk8scluster-e00mockinf",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "template": {
+              "resources": {
+                "platform": "gpu-h100-sxm",
+                "preset": "1gpu-16vcpu-200gb"
+              },
+              "preemptible": {}
+            },
+            "fixedNodeCount": 1
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        }
+      ],
+      "mk8scluster-e00mocktrn": [
+        {
+          "metadata": {
+            "id": "mk8snodegroup-e00mocktrnsys",
+            "name": "nip-staging-training-system",
+            "parentId": "mk8scluster-e00mocktrn",
+            "labels": {
+              "nip-env": "training",
+              "nip-stage": "staging",
+              "nip-run": "staging",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1"
+            }
+          },
+          "spec": {
+            "template": {
+              "resources": {
+                "platform": "cpu-d3",
+                "preset": "8vcpu-32gb"
+              }
+            },
+            "fixedNodeCount": 2
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "mk8snodegroup-e00mocktrngpu",
+            "name": "nip-staging-training-gpu",
+            "parentId": "mk8scluster-e00mocktrn",
+            "labels": {
+              "nip-env": "training",
+              "nip-stage": "staging",
+              "nip-run": "staging",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1"
+            }
+          },
+          "spec": {
+            "template": {
+              "resources": {
+                "platform": "gpu-h100-sxm",
+                "preset": "8gpu-128vcpu-1600gb"
+              },
+              "reservationPolicy": {
+                "policy": "AUTO"
+              },
+              "gpuCluster": {
+                "id": "computegpucluster-e00mocktrn"
+              }
+            },
+            "autoscaling": {
+              "minNodeCount": 0,
+              "maxNodeCount": 2
+            }
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        }
+      ],
+      "mk8scluster-e00mocksop": [
+        {
+          "metadata": {
+            "id": "mk8snodegroup-e00mocksopsystem",
+            "name": "soperator-system",
+            "parentId": "mk8scluster-e00mocksop",
+            "labels": {}
+          },
+          "spec": {
+            "template": {
+              "resources": {
+                "platform": "cpu-d3",
+                "preset": "8vcpu-32gb"
+              }
+            },
+            "fixedNodeCount": 3
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "mk8snodegroup-e00mocksopcontroller",
+            "name": "soperator-controller",
+            "parentId": "mk8scluster-e00mocksop",
+            "labels": {}
+          },
+          "spec": {
+            "template": {
+              "resources": {
+                "platform": "cpu-d3",
+                "preset": "4vcpu-16gb"
+              }
+            },
+            "fixedNodeCount": 1
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "mk8snodegroup-e00mocksoplogin",
+            "name": "soperator-login",
+            "parentId": "mk8scluster-e00mocksop",
+            "labels": {}
+          },
+          "spec": {
+            "template": {
+              "resources": {
+                "platform": "cpu-d3",
+                "preset": "16vcpu-64gb"
+              }
+            },
+            "fixedNodeCount": 1
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "mk8snodegroup-e00mocksopworkercpu",
+            "name": "soperator-worker-cpu",
+            "parentId": "mk8scluster-e00mocksop",
+            "labels": {}
+          },
+          "spec": {
+            "template": {
+              "resources": {
+                "platform": "cpu-d3",
+                "preset": "8vcpu-32gb"
+              }
+            },
+            "fixedNodeCount": 1
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        }
+      ],
+      "mk8scluster-e00mockgone": [
+        {
+          "metadata": {
+            "id": "mk8snodegroup-e00mockgonegpu",
+            "name": "nip-legacy-teardown-gpu",
+            "parentId": "mk8scluster-e00mockgone",
+            "labels": {
+              "nip-owner": "platform",
+              "nip-run": "teardown-e2e",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "template": {
+              "resources": {
+                "platform": "gpu-l40s-a",
+                "preset": "1gpu-8vcpu-32gb"
+              },
+              "preemptible": {}
+            },
+            "fixedNodeCount": 1
+          },
+          "status": {
+            "state": "DELETING"
+          }
+        }
+      ]
+    },
+    "/compute/v1/filesystems": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "computefilesystem-e00mockinf",
+            "name": "nip-sandbox-inference-fs",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "sizeGibibytes": 64,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY"
+          }
+        }
+      ],
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "computefilesystem-e00mocktrn",
+            "name": "nip-staging-training-fs",
+            "parentId": "project-e00mockstaging",
+            "labels": {
+              "nip-env": "training",
+              "nip-stage": "staging",
+              "nip-run": "staging",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1"
+            }
+          },
+          "spec": {
+            "sizeGibibytes": 1024,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY"
+          }
+        }
+      ],
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "computefilesystem-e00mocksopjail",
+            "name": "soperator-jail",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "sizeGibibytes": 256,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computefilesystem-e00mocksopdata",
+            "name": "soperator-data",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "sizeGibibytes": 64,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computefilesystem-e00mocksopcontrollerspool",
+            "name": "soperator-controller-spool",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "sizeGibibytes": 128,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY"
+          }
+        }
+      ]
+    },
+    "/compute/v1/instances": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "computeinstance-e00mockinfsys0",
+            "name": "nip-sandbox-inference-system-0",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb"
+            },
+            "bootDisk": {
+              "existingDisk": {
+                "id": "computedisk-e00mockinfsysboot0"
+              }
+            },
+            "filesystems": [
+              {
+                "existingFilesystem": {
+                  "id": "computefilesystem-e00mockinf"
+                }
+              }
+            ],
+            "networkInterfaces": [
+              {
+                "subnetId": "vpcsubnet-e00mocksbx"
+              }
+            ]
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mockinfsys1",
+            "name": "nip-sandbox-inference-system-1",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb"
+            },
+            "bootDisk": {
+              "existingDisk": {
+                "id": "computedisk-e00mockinfsysboot1"
+              }
+            },
+            "filesystems": [
+              {
+                "existingFilesystem": {
+                  "id": "computefilesystem-e00mockinf"
+                }
+              }
+            ],
+            "networkInterfaces": [
+              {
+                "subnetId": "vpcsubnet-e00mocksbx"
+              }
+            ]
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mockinfgpu0",
+            "name": "nip-sandbox-inference-gpu-0",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "resources": {
+              "platform": "gpu-h100-sxm",
+              "preset": "1gpu-16vcpu-200gb"
+            },
+            "bootDisk": {
+              "existingDisk": {
+                "id": "computedisk-e00mockinfgpuboot0"
+              }
+            },
+            "filesystems": [
+              {
+                "existingFilesystem": {
+                  "id": "computefilesystem-e00mockinf"
+                }
+              }
+            ],
+            "networkInterfaces": [
+              {
+                "subnetId": "vpcsubnet-e00mocksbx"
+              }
+            ],
+            "preemptible": {}
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mockngnode0",
+            "name": "mk8snodegroup-e00mockinfsys-pmvxp-kqlq2",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "mk8s-cluster-id": "mk8scluster-e00mockinf",
+              "mk8s-node-group-id": "mk8snodegroup-e00mockinfsys"
+            },
+            "createdAt": "2026-10-11T06:11:00Z"
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb"
+            },
+            "bootDisk": {
+              "existingDisk": {
+                "id": "computedisk-e00mockngboot0"
+              }
+            },
+            "filesystems": [
+              {
+                "existingFilesystem": {
+                  "id": "computefilesystem-e00mockinf"
+                }
+              }
+            ],
+            "networkInterfaces": [
+              {
+                "subnetId": "vpcsubnet-e00mocksbx"
+              }
+            ]
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        }
+      ],
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "computeinstance-e00mockb300",
+            "name": "bench-b300-1gpu",
+            "parentId": "project-e00mocklab",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "bench-1010",
+              "nip-owner": "platform",
+              "nip-region": "uk-south1",
+              "nip-ttl-expires": "2026-10-10T20:00:00Z"
+            },
+            "createdAt": "2026-10-10T08:30:00Z"
+          },
+          "spec": {
+            "resources": {
+              "platform": "gpu-b300-sxm",
+              "preset": "1gpu-24vcpu-346gb"
+            },
+            "bootDisk": {
+              "existingDisk": {
+                "id": "computedisk-e00mockb300boot"
+              }
+            },
+            "preemptible": {}
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mocksopsystem0",
+            "name": "soperator-system-0",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb"
+            }
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mocksopsystem1",
+            "name": "soperator-system-1",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb"
+            }
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mocksopsystem2",
+            "name": "soperator-system-2",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb"
+            }
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mocksopcontroller0",
+            "name": "soperator-controller-0",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "4vcpu-16gb"
+            }
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mocksoplogin0",
+            "name": "soperator-login-0",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "16vcpu-64gb"
+            }
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mocksopworkercpu0",
+            "name": "soperator-worker-cpu-0",
+            "parentId": "project-e00mocklab",
+            "labels": {}
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb"
+            }
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        }
+      ],
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "computeinstance-e00mocktrnsys0",
+            "name": "nip-staging-training-system-0",
+            "parentId": "project-e00mockstaging",
+            "labels": {
+              "nip-env": "training",
+              "nip-stage": "staging",
+              "nip-run": "staging",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1"
+            }
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb"
+            }
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mocktrnsys1",
+            "name": "nip-staging-training-system-1",
+            "parentId": "project-e00mockstaging",
+            "labels": {
+              "nip-env": "training",
+              "nip-stage": "staging",
+              "nip-run": "staging",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1"
+            }
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "8vcpu-32gb"
+            }
+          },
+          "status": {
+            "state": "RUNNING"
+          }
+        }
+      ],
+      "project-e00mocklegacy": [
+        {
+          "metadata": {
+            "id": "computeinstance-e00mocklegacy",
+            "name": "old-notebook",
+            "parentId": "project-e00mocklegacy",
+            "labels": {}
+          },
+          "spec": {
+            "resources": {
+              "platform": "cpu-d3",
+              "preset": "4vcpu-16gb"
+            },
+            "bootDisk": {
+              "existingDisk": {
+                "id": "computedisk-e00mocklegacyboot"
+              }
+            }
+          },
+          "status": {
+            "state": "STOPPED"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computeinstance-e00mockgonepre",
+            "name": "mk8snodegroup-e00mockgonegpu-7vfm8-qg7rz",
+            "parentId": "project-e00mocklegacy",
+            "labels": {
+              "mk8s-cluster-id": "mk8scluster-e00mockgone",
+              "mk8s-node-group-id": "mk8snodegroup-e00mockgonegpu"
+            },
+            "createdAt": "2026-10-08T09:25:00Z"
+          },
+          "spec": {
+            "resources": {
+              "platform": "gpu-l40s-a",
+              "preset": "1gpu-8vcpu-32gb"
+            },
+            "preemptible": {}
+          },
+          "status": {
+            "state": "STOPPED"
+          }
+        }
+      ]
+    },
+    "/compute/v1/disks": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "computedisk-e00mockinfsysboot0",
+            "name": "nip-sandbox-inference-system-0-boot",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "sizeGibibytes": 128,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY",
+            "readWriteAttachments": [
+              {
+                "instanceId": "computeinstance-e00mockinfsys0"
+              }
+            ]
+          }
+        },
+        {
+          "metadata": {
+            "id": "computedisk-e00mockinfsysboot1",
+            "name": "nip-sandbox-inference-system-1-boot",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "sizeGibibytes": 128,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY",
+            "readWriteAttachments": [
+              {
+                "instanceId": "computeinstance-e00mockinfsys1"
+              }
+            ]
+          }
+        },
+        {
+          "metadata": {
+            "id": "computedisk-e00mockinfgpuboot0",
+            "name": "nip-sandbox-inference-gpu-0-boot",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "ticket-481",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1",
+              "nip-ttl-expires": "2026-10-09T18:00:00Z"
+            },
+            "createdAt": "2026-10-08T09:20:00Z"
+          },
+          "spec": {
+            "sizeGibibytes": 512,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY",
+            "readWriteAttachments": [
+              {
+                "instanceId": "computeinstance-e00mockinfgpu0"
+              }
+            ]
+          }
+        },
+        {
+          "metadata": {
+            "id": "computedisk-e00mockpvctsdb",
+            "name": "pvc-3f1c0e5a-tsdb",
+            "parentId": "project-e00mocksandbox",
+            "labels": {}
+          },
+          "spec": {
+            "sizeBytes": "26843545600",
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY",
+            "readWriteAttachments": [
+              {
+                "instanceId": "computeinstance-e00mockinfsys0"
+              }
+            ]
+          }
+        },
+        {
+          "metadata": {
+            "id": "computedisk-e00mockpvcnosize",
+            "name": "pvc-5d0b7e21-scratch",
+            "parentId": "project-e00mocksandbox",
+            "labels": {}
+          },
+          "spec": {
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY",
+            "readWriteAttachments": [
+              {
+                "instanceId": "computeinstance-e00mockinfsys0"
+              }
+            ]
+          }
+        },
+        {
+          "metadata": {
+            "id": "computedisk-e00mockpvcorphan",
+            "name": "pvc-9a77d2c4-old-model-cache",
+            "parentId": "project-e00mocksandbox",
+            "labels": {},
+            "createdAt": "2026-10-02T15:40:00Z"
+          },
+          "spec": {
+            "sizeGibibytes": 200,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY",
+            "readWriteAttachments": []
+          }
+        },
+        {
+          "metadata": {
+            "id": "computedisk-e00mockngboot0",
+            "name": "mk8snodegroup-e00mockinfsys-pmvxp-kqlq2",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "mk8s-cluster-id": "mk8scluster-e00mockinf",
+              "mk8s-node-group-id": "mk8snodegroup-e00mockinfsys"
+            },
+            "createdAt": "2026-10-11T06:11:00Z"
+          },
+          "spec": {
+            "sizeGibibytes": 512,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY",
+            "readWriteAttachment": "computeinstance-e00mockngnode0",
+            "managedBy": "mk8snodegroup-e00mockinfsys",
+            "sizeBytes": 549755813888,
+            "blockSizeBytes": 4096,
+            "lockState": "UNLOCKED"
+          }
+        },
+        {
+          "metadata": {
+            "id": "computedisk-e00mockngprov",
+            "name": "mk8snodegroup-e00mockinfgpu-x7k2q-provisioning",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "mk8s-cluster-id": "mk8scluster-e00mockinf",
+              "mk8s-node-group-id": "mk8snodegroup-e00mockinfgpu"
+            },
+            "createdAt": "2026-10-11T06:40:00Z"
+          },
+          "spec": {
+            "sizeGibibytes": 512,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "CREATING"
+          }
+        }
+      ],
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "computedisk-e00mockb300boot",
+            "name": "bench-b300-1gpu-boot",
+            "parentId": "project-e00mocklab",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-run": "bench-1010",
+              "nip-owner": "platform",
+              "nip-region": "uk-south1",
+              "nip-ttl-expires": "2026-10-10T20:00:00Z"
+            }
+          },
+          "spec": {
+            "sizeGibibytes": 1023,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY",
+            "readWriteAttachments": [
+              {
+                "instanceId": "computeinstance-e00mockb300"
+              }
+            ]
+          }
+        }
+      ],
+      "project-e00mocklegacy": [
+        {
+          "metadata": {
+            "id": "computedisk-e00mocklegacyboot",
+            "name": "old-notebook-boot",
+            "parentId": "project-e00mocklegacy",
+            "labels": {}
+          },
+          "spec": {
+            "sizeGibibytes": 256,
+            "type": "NETWORK_SSD"
+          },
+          "status": {
+            "state": "READY",
+            "readWriteAttachments": [
+              {
+                "instanceId": "computeinstance-e00mocklegacy"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "/storage/v1/buckets": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "storagebucket-e00mocksbxstate",
+            "name": "nip-sandbox-tfstate-e00mock",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-stage": "sandbox",
+              "nip-owner": "platform"
+            }
+          },
+          "spec": {},
+          "status": {
+            "state": "ACTIVE"
+          }
+        }
+      ]
+    },
+    "/compute/v1/gpu-clusters": {
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "computegpucluster-e00mocktrn",
+            "name": "nip-staging-training-fabric",
+            "parentId": "project-e00mockstaging",
+            "labels": {
+              "nip-env": "training",
+              "nip-stage": "staging",
+              "nip-run": "staging",
+              "nip-owner": "platform",
+              "nip-region": "eu-north1"
+            }
+          },
+          "spec": {
+            "infinibandFabric": "fabric-3"
+          },
+          "status": {
+            "state": "READY"
+          }
+        }
+      ]
+    },
+    "/quotas/v1/quota-allowances": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "name": "compute.instance.gpu.h100",
+            "parentId": "project-e00mocksandbox",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1"
+          },
+          "status": {
+            "usage": "2",
+            "usageState": "USAGE_STATE_USED",
+            "unit": "gpu",
+            "service": "compute",
+            "description": "GPUs H100",
+            "serviceDescription": "Compute"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.instance.non-gpu.vcpu",
+            "parentId": "project-e00mocksandbox",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1"
+          },
+          "status": {
+            "usage": "48",
+            "usageState": "USAGE_STATE_USED",
+            "unit": "vcpu",
+            "service": "compute",
+            "description": "vCPUs for non-GPU VMs",
+            "serviceDescription": "Compute"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.disk.size.network-ssd",
+            "parentId": "project-e00mocksandbox",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1"
+          },
+          "status": {
+            "usage": "2147483648000",
+            "usageState": "USAGE_STATE_USED",
+            "unit": "byte",
+            "service": "compute",
+            "description": "Network SSD disk size",
+            "serviceDescription": "Compute"
+          }
+        },
+        {
+          "metadata": {
+            "parentId": "project-e00mocksandbox",
+            "name": "msp.cloudapps.gpu.h100",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1"
+          },
+          "status": {
+            "service": "msp",
+            "description": "GPUs H100 for cloud apps",
+            "serviceDescription": "Managed services",
+            "unit": "gpu",
+            "usageState": "USAGE_STATE_NOT_APPLICABLE"
+          }
+        },
+        {
+          "metadata": {
+            "id": "quotaallowance-e00mockcap1",
+            "name": "vpc.allocation.count",
+            "parentId": "project-e00mocksandbox",
+            "resourceVersion": "2",
+            "createdAt": "2026-10-11T14:32:44Z",
+            "updatedAt": "2026-10-11T14:41:26Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "13"
+          },
+          "status": {
+            "state": "STATE_ACTIVE",
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "count",
+            "service": "vpc",
+            "description": "IP address allocations",
+            "serviceDescription": "vpc"
+          }
+        },
+        {
+          "metadata": {
+            "id": "quotaallowance-e00mockcap2",
+            "name": "compute.instance.count",
+            "parentId": "project-e00mocksandbox",
+            "resourceVersion": "2",
+            "createdAt": "2026-10-11T14:32:44Z",
+            "updatedAt": "2026-10-11T14:41:26Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "22"
+          },
+          "status": {
+            "state": "STATE_ACTIVE",
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "instance",
+            "service": "compute",
+            "description": "Virtual machines",
+            "serviceDescription": "compute"
+          }
+        }
+      ],
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "name": "compute.instance.gpu.h100",
+            "parentId": "project-e00mockstaging",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "gpu",
+            "service": "compute",
+            "description": "GPUs H100",
+            "serviceDescription": "Compute"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.filesystem.size.network-ssd",
+            "parentId": "project-e00mockstaging",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1"
+          },
+          "status": {
+            "usage": "1099511627776",
+            "usageState": "USAGE_STATE_USED",
+            "unit": "byte",
+            "service": "compute",
+            "description": "Shared filesystem size",
+            "serviceDescription": "Compute"
+          }
+        },
+        {
+          "metadata": {
+            "id": "quotaallowance-e00mockcap3",
+            "name": "compute.gpucluster.count",
+            "parentId": "project-e00mockstaging",
+            "resourceVersion": "2",
+            "createdAt": "2026-10-11T14:32:44Z",
+            "updatedAt": "2026-10-11T14:41:26Z"
+          },
+          "spec": {
+            "region": "eu-north1"
+          },
+          "status": {
+            "state": "STATE_ACTIVE",
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "count",
+            "service": "compute",
+            "description": "GPU clusters",
+            "serviceDescription": "compute"
+          }
+        }
+      ],
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "name": "compute.instance.gpu.b300",
+            "parentId": "project-e00mocklab",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "uk-south1"
+          },
+          "status": {
+            "usage": "1",
+            "usageState": "USAGE_STATE_USED",
+            "unit": "gpu",
+            "service": "compute",
+            "description": "GPUs B300",
+            "serviceDescription": "Compute"
+          }
+        }
+      ],
+      "project-e00mocklegacy": [],
+      "tenant-e00mocktest": [
+        {
+          "metadata": {
+            "name": "compute.instance.count",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "12"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_USED",
+            "unit": "instance",
+            "service": "compute",
+            "description": "Virtual machines",
+            "serviceDescription": "Compute",
+            "usage": "9"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.instance.gpu.h100",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "32"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_USED",
+            "unit": "gpu",
+            "service": "compute",
+            "description": "GPUs H100",
+            "serviceDescription": "Compute",
+            "usage": "2"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.instance.gpu.h200",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "32"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "gpu",
+            "service": "compute",
+            "description": "GPUs H200",
+            "serviceDescription": "Compute"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.instance.gpu.l40s",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "32"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "gpu",
+            "service": "compute",
+            "description": "GPUs L40S",
+            "serviceDescription": "Compute"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.instance.preemptible.count",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "8"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_USED",
+            "unit": "instance",
+            "service": "compute",
+            "description": "Preemptible VMs",
+            "serviceDescription": "Compute",
+            "usage": "1"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.instance.non-gpu.vcpu",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "vcpu",
+            "service": "compute",
+            "description": "vCPUs for non-GPU VMs",
+            "serviceDescription": "Compute"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.disk.size.network-ssd",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "21990232555520"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_USED",
+            "unit": "byte",
+            "service": "compute",
+            "description": "Network SSD disk size",
+            "serviceDescription": "Compute",
+            "usage": "2791728742400"
+          }
+        },
+        {
+          "metadata": {
+            "name": "vpc.allocation.count",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "1000"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "count",
+            "service": "vpc",
+            "description": "IP address allocations",
+            "serviceDescription": "vpc"
+          }
+        },
+        {
+          "metadata": {
+            "name": "compute.gpucluster.count",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "5"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "count",
+            "service": "compute",
+            "description": "GPU clusters",
+            "serviceDescription": "compute"
+          }
+        },
+        {
+          "metadata": {
+            "name": "mk8s.cluster.count",
+            "parentId": "tenant-e00mocktest",
+            "createdAt": "1970-01-01T00:00:00Z",
+            "updatedAt": "1970-01-01T00:00:00Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "limit": "2"
+          },
+          "status": {
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "count",
+            "service": "mk8s",
+            "description": "Managed Kubernetes clusters",
+            "serviceDescription": "Managed Kubernetes"
+          }
+        }
+      ]
+    },
+    "/capacity/v1/capacity-allowances": {
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "capacityallowance-e00mockstg",
+            "name": "h100-reserved-eu-north1",
+            "parentId": "project-e00mockstaging",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "capacityBlockGroupId": "capacityblockgroup-e00mockh100",
+            "limit": "16"
+          },
+          "status": {
+            "state": "STATE_ACTIVE",
+            "usage": "0",
+            "usagePercentage": "0",
+            "usageState": "USAGE_STATE_NOT_USED",
+            "unit": "gpu"
+          }
+        }
+      ]
+    },
+    "/vpc/v1/allocations": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "vpcallocation-e00mocksbxpub",
+            "name": "nip-sandbox-inference-ingress",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-owner": "platform",
+              "nip-run": "ticket-481"
+            },
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "ipv4Public": {
+              "subnetId": "vpcsubnet-e00mocksbx"
+            }
+          },
+          "status": {
+            "state": "ASSIGNED",
+            "static": true,
+            "details": {
+              "allocatedCidr": "198.51.100.7/32",
+              "subnetId": "vpcsubnet-e00mocksbx",
+              "version": "IPV4"
+            },
+            "assignment": {
+              "networkInterface": {
+                "instanceId": "computeinstance-e00mockinfgpu0",
+                "name": "eth0",
+                "type": "PUBLIC"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "/vpc/v1/security-groups": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "vpcsecuritygroup-e00mocksbx",
+            "name": "default-security-group-e00mocksbx",
+            "parentId": "project-e00mocksandbox",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "networkId": "vpcnetwork-e00mocksbx"
+          },
+          "status": {
+            "state": "READY",
+            "default": true
+          }
+        }
+      ]
+    },
+    "/vpc/v1/route-tables": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "vpcroutetable-e00mocksbx",
+            "name": "default-route-table-e00mocksbx",
+            "parentId": "project-e00mocksandbox",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "networkId": "vpcnetwork-e00mocksbx"
+          },
+          "status": {
+            "state": "READY",
+            "default": true,
+            "assignment": {
+              "subnets": [
+                "vpcsubnet-e00mocksbx"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "/vpc/v1/pools": {
+      "project-e00mockstaging": [
+        {
+          "metadata": { "id": "vpcpool-e00mockstgauto", "name": "auto-subnet-pool", "parentId": "project-e00mockstaging", "labels": null },
+          "spec": { "version": "IPV4", "visibility": "PRIVATE", "cidrs": [{ "cidr": "10.20.0.0/24" }] },
+          "status": { "state": "READY", "cidrs": ["10.20.0.0/24"], "assignment": { "subnets": ["vpcsubnet-e00mockstgwl"] } }
+        },
+        {
+          "metadata": { "id": "vpcpool-e00mockstgfree", "name": "auto-subnet-pool-unused", "parentId": "project-e00mockstaging", "labels": null },
+          "spec": { "version": "IPV4", "visibility": "PRIVATE", "cidrs": [{ "cidr": "10.21.0.0/24" }] },
+          "status": { "state": "READY", "cidrs": ["10.21.0.0/24"], "assignment": {} }
+        }
+      ]
+    },
+    "/registry/v1/registries": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "registry-e00mocksbx",
+            "name": "nip-sandbox-images",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-owner": "platform",
+              "nip-run": "ticket-481"
+            },
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {},
+          "status": {
+            "state": "ACTIVE",
+            "imagesCount": 12,
+            "registryFqdn": "cr.example.invalid"
+          }
+        }
+      ]
+    },
+    "/msp/postgresql/v1alpha1/clusters": {
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "postgresqlcluster-e00mockstg",
+            "name": "nip-staging-metadata-db",
+            "parentId": "project-e00mockstaging",
+            "labels": {
+              "nip-env": "data",
+              "nip-stage": "staging",
+              "nip-owner": "platform"
+            },
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "networkId": "vpcnetwork-e00mockstg",
+            "config": {
+              "version": "16",
+              "publicAccess": false,
+              "template": {
+                "resources": { "platform": "cpu-d3", "preset": "2vcpu-8gb" },
+                "disk": { "type": "network-ssd", "sizeGibibytes": "96" },
+                "hosts": { "count": "2" }
+              }
+            }
+          },
+          "status": {
+            "phase": "PHASE_RUNNING",
+            "state": "STATE_FINISHED"
+          }
+        }
+      ]
+    },
+    "/msp/mlflow/v1alpha1/clusters": {
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "mlflowcluster-e00mocklab",
+            "name": "nip-lab-tracking",
+            "parentId": "project-e00mocklab",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "networkId": "vpcnetwork-e00mocklab",
+            "publicAccess": false,
+            "adminPassword": "never-copied-stub-value"
+          },
+          "status": {
+            "phase": "PHASE_RUNNING",
+            "state": "STATE_FINISHED",
+            "experimentsCount": 4
+          }
+        }
+      ]
+    },
+    "/ai/v1/endpoints": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "aiendpoint-e00mocksbx",
+            "name": "nip-sandbox-vllm-endpoint",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "inference",
+              "nip-stage": "sandbox",
+              "nip-owner": "platform",
+              "nip-run": "ticket-481"
+            },
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "platform": "gpu-h100-sxm",
+            "preset": "1gpu-16vcpu-200gb",
+            "image": "vllm/vllm-openai",
+            "authToken": "never-copied-stub-value",
+            "environmentVariables": [
+              {
+                "name": "HF_TOKEN",
+                "value": "never-copied-stub-value"
+              }
+            ]
+          },
+          "status": {
+            "state": "RUNNING",
+            "instances": [
+              {
+                "computeInstanceId": "computeinstance-e00mockinfgpu0",
+                "state": "RUNNING"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "/ai/v1/jobs": {
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "aijob-e00mocklab",
+            "name": "nccl-allreduce-check",
+            "parentId": "project-e00mocklab",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "platform": "gpu-b300-sxm",
+            "preset": "1gpu-24vcpu-346gb"
+          },
+          "status": {
+            "state": "COMPLETED",
+            "instances": []
+          }
+        }
+      ]
+    },
+    "/ai/v1/devlabs": {},
+    "/storage/v1/transfers": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "storagetransfer-e00mocksbx",
+            "name": "dataset-copy",
+            "parentId": "project-e00mocksandbox",
+            "labels": {
+              "nip-env": "data",
+              "nip-stage": "sandbox",
+              "nip-owner": "platform"
+            },
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {},
+          "status": {
+            "state": "STOPPED",
+            "suspensionState": "NOT_SUSPENDED"
+          }
+        }
+      ]
+    },
+    "/compute/v1/disk-snapshots": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "computesnapshot-e00mocksbx",
+            "name": "old-model-cache-before-delete",
+            "parentId": "project-e00mocksandbox",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "sourceDiskId": "computedisk-e00mockpvcorphan"
+          },
+          "status": {
+            "state": "READY",
+            "storageSizeBytes": "161061273600"
+          }
+        }
+      ]
+    },
+    "/compute/v1/nvl-instance-groups": {},
+    "/tunnel/v1/tunnels": {
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "tunnel-e00mocklab",
+            "name": "lab-ssh",
+            "parentId": "project-e00mocklab",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "title": "lab ssh"
+          },
+          "status": {
+            "state": "CREATED",
+            "connectionState": "CONNECTION_STATE_RELAYED"
+          }
+        }
+      ]
+    },
+    "/kms/v1/symmetric-keys": {
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "kmskey-e00mockstg",
+            "name": "nip-staging-state-key",
+            "parentId": "project-e00mockstaging",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "algorithm": "AES_256"
+          },
+          "status": {
+            "state": "ACTIVE"
+          }
+        }
+      ]
+    },
+    "/mysterybox/v1/secrets": {
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "mysteryboxsecret-e00mockstg",
+            "name": "nip-staging-db-password",
+            "parentId": "project-e00mockstaging",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "secretVersion": {
+              "payload": [
+                {
+                  "key": "password",
+                  "stringValue": "never-copied-stub-value"
+                }
+              ]
+            }
+          },
+          "status": {
+            "state": "ACTIVE"
+          }
+        }
+      ]
+    },
+    "/maintenance/v1alpha1/maintenances": {
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "maintenance-e00mockstg",
+            "name": "mk8s control plane update",
+            "parentId": "project-e00mockstaging",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "scheduledAt": "2026-12-01T02:00:00Z"
+          },
+          "status": {
+            "state": "STATE_SCHEDULED",
+            "reschedulable": true,
+            "affectedResources": [
+              {
+                "id": "mk8scluster-e00mocktrn",
+                "parentId": "project-e00mockstaging"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "/dns/v1/zones": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "dnszone-e00mocksbx",
+            "name": "sandbox-internal",
+            "parentId": "project-e00mocksandbox",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "domainName": "sandbox.example.internal."
+          },
+          "status": {
+            "reconciling": false,
+            "recordCount": "6"
+          }
+        }
+      ]
+    },
+    "/compute/v1/platforms": {
+      "project-e00mocksandbox": [
+        {
+          "metadata": {
+            "id": "platform-cpu-d3",
+            "name": "cpu-d3",
+            "parentId": "ignored",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "humanReadableName": "Intel Sapphire Rapids",
+            "presets": [
+              {
+                "name": "4vcpu-16gb",
+                "resources": {
+                  "gpuCount": 0,
+                  "vcpuCount": 4,
+                  "memoryGibibytes": 16
+                }
+              },
+              {
+                "name": "8vcpu-32gb",
+                "resources": {
+                  "gpuCount": 0,
+                  "vcpuCount": 8,
+                  "memoryGibibytes": 32
+                }
+              },
+              {
+                "name": "16vcpu-64gb",
+                "resources": {
+                  "gpuCount": 0,
+                  "vcpuCount": 16,
+                  "memoryGibibytes": 64
+                }
+              }
+            ]
+          },
+          "status": {}
+        },
+        {
+          "metadata": {
+            "id": "platform-gpu-h100-sxm",
+            "name": "gpu-h100-sxm",
+            "parentId": "ignored",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "humanReadableName": "NVIDIA H100 NVLink",
+            "presets": [
+              {
+                "name": "1gpu-16vcpu-200gb",
+                "resources": {
+                  "gpuCount": 1,
+                  "vcpuCount": 16,
+                  "memoryGibibytes": 200
+                }
+              },
+              {
+                "name": "8gpu-128vcpu-1600gb",
+                "resources": {
+                  "gpuCount": 8,
+                  "vcpuCount": 128,
+                  "memoryGibibytes": 1600
+                }
+              }
+            ]
+          },
+          "status": {}
+        },
+        {
+          "metadata": {
+            "id": "platform-gpu-gb300",
+            "name": "gpu-gb300",
+            "parentId": "ignored",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "humanReadableName": "NVIDIA GB300 NVL72 with NVIDIA Grace",
+            "presets": [
+              {
+                "name": "4gpu-112vcpu-800gb",
+                "resources": {
+                  "gpuCount": 4,
+                  "vcpuCount": 112,
+                  "memoryGibibytes": 800
+                }
+              }
+            ]
+          },
+          "status": {}
+        }
+      ],
+      "project-e00mockstaging": [
+        {
+          "metadata": {
+            "id": "platform-cpu-d3",
+            "name": "cpu-d3",
+            "parentId": "ignored",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "humanReadableName": "Intel Sapphire Rapids",
+            "presets": [
+              {
+                "name": "4vcpu-16gb",
+                "resources": {
+                  "gpuCount": 0,
+                  "vcpuCount": 4,
+                  "memoryGibibytes": 16
+                }
+              },
+              {
+                "name": "8vcpu-32gb",
+                "resources": {
+                  "gpuCount": 0,
+                  "vcpuCount": 8,
+                  "memoryGibibytes": 32
+                }
+              },
+              {
+                "name": "16vcpu-64gb",
+                "resources": {
+                  "gpuCount": 0,
+                  "vcpuCount": 16,
+                  "memoryGibibytes": 64
+                }
+              }
+            ]
+          },
+          "status": {}
+        },
+        {
+          "metadata": {
+            "id": "platform-gpu-h100-sxm",
+            "name": "gpu-h100-sxm",
+            "parentId": "ignored",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "humanReadableName": "NVIDIA H100 NVLink",
+            "presets": [
+              {
+                "name": "1gpu-16vcpu-200gb",
+                "resources": {
+                  "gpuCount": 1,
+                  "vcpuCount": 16,
+                  "memoryGibibytes": 200
+                }
+              },
+              {
+                "name": "8gpu-128vcpu-1600gb",
+                "resources": {
+                  "gpuCount": 8,
+                  "vcpuCount": 128,
+                  "memoryGibibytes": 1600
+                }
+              }
+            ]
+          },
+          "status": {}
+        },
+        {
+          "metadata": {
+            "id": "platform-gpu-gb300",
+            "name": "gpu-gb300",
+            "parentId": "ignored",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "humanReadableName": "NVIDIA GB300 NVL72 with NVIDIA Grace",
+            "presets": [
+              {
+                "name": "4gpu-112vcpu-800gb",
+                "resources": {
+                  "gpuCount": 4,
+                  "vcpuCount": 112,
+                  "memoryGibibytes": 800
+                }
+              }
+            ]
+          },
+          "status": {}
+        }
+      ],
+      "project-e00mocklab": [
+        {
+          "metadata": {
+            "id": "platform-cpu-d3",
+            "name": "cpu-d3",
+            "parentId": "ignored",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "humanReadableName": "Intel Sapphire Rapids",
+            "presets": [
+              {
+                "name": "4vcpu-16gb",
+                "resources": {
+                  "gpuCount": 0,
+                  "vcpuCount": 4,
+                  "memoryGibibytes": 16
+                }
+              },
+              {
+                "name": "8vcpu-32gb",
+                "resources": {
+                  "gpuCount": 0,
+                  "vcpuCount": 8,
+                  "memoryGibibytes": 32
+                }
+              },
+              {
+                "name": "16vcpu-64gb",
+                "resources": {
+                  "gpuCount": 0,
+                  "vcpuCount": 16,
+                  "memoryGibibytes": 64
+                }
+              }
+            ]
+          },
+          "status": {}
+        },
+        {
+          "metadata": {
+            "id": "platform-gpu-b300-sxm",
+            "name": "gpu-b300-sxm",
+            "parentId": "ignored",
+            "labels": null,
+            "createdAt": "2026-10-01T00:00:00Z"
+          },
+          "spec": {
+            "humanReadableName": "NVIDIA B300",
+            "presets": [
+              {
+                "name": "1gpu-24vcpu-346gb",
+                "resources": {
+                  "gpuCount": 1,
+                  "vcpuCount": 24,
+                  "memoryGibibytes": 346
+                }
+              }
+            ]
+          },
+          "status": {}
+        }
+      ],
+      "project-e00mocklegacy": []
+    },
+    "/capacity/v1/capacity-block-groups": {
+      "tenant-e00mocktest": []
+    },
+    "/capacity/v1/resource-advice": {
+      "tenant-e00mocktest": [
+        {
+          "metadata": {
+            "parentId": "tenant-e00mocktest",
+            "resourceVersion": "1",
+            "createdAt": "2026-10-11T05:00:00Z",
+            "updatedAt": "2026-10-11T05:19:42Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "fabric": "eu-north1-a",
+            "computeInstance": {
+              "platform": "gpu-h100-sxm",
+              "preset": {
+                "name": "1gpu-16vcpu-200gb",
+                "resources": {
+                  "vcpuCount": 16,
+                  "memoryGibibytes": 200,
+                  "gpuCount": 1
+                }
+              },
+              "gpuMemoryGigabytes": 80
+            }
+          },
+          "status": {
+            "onDemand": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_HIGH",
+              "effectiveAt": "2026-10-11T05:19:42Z",
+              "available": 24,
+              "limit": 32
+            },
+            "preemptible": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_HIGH",
+              "effectiveAt": "2026-10-11T05:19:42Z",
+              "available": 8,
+              "limit": 8
+            },
+            "reserved": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_LIMIT_REACHED",
+              "effectiveAt": "2026-10-11T05:19:42Z"
+            }
+          }
+        },
+        {
+          "metadata": {
+            "parentId": "tenant-e00mocktest",
+            "resourceVersion": "1",
+            "createdAt": "2026-10-11T05:00:00Z",
+            "updatedAt": "2026-10-11T05:19:42Z"
+          },
+          "spec": {
+            "region": "eu-north1",
+            "fabric": "eu-north1-a",
+            "computeInstance": {
+              "platform": "gpu-h100-sxm",
+              "preset": {
+                "name": "8gpu-128vcpu-1600gb",
+                "resources": {
+                  "vcpuCount": 128,
+                  "memoryGibibytes": 1600,
+                  "gpuCount": 8
+                }
+              },
+              "gpuMemoryGigabytes": 80
+            }
+          },
+          "status": {
+            "onDemand": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_LOW",
+              "effectiveAt": "2026-10-11T05:19:42Z",
+              "available": 1,
+              "limit": 4
+            },
+            "preemptible": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_MEDIUM",
+              "effectiveAt": "2026-10-11T05:19:42Z",
+              "available": 2,
+              "limit": 4
+            },
+            "reserved": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_LIMIT_REACHED",
+              "effectiveAt": "2026-10-11T05:19:42Z"
+            }
+          }
+        },
+        {
+          "metadata": {
+            "parentId": "tenant-e00mocktest",
+            "resourceVersion": "1",
+            "createdAt": "2026-10-11T05:00:00Z",
+            "updatedAt": "2026-10-11T05:19:42Z"
+          },
+          "spec": {
+            "region": "us-central1",
+            "fabric": "us-central1-b",
+            "computeInstance": {
+              "platform": "gpu-h100-sxm",
+              "preset": {
+                "name": "8gpu-128vcpu-1600gb",
+                "resources": {
+                  "vcpuCount": 128,
+                  "memoryGibibytes": 1600,
+                  "gpuCount": 8
+                }
+              },
+              "gpuMemoryGigabytes": 80
+            }
+          },
+          "status": {
+            "onDemand": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_MEDIUM",
+              "effectiveAt": "2026-10-11T05:19:42Z",
+              "available": 3,
+              "limit": 4
+            },
+            "preemptible": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_HIGH",
+              "effectiveAt": "2026-10-11T05:19:42Z",
+              "available": 4,
+              "limit": 4
+            },
+            "reserved": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_LIMIT_REACHED",
+              "effectiveAt": "2026-10-11T05:19:42Z"
+            }
+          }
+        },
+        {
+          "metadata": {
+            "parentId": "tenant-e00mocktest",
+            "resourceVersion": "1",
+            "createdAt": "2026-10-11T05:00:00Z",
+            "updatedAt": "2026-10-11T05:19:42Z"
+          },
+          "spec": {
+            "region": "us-central1",
+            "fabric": "us-central1-b",
+            "computeInstance": {
+              "platform": "gpu-b200-sxm",
+              "preset": {
+                "name": "1gpu-20vcpu-224gb",
+                "resources": {
+                  "vcpuCount": 20,
+                  "memoryGibibytes": 224,
+                  "gpuCount": 1
+                }
+              },
+              "gpuMemoryGigabytes": 80
+            }
+          },
+          "status": {
+            "onDemand": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_MEDIUM",
+              "effectiveAt": "2026-10-11T05:19:42Z",
+              "available": 11,
+              "limit": 32
+            },
+            "preemptible": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_HIGH",
+              "effectiveAt": "2026-10-11T05:19:42Z",
+              "available": 8,
+              "limit": 8
+            },
+            "reserved": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_LIMIT_REACHED",
+              "effectiveAt": "2026-10-11T05:19:42Z"
+            }
+          }
+        },
+        {
+          "metadata": {
+            "parentId": "tenant-e00mocktest",
+            "resourceVersion": "1",
+            "createdAt": "2026-10-11T05:00:00Z",
+            "updatedAt": "2026-10-11T05:19:42Z"
+          },
+          "spec": {
+            "region": "uk-south1",
+            "fabric": "uk-south1-a",
+            "computeInstance": {
+              "platform": "gpu-b300-sxm",
+              "preset": {
+                "name": "1gpu-24vcpu-346gb",
+                "resources": {
+                  "vcpuCount": 24,
+                  "memoryGibibytes": 346,
+                  "gpuCount": 1
+                }
+              },
+              "gpuMemoryGigabytes": 80
+            }
+          },
+          "status": {
+            "onDemand": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_LIMIT_REACHED",
+              "effectiveAt": "2026-10-11T05:19:42Z",
+              "available": 0,
+              "limit": 8
+            },
+            "preemptible": {
+              "dataState": "DATA_STATE_STALE",
+              "availabilityLevel": "AVAILABILITY_LEVEL_LOW",
+              "effectiveAt": "2026-10-10T21:00:00Z",
+              "available": 1,
+              "limit": 8
+            },
+            "reserved": {
+              "dataState": "DATA_STATE_FRESH",
+              "availabilityLevel": "AVAILABILITY_LEVEL_LIMIT_REACHED",
+              "effectiveAt": "2026-10-11T05:19:42Z"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "denied": {
+    "/vpc/v1/networks": [
+      "project-e00mocklegacy"
+    ],
+    "/vpc/v1/subnets": [
+      "project-e00mocklegacy"
+    ],
+    "/storage/v1/buckets": [
+      "project-e00mocklegacy"
+    ]
+  },
+  "projects": {
+    "project-e00mocksandbox": {
+      "metadata": {
+        "id": "project-e00mocksandbox",
+        "parentId": "tenant-e00mocktest",
+        "name": "nip-sandbox",
+        "region": "eu-north1",
+        "createdAt": "2026-09-01T00:00:00Z",
+        "labels": null
+      },
+      "spec": {
+        "region": "eu-north1",
+        "defaultRegion": "eu-north1"
+      },
+      "status": {
+        "projectState": "ACTIVE"
+      }
+    },
+    "project-e00mockstaging": {
+      "metadata": {
+        "id": "project-e00mockstaging",
+        "parentId": "tenant-e00mocktest",
+        "name": "nip-staging",
+        "region": "eu-north1",
+        "createdAt": "2026-09-01T00:00:00Z",
+        "labels": null
+      },
+      "spec": {
+        "region": "eu-north1",
+        "defaultRegion": "eu-north1"
+      },
+      "status": {
+        "projectState": "ACTIVE"
+      }
+    },
+    "project-e00mocklab": {
+      "metadata": {
+        "id": "project-e00mocklab",
+        "parentId": "tenant-e00mocktest",
+        "name": "nip-lab",
+        "region": "uk-south1",
+        "createdAt": "2026-09-01T00:00:00Z",
+        "labels": null
+      },
+      "spec": {
+        "region": "uk-south1",
+        "defaultRegion": "uk-south1"
+      },
+      "status": {
+        "projectState": "ACTIVE"
+      }
+    },
+    "project-e00mocklegacy": {
+      "metadata": {
+        "id": "project-e00mocklegacy",
+        "parentId": "tenant-e00mocktest",
+        "name": "legacy-research",
+        "region": "eu-west1",
+        "createdAt": "2026-09-01T00:00:00Z",
+        "labels": null
+      },
+      "spec": {
+        "region": "eu-west1",
+        "defaultRegion": "eu-west1"
+      },
+      "status": {
+        "projectState": "ACTIVE"
+      }
+    },
+    "project-e00mockdiscovered": {
+      "metadata": {
+        "id": "project-e00mockdiscovered",
+        "parentId": "tenant-e00mocktest",
+        "name": "research-unlisted",
+        "region": "eu-west2",
+        "createdAt": "2026-09-01T00:00:00Z",
+        "labels": null
+      },
+      "spec": {
+        "region": "eu-west2",
+        "defaultRegion": "eu-west2"
+      },
+      "status": {
+        "projectState": "ACTIVE"
+      }
+    }
+  },
+  "rejected": {
+    "/billing/v1/pricing-policies": "*"
+  },
+  "monitoring": {
+    "project-e00mocksandbox": [
+      {
+        "instance_id": "computeinstance-e00mockinfgpu0",
+        "gpu": "0",
+        "Hostname": "nip-sandbox-inference-gpu-0",
+        "values": {
+          "DCGM_FI_DEV_GPU_UTIL": 63.5,
+          "DCGM_FI_DEV_GPU_TEMP": 54,
+          "DCGM_FI_DEV_POWER_USAGE": 310.2,
+          "DCGM_FI_DEV_FB_USED": 40211,
+          "DCGM_FI_DEV_FB_TOTAL": 81559
+        },
+        "mk8s_cluster_id": "mk8scluster-e00mockinf",
+        "mk8s_node_group_id": "mk8snodegroup-e00mockinfgpu",
+        "job": "nebius-observability-agent"
+      }
+    ],
+    "project-e00mocklab": [
+      {
+        "instance_id": "computeinstance-e00mockb300",
+        "gpu": "0",
+        "Hostname": "bench-b300-1gpu",
+        "values": {
+          "DCGM_FI_DEV_GPU_UTIL": 12,
+          "DCGM_FI_DEV_GPU_TEMP": 41,
+          "DCGM_FI_DEV_POWER_USAGE": 180,
+          "DCGM_FI_DEV_FB_USED": 2048,
+          "DCGM_FI_DEV_FB_TOTAL": 274877
+        }
+      }
+    ],
+    "project-e00mocklegacy": [
+      {
+        "instance_id": "computeinstance-e00mockgonegpu",
+        "gpu": "0",
+        "Hostname": "nip-legacy-teardown-gpu-0",
+        "values": {
+          "DCGM_FI_DEV_GPU_UTIL": 0,
+          "DCGM_FI_DEV_GPU_TEMP": 27,
+          "DCGM_FI_DEV_POWER_USAGE": 34,
+          "DCGM_FI_DEV_FB_USED": 0,
+          "DCGM_FI_DEV_FB_TOTAL": 46068
+        },
+        "mk8s_cluster_id": "mk8scluster-e00mockgone",
+        "mk8s_node_group_id": "mk8snodegroup-e00mockgoneold",
+        "job": "nebius-observability-agent"
+      }
+    ]
+  },
+  "notFound": {
+    "/dns/v1/zones": [
+      "project-e00mocklegacy"
+    ]
+  },
+  "tenantProjects": {
+    "tenant-e00mocktest": [
+      "project-e00mocksandbox",
+      "project-e00mockstaging",
+      "project-e00mocklab",
+      "project-e00mocklegacy",
+      "project-e00mockdiscovered"
+    ]
+  },
+  "kube": {
+    "mk8scluster-e00mockinf": {
+      "nodes": [
+        {
+          "metadata": {
+            "name": "nip-sandbox-inference-system-0",
+            "labels": {
+              "node.kubernetes.io/instance-type": "stub",
+              "mk8s.nebius.ai/node-group-id": "mk8snodegroup-e00mockinfsys"
+            }
+          },
+          "spec": {
+            "providerID": "nebius://computeinstance-e00mockinfsys0"
+          },
+          "status": {
+            "allocatable": {
+              "cpu": "8",
+              "memory": "32Gi"
+            },
+            "conditions": [
+              {
+                "type": "Ready",
+                "status": "True"
+              }
+            ]
+          }
+        },
+        {
+          "metadata": {
+            "name": "nip-sandbox-inference-system-1",
+            "labels": {
+              "node.kubernetes.io/instance-type": "stub",
+              "mk8s.nebius.ai/node-group-id": "mk8snodegroup-e00mockinfsys"
+            }
+          },
+          "spec": {
+            "providerID": "nebius://computeinstance-e00mockinfsys1",
+            "unschedulable": true
+          },
+          "status": {
+            "allocatable": {
+              "cpu": "8",
+              "memory": "32Gi"
+            },
+            "conditions": [
+              {
+                "type": "Ready",
+                "status": "True"
+              }
+            ]
+          }
+        },
+        {
+          "metadata": {
+            "name": "nip-sandbox-inference-gpu-0",
+            "labels": {
+              "node.kubernetes.io/instance-type": "stub",
+              "mk8s.nebius.ai/node-group-id": "mk8snodegroup-e00mockinfgpu"
+            }
+          },
+          "spec": {
+            "providerID": "nebius://computeinstance-e00mockinfgpu0"
+          },
+          "status": {
+            "allocatable": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1"
+            },
+            "conditions": [
+              {
+                "type": "Ready",
+                "status": "True"
+              }
+            ]
+          }
+        }
+      ],
+      "namespaces": [
+        {
+          "metadata": {
+            "name": "default"
+          }
+        },
+        {
+          "metadata": {
+            "name": "kube-system"
+          }
+        },
+        {
+          "metadata": {
+            "name": "inference"
+          }
+        },
+        {
+          "metadata": {
+            "name": "o11y"
+          }
+        }
+      ],
+      "deployments": [
+        {
+          "metadata": {
+            "name": "vllm-qwen",
+            "namespace": "inference"
+          },
+          "spec": {
+            "replicas": 2,
+            "template": {
+              "spec": {
+                "containers": [
+                  {
+                    "name": "vllm",
+                    "resources": {
+                      "requests": {
+                        "nvidia.com/gpu": "1",
+                        "cpu": "4"
+                      },
+                      "limits": {
+                        "nvidia.com/gpu": "1"
+                      }
+                    }
+                  }
+                ],
+                "nodeSelector": {
+                  "nebius.com/gpu": "true"
+                },
+                "tolerations": [
+                  {
+                    "key": "nvidia.com/gpu",
+                    "effect": "NoSchedule"
+                  }
+                ]
+              }
+            }
+          },
+          "status": {
+            "readyReplicas": 1
+          }
+        }
+      ],
+      "statefulsets": [],
+      "replicasets": [
+        {
+          "metadata": {
+            "name": "vllm-qwen-7d9f",
+            "namespace": "inference",
+            "ownerReferences": [
+              {
+                "kind": "Deployment",
+                "name": "vllm-qwen"
+              }
+            ]
+          }
+        }
+      ],
+      "jobs": [],
+      "pods": [
+        {
+          "metadata": {
+            "name": "vllm-qwen-7d9f-a1",
+            "namespace": "inference",
+            "ownerReferences": [
+              {
+                "kind": "ReplicaSet",
+                "name": "vllm-qwen-7d9f"
+              }
+            ]
+          },
+          "spec": {
+            "nodeName": "nip-sandbox-inference-gpu-0"
+          },
+          "status": {
+            "phase": "Running"
+          }
+        },
+        {
+          "metadata": {
+            "name": "vllm-qwen-7d9f-b2",
+            "namespace": "inference",
+            "ownerReferences": [
+              {
+                "kind": "ReplicaSet",
+                "name": "vllm-qwen-7d9f"
+              }
+            ]
+          },
+          "spec": {},
+          "status": {
+            "phase": "Pending",
+            "conditions": [
+              {
+                "type": "PodScheduled",
+                "status": "False",
+                "message": "0/3 nodes are available: 1 Insufficient nvidia.com/gpu, 2 node(s) did not match node selector."
+              }
+            ]
+          }
+        }
+      ],
+      "persistentvolumeclaims": [],
+      "events": [
+        {
+          "metadata": {
+            "namespace": "inference",
+            "creationTimestamp": "2026-10-11T05:10:00Z"
+          },
+          "involvedObject": {
+            "kind": "Pod",
+            "name": "vllm-qwen-7d9f-b2"
+          },
+          "reason": "FailedScheduling",
+          "type": "Warning",
+          "message": "0/3 nodes are available: 1 Insufficient nvidia.com/gpu."
+        }
+      ]
+    },
+    "mk8scluster-e00mocktrn": {
+      "nodes": [
+        {
+          "metadata": {
+            "name": "nip-staging-training-system-0",
+            "labels": {
+              "node.kubernetes.io/instance-type": "stub",
+              "mk8s.nebius.ai/node-group-id": "mk8snodegroup-e00mocktrnsys"
+            }
+          },
+          "spec": {
+            "providerID": "nebius://computeinstance-e00mocktrnsys0"
+          },
+          "status": {
+            "allocatable": {
+              "cpu": "8",
+              "memory": "32Gi"
+            },
+            "conditions": [
+              {
+                "type": "Ready",
+                "status": "True"
+              }
+            ]
+          }
+        },
+        {
+          "metadata": {
+            "name": "nip-staging-training-system-1",
+            "labels": {
+              "node.kubernetes.io/instance-type": "stub",
+              "mk8s.nebius.ai/node-group-id": "mk8snodegroup-e00mocktrnsys"
+            }
+          },
+          "spec": {
+            "providerID": "nebius://computeinstance-e00mocktrnsys1"
+          },
+          "status": {
+            "allocatable": {
+              "cpu": "8",
+              "memory": "32Gi"
+            },
+            "conditions": [
+              {
+                "type": "Ready",
+                "status": "Unknown"
+              }
+            ]
+          }
+        }
+      ],
+      "namespaces": [
+        {
+          "metadata": {
+            "name": "default"
+          }
+        },
+        {
+          "metadata": {
+            "name": "kube-system"
+          }
+        },
+        {
+          "metadata": {
+            "name": "training"
+          }
+        }
+      ],
+      "deployments": [],
+      "statefulsets": [],
+      "replicasets": [],
+      "jobs": [
+        {
+          "metadata": {
+            "name": "data-prep",
+            "namespace": "training"
+          },
+          "spec": {
+            "parallelism": 1,
+            "backoffLimit": 2,
+            "template": {
+              "spec": {
+                "containers": [
+                  {
+                    "name": "prep",
+                    "resources": {
+                      "requests": {
+                        "cpu": "250m",
+                        "memory": "512Mi"
+                      },
+                      "limits": {
+                        "memory": "1Gi"
+                      }
+                    }
+                  },
+                  {
+                    "name": "uploader",
+                    "resources": {
+                      "requests": {
+                        "cpu": "100m",
+                        "memory": "128Mi"
+                      },
+                      "limits": {
+                        "memory": "256Mi"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "status": {
+            "failed": 3,
+            "conditions": [
+              {
+                "type": "Failed",
+                "status": "True",
+                "reason": "BackoffLimitExceeded",
+                "message": "Job has reached the specified backoff limit"
+              }
+            ]
+          }
+        }
+      ],
+      "pods": [],
+      "persistentvolumeclaims": [],
+      "events": []
+    }
+  },
+  "agentMonitoring": {
+    "project-e00mocksandbox": [
+      {
+        "Hostname": "nip-sandbox-inference-gpu-0",
+        "gpu": "0",
+        "instance_id": "computeinstance-e00mockinfgpu0",
+        "namespace": "o11y",
+        "values": {
+          "DCGM_FI_DEV_GPU_UTIL": 64,
+          "DCGM_FI_DEV_GPU_TEMP": 55,
+          "DCGM_FI_DEV_POWER_USAGE": 311,
+          "DCGM_FI_DEV_FB_USED": 40300,
+          "DCGM_FI_DEV_FB_TOTAL": 81559
+        },
+        "mk8s_cluster_id": "mk8scluster-e00mockinf",
+        "mk8s_node_group_id": "mk8snodegroup-e00mockinfgpu",
+        "job": "nebius-observability-agent"
+      }
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+# iam_token comes from scripts/bootstrap-backend.sh foundation foundation (an administrator's login).
+tenant_id       = "tenant-e00xxxxxxxxxxxxxxxx"
+name_prefix     = "nip"
+create_projects = false # true needs tenant-level IAM; most tenants pass existing projects instead
+
+stages = {
+  sandbox = { project_id = "project-e00xxxxxxxxxxxxxxxx", region = "eu-north1" }
+  staging = { project_id = "project-e00yyyyyyyyyyyyyyyy", region = "eu-north1" }
+  # prod gets two CI service accounts, apply (editor) and plan (viewer). After apply, register one
+  # authorized key per account with the CLI (docs/credentials.md#ci-service-account-keys): the docs
+  # do not allow an account's first key through Terraform, and this root runs on a user token.
+  # The private keys are secrets of the "prod" and "prod-plan" GitHub Environments.
+  prod = {
+    project_id = "project-e00zzzzzzzzzzzzzzzz"
+    region     = "eu-north1"
+    ci         = true
+    # Only when this root authenticates with a service-account authorized key may Terraform upload
+    # further keys: ci_public_key_pem / ci_plan_public_key_pem (PEM text) with their *_expires_at.
+    # SecretStash secrets the apply identity reads before apply (Grafana password, R8 transfer
+    # keys): mysterybox.payload-viewer on each secret only (docs/credentials.md#secretstash).
+    # ci_secret_ids = ["mbsec-e00xxxxxxxxxxxxxxxx"]
+  }
+}
+
+# R13 (runbooks/identity.md): GitHub OIDC federation for every stage with ci = true, so its GitHub
+# Environments need NIP_SA_ID only (no private key). Off while unset.
+# The default subjects pin GitHub's immutable ids (gh api repos/<owner>/<repo> --jq '.id, .owner.id'); set the
+# repository's OIDC sub template to match first (runbooks/identity.md), or set subject_claims = "immutable" when
+# GitHub reports use_immutable_subject = true (no template change). subject_claims = "name" opts out.
+# ci_federation = { repository = "<owner>/<repo>", repository_id = "<id>", repository_owner_id = "<owner id>" }
+# team_groups = {
+#   ml-readers = {
+#     project_id = "project-e00xxxxxxxxxxxxxxxx"
+#     permits    = { project = { role = "viewer" } }
+#     members    = { trainer = "serviceaccount-e00xxxxxxxxxxxxxxxx" }
+#   }
+# }

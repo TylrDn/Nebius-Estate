@@ -1,0 +1,56 @@
+name: Bug report
+description: A recipe, script, check or the portal does not behave as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before posting, remove tenant, project and resource IDs, IP addresses, keys and kubeconfigs from anything you paste.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - "R1 inference"
+        - "R2 foundation and lifecycle"
+        - "R3 training"
+        - "R4 Soperator (Slurm)"
+        - "R5 team platform"
+        - "R6 serverless"
+        - "R7 network"
+        - "R8 data plane"
+        - "R9 finance and governance"
+        - "R10 GPU VM"
+        - "R11 Token Factory"
+        - "R12 ML services"
+        - "R13 CI federation"
+        - "R14 observability"
+        - "R15 GB300 NVL72"
+        - "R16 Kueue team queues"
+        - "Solutions (S1-S9)"
+        - "Nebius Estate portal"
+        - "CI, checks or toolbox"
+        - "Docs"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The command you ran, what you expected, and what you got (error output in a code block).
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Commit or release, region and platform/preset if live, and how you ran it (make ci-docker, make ci, a live run).
+    validations:
+      required: true
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Checks
+      options:
+        - label: I removed real IDs, IP addresses and credentials from this report.
+          required: true

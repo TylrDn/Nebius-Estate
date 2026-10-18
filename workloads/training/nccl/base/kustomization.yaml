@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: nccl-test
+resources:
+  - namespace.yaml
+  - mpijob.yaml
+labels:
+  # Object metadata only: selectors and pod templates stay as they are (Job templates are immutable).
+  - pairs:
+      app.kubernetes.io/part-of: nip-training
+components:
+  - ../../../components/ingress-isolation

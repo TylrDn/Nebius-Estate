@@ -1,0 +1,9 @@
+{
+  "name": "s8-batch-4x-h100-1gpu-24h",
+  "region": "eu-north1",
+  "items": [
+    {"name": "workers", "platform": "gpu-h100-sxm", "preset": "1gpu-16vcpu-200gb", "count": 4, "hours": 24, "preemptible": "compare"},
+    {"name": "worker-disks", "disk_type": "NETWORK_SSD", "size_gib": 200, "count": 4, "hours": 24},
+    {"name": "input-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 1024, "count": 1, "hours": 24}
+  ]
+}

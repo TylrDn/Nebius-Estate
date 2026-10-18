@@ -1,0 +1,17 @@
+# 1 node x 8 GPUs: NVLink-only baseline before touching the network (P4).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: nccl-test
+resources:
+  - ../../base
+patches:
+  - target: { kind: MPIJob, name: nccl-test }
+    patch: |-
+      - op: replace
+        path: /spec/mpiReplicaSpecs/Worker/replicas
+        value: 1
+      - op: replace
+        path: /spec/mpiReplicaSpecs/Launcher/template/spec/containers/0/args/0
+        value: >-
+          mpirun -np 8 -bind-to none -x LD_LIBRARY_PATH -x NCCL_DEBUG=INFO
+          /opt/nccl_tests/build/all_reduce_perf -b 512M -e 8G -f 2 -g 1

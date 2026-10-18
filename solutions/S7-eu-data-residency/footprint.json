@@ -1,0 +1,11 @@
+{
+  "name": "s7-eu-perimeter-data-eu-north1-month",
+  "region": "eu-north1",
+  "items": [
+    {"name": "gpu-node", "platform": "gpu-h200-sxm", "preset": "1gpu-16vcpu-200gb", "count": 1, "hours": 730, "preemptible": false},
+    {"name": "nat-vm", "platform": "cpu-d3", "preset": "4vcpu-16gb", "count": 1, "hours": 730},
+    {"name": "bastion-vm", "platform": "cpu-d3", "preset": "4vcpu-16gb", "count": 1, "hours": 730},
+    {"name": "edge-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 50, "count": 2, "hours": 730},
+    {"name": "data-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 2048, "count": 1, "hours": 730}
+  ]
+}

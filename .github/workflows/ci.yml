@@ -1,0 +1,156 @@
+name: CI
+
+# Static checks only: no cloud credentials, no spend. Every check is a Makefile target run inside
+# the pinned toolbox image (tools/toolbox, versions and sha256 sums from platform/versions.yaml),
+# so `make ci-docker` on a laptop runs exactly what this workflow runs.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-compatibility:
+    name: Dependency compatibility regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
+    defaults:
+      run:
+        working-directory: portal
+    env:
+      HOME: /root
+      XDG_CACHE_HOME: /root/.cache
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - run: yarn install --immutable
+      - run: node --test scripts/security-tests/*.test.mjs
+      - name: Router security regressions
+        if: ${{ !cancelled() }}
+        run: yarn workspace @internal/backstage-plugin-nebius-estate test src/ui/router-security.test.tsx --ci --runInBand --coverage=false --watchAll=false
+      - name: Backstage route parameter compatibility
+        if: ${{ !cancelled() }}
+        run: yarn workspace app test src/router-compatibility.test.ts --ci --runInBand --coverage=false --watchAll=false
+
+  release-regressions:
+    name: Focused release regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - run: make toolbox
+      - run: make ci-docker TARGETS=release-regressions
+
+  static:
+    name: Static checks (toolbox)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0 # gitleaks scans the history
+
+      - name: Build the pinned toolbox
+        run: make toolbox
+
+      - name: make ci (pins, fmt, generated files, docs links, Markdown links, validate, lint, mocked tests, policy, shellcheck, kustomize)
+        run: make ci-docker TARGETS=ci
+
+      - name: Soperator recipe at the pinned tag (validate, mocked plan per stage)
+        run: make ci-docker TARGETS=soperator-check
+
+      - name: History secret scan (redacted diagnostics)
+        if: ${{ !cancelled() }}
+        run: make ci-docker TARGETS=scan-secrets
+
+      - name: Trivy configuration scan
+        if: ${{ !cancelled() }}
+        run: make ci-docker TARGETS=scan-config
+
+      - name: Markdown links
+        if: ${{ !cancelled() }}
+        env:
+          # Authenticated GitHub checks: ~100 github.com links from one runner get throttled
+          # (transient 503/504) when anonymous. A real 404 still fails.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: make ci-docker TARGETS=links
+
+  script-tests:
+    name: Demo and prerequisite script tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    container:
+      image: node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - run: node --test portal/scripts/tests/*.test.mjs
+
+  dependency-audit:
+    name: Portal dependency security audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
+    defaults:
+      run:
+        working-directory: portal
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Audit the complete locked dependency graph
+        run: yarn npm audit --all --recursive --json
+
+  portal:
+    name: Portal (typecheck, lint, config, unit tests, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Same Node image as the portal's own Dockerfile (platform/versions.yaml tooling.portal-node).
+    # Browser tests run separately through the isolated synthetic demo on :3100/:7107.
+    container:
+      image: node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
+    defaults:
+      run:
+        working-directory: portal
+    # The runner mounts HOME=/github/home, whose parent other users can write; SWC's native addon
+    # refuses that cache root (ERR_SWC_NATIVE_CACHE) and Jest cannot start. Use root's private home.
+    env:
+      HOME: /root
+      XDG_CACHE_HOME: /root/.cache
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - run: yarn install --immutable
+      - name: Authorization regression tests
+        run: yarn workspace @internal/backstage-plugin-nebius-estate-backend test src/lib/access.test.ts src/budgets/budgets.test.ts src/operate.test.ts src/router.test.ts src/commercial/router.test.ts --ci --runInBand --coverage=false --watchAll=false
+      - run: yarn tsc
+      - run: yarn lint:all
+      - run: yarn config:check
+      - run: yarn test:all --ci --maxWorkers=2 # bounded memory on the runner
+      - run: yarn build:all
+
+  browser-smoke:
+    name: Portal browser and accessibility tests (${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    container:
+      image: node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66
+    env:
+      HOME: /root
+      XDG_CACHE_HOME: /root/.cache
+    defaults:
+      run:
+        working-directory: portal
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - run: yarn install --immutable
+      - run: yarn playwright install --with-deps chromium
+      - name: Exercise the isolated demo through a real browser
+        run: |
+          yarn test:e2e --shard=${{ matrix.shard }}/4 --workers=2

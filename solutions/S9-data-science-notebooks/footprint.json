@@ -1,0 +1,13 @@
+{
+  "name": "s9-ds-team-6-month",
+  "region": "eu-north1",
+  "items": [
+    {"name": "devlabs", "platform": "gpu-l40s-a", "preset": "1gpu-8vcpu-32gb", "count": 6, "hours": 176, "preemptible": false},
+    {"name": "devlab-disks", "disk_type": "NETWORK_SSD", "size_gib": 200, "count": 6, "hours": 730},
+    {"name": "train-gpu-nodes", "platform": "gpu-h100-sxm", "preset": "8gpu-128vcpu-1600gb", "count": 2, "hours": 730, "preemptible": false},
+    {"name": "train-gpu-boot", "disk_type": "NETWORK_SSD", "size_gib": 1023, "count": 2, "hours": 730},
+    {"name": "cpu-nodes", "platform": "cpu-d3", "preset": "8vcpu-32gb", "count": 3, "hours": 730},
+    {"name": "cpu-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 128, "count": 3, "hours": 730},
+    {"name": "team-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 2048, "count": 1, "hours": 730}
+  ]
+}

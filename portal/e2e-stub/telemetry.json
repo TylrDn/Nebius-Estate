@@ -1,0 +1,136 @@
+{
+  "_note": "TEST ONLY. Invented Object Storage, volume, counter and log data for the Fleet, Alerts and Logs pages (e00mock ids). GPU history is synthesised from estate.json monitoring values by stubApi.js; `increases` answers increase(<counter>[…]) for the Xid rule.",
+  "services": {
+    "project-e00mocksandbox": {
+      "request_rate": [
+        {
+          "bucket_id": "storagebucket-e00mocksbxstate",
+          "bucket": "nip-sandbox-tfstate-e00mock",
+          "value": 2.5
+        }
+      ],
+      "http_bytes_sent": [
+        {
+          "bucket_id": "storagebucket-e00mocksbxstate",
+          "bucket": "nip-sandbox-tfstate-e00mock",
+          "value": 18432
+        }
+      ],
+      "http_bytes_received": [
+        {
+          "bucket_id": "storagebucket-e00mocksbxstate",
+          "bucket": "nip-sandbox-tfstate-e00mock",
+          "value": 4096
+        }
+      ],
+      "disk_read_bytes": [
+        {
+          "disk": "computedisk-e00mockinfgpuboot0",
+          "value": 1048576
+        }
+      ],
+      "disk_write_bytes": [
+        {
+          "disk": "computedisk-e00mockinfgpuboot0",
+          "value": 524288
+        }
+      ],
+      "filestore_read_bytes": [
+        {
+          "filestore": "computefilesystem-e00mockinf",
+          "value": 0
+        }
+      ],
+      "filestore_write_bytes": [
+        {
+          "filestore": "computefilesystem-e00mockinf",
+          "value": 65536
+        }
+      ]
+    }
+  },
+  "_logsQuietMinutes": "Minutes since a project last wrote a log line (default 1): sandbox has been quiet for 5 min, so staging (second in configuration order) wrote last and the Logs page opens on it (#31 picks the project by its newest line, not the first with logs).",
+  "logsQuietMinutes": { "project-e00mocksandbox": 5 },
+  "logs": {
+    "project-e00mocksandbox": {
+      "sp_serial": [
+        {
+          "labels": {
+            "sp_resource_id": "computeinstance-e00mockinfgpu0",
+            "syslog_facility": "kern",
+            "compute_nebius_com_node_group_id": "mk8snodegroup-e00mockinfgpu"
+          },
+          "lines": [
+            "[  103.12] NVRM: loading NVIDIA UNIX x86_64 Kernel Module",
+            "[  105.55] EXT4-fs (vdc): mounted filesystem",
+            "[  106.10] \u001b[0;1;31mFAILED\u001b[0m Failed to start nvidia-fabricmanager.service\r",
+            "[  110.00] eth0: renamed from tmp73715"
+          ]
+        },
+        {
+          "labels": {
+            "sp_resource_id": "computeinstance-e00mockinfsys0",
+            "syslog_facility": "daemon"
+          },
+          "lines": [
+            "[   12.00] systemd[1]: Started containerd.service",
+            "[\u001b[0;32m  OK  \u001b[0m] Stopped update-notifier-download.timer - Download data for packages that failed at package install time.",
+            "[   14.20] kubelet: error: node not yet registered"
+          ]
+        }
+      ],
+      "sp_mk8s_control_plane": [
+        {
+          "labels": {
+            "sp_resource_id": "mk8scluster-e00mockinf",
+            "component": "cluster-autoscaler",
+            "level": "error"
+          },
+          "lines": [
+            "scale-up failed: quota compute.instance.gpu.h100 exceeded",
+            "Failed to acquire lease kube-system/cluster-autoscaler"
+          ]
+        }
+      ],
+      "default": [
+        {
+          "labels": {
+            "k8s_namespace_name": "inference",
+            "k8s_pod_name": "vllm-0"
+          },
+          "lines": [
+            "INFO: started server process",
+            "INFO: Uvicorn running on http://0.0.0.0:8000"
+          ]
+        }
+      ]
+    },
+    "project-e00mockstaging": {
+      "sp_mk8s_control_plane": [
+        {
+          "labels": {
+            "sp_resource_id": "mk8scluster-e00mocktrn",
+            "component": "kube-apiserver",
+            "level": "info"
+          },
+          "lines": [
+            "apiserver ready"
+          ]
+        }
+      ]
+    }
+  },
+  "increases": {
+    "project-e00mocksandbox": {
+      "DCGM_FI_DEV_XID_ERRORS": [
+        {
+          "instance_id": "computeinstance-e00mockinfgpu0",
+          "mk8s_cluster_id": "mk8scluster-e00mockinf",
+          "mk8s_node_group_id": "mk8snodegroup-e00mockinfgpu",
+          "value": 2,
+          "uuid": "GPU-e00mock0"
+        }
+      ]
+    }
+  }
+}

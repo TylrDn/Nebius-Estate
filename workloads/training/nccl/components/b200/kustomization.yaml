@@ -1,0 +1,19 @@
+# Kustomize component: switch the NCCL test to the B200 variant from
+# https://docs.nebius.com/kubernetes/gpu/nccl-test (verified 2026-10-09): the
+# cu12.8 nccl-tests image on launcher and workers, and `-mca coll ^hcoll`
+# (passed as the OMPI_MCA_coll env var so overlays keep their own mpirun args).
+# The base is the H100/H200 variant. B300 has no manifest in the doc yet.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+  - target: { kind: MPIJob, name: nccl-test }
+    patch: |-
+      - op: replace
+        path: /spec/mpiReplicaSpecs/Launcher/template/spec/containers/0/image
+        value: cr.eu-north1.nebius.cloud/nebius-benchmarks/nccl-tests:2.26.5-ubu22.04-cu12.8@sha256:5fd70fb3695161f34a203a51870a831921f31b2285cb77546bdaaedc20935e37
+      - op: replace
+        path: /spec/mpiReplicaSpecs/Worker/template/spec/containers/0/image
+        value: cr.eu-north1.nebius.cloud/nebius-benchmarks/nccl-tests:2.26.5-ubu22.04-cu12.8@sha256:5fd70fb3695161f34a203a51870a831921f31b2285cb77546bdaaedc20935e37
+      - op: add
+        path: /spec/mpiReplicaSpecs/Launcher/template/spec/containers/0/env/-
+        value: { name: OMPI_MCA_coll, value: "^hcoll" }

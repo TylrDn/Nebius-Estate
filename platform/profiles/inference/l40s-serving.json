@@ -1,0 +1,19 @@
+{
+  "description": "Serving-only first sandbox shape: one preemptible L40S, no CPU group or optional observability. Based on the October 13 measured retry; the current bootstrap and configuration changes still require a new live acceptance run.",
+  "stack": "inference",
+  "stages": ["sandbox"],
+  "region": "eu-north1",
+  "ttl_hours": 3,
+  "evidence": ["docs/evidence/2026-10-13-sandbox-r1-session.md"],
+  "vars": {
+    "cpu_node_count": 0,
+    "gpu_platform": "gpu-l40s-a",
+    "gpu_preset": "1gpu-8vcpu-32gb",
+    "gpu_node_count": 1,
+    "gpu_preemptible": true,
+    "enable_filestore": true,
+    "filestore_size_gib": 64,
+    "enable_o11y": false,
+    "alertmanager_enabled": false
+  }
+}

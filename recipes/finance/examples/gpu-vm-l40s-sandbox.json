@@ -1,0 +1,8 @@
+{
+  "name": "r10-gpu-vm-l40s-sandbox",
+  "region": "eu-north1",
+  "items": [
+    {"name": "vm", "platform": "gpu-l40s-a", "preset": "1gpu-8vcpu-32gb", "count": 1, "hours": 2, "preemptible": true},
+    {"name": "boot-disk", "disk_type": "NETWORK_SSD", "size_gib": 200, "count": 1, "hours": 2}
+  ]
+}

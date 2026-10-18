@@ -1,0 +1,10 @@
+{
+  "name": "s3-self-host-counterpart-month",
+  "region": "eu-north1",
+  "items": [
+    {"name": "gpu-vm", "platform": "gpu-h200-sxm", "preset": "1gpu-16vcpu-200gb", "count": 1, "hours": 730, "preemptible": "compare"},
+    {"name": "gpu-vm-boot", "disk_type": "NETWORK_SSD", "size_gib": 200, "count": 1, "hours": 730},
+    {"name": "nat-vm", "platform": "cpu-d3", "preset": "4vcpu-16gb", "count": 1, "hours": 730},
+    {"name": "nat-boot", "disk_type": "NETWORK_SSD", "size_gib": 50, "count": 1, "hours": 730}
+  ]
+}

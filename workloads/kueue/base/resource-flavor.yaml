@@ -1,0 +1,19 @@
+# The InfiniBand GPU nodes of the training stack (R3): it labels them nip.nebius.io/gpu=true and
+# nip.nebius.io/infiniband=true and taints them nvidia.com/gpu=present:NoSchedule
+# (terraform/stacks/training/main.tf). The docs' example selects one node group by
+# nebius.com/node-group-id instead (#how-to-enable-topology-aware-scheduling); our label keeps
+# real IDs out of the repository and survives a node-group replacement.
+# The toleration is added to every pod admitted on this flavor, so jobs need not carry it.
+apiVersion: kueue.x-k8s.io/v1beta2
+kind: ResourceFlavor
+metadata:
+  name: nip-gpu-ib
+spec:
+  nodeLabels:
+    nip.nebius.io/gpu: "true"
+    nip.nebius.io/infiniband: "true"
+  topologyName: nip-ib
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule

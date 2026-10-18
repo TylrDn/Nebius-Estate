@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-isolation
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: {} # same namespace: torchrun rendezvous, MPI workers, team services
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: o11y # Prometheus scrapes (modules/o11y default namespace)

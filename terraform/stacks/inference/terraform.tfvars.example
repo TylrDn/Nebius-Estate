@@ -1,0 +1,33 @@
+# Copy to terraform.tfvars (git-ignored) or export TF_VAR_* instead.
+# parent_id and region are exported by scripts/bootstrap-backend.sh (iam_token belongs to the live root's providers).
+
+cluster_name      = "nip-sandbox-inference" # optional: null derives nip-<stage>-inference (docs/naming.md)
+k8s_version       = "1.36" # pin it: the backend default moves (platform/regions.yaml lists the accepted versions)
+etcd_cluster_size = 3      # HA etcd is free (no control-plane line item) and a single member is unavailable during upgrades
+public_endpoint   = true
+
+# Lab sizing (example, not a recommendation):
+cpu_preset     = "8vcpu-32gb"
+cpu_node_count = 2
+gpu_node_count = 1 # set 0 to apply the CPU layer first, then raise to 1 as its own change
+
+# GPU: the region's default from platform/regions.yaml (eu-north1: gpu-h100-sxm / 1gpu-16vcpu-200gb;
+# uk-south1, eu-west2, us-north1: gpu-b300-sxm / 1gpu-24vcpu-346gb). Override per platform:
+# gpu_platform = "gpu-l40s-a"        # eu-north1, 48 GB GDDR6, no NVLink, cheapest
+# gpu_preset   = "1gpu-8vcpu-32gb"
+
+# gpu_drivers_preset = "cuda13.0"    # null = the platform's preset (cuda13.0; B200 1-GPU needs 580.x)
+gpu_preemptible = false
+
+enable_filestore   = true
+filestore_size_gib = 64
+enable_o11y        = true
+
+# Required labels (docs/cost.md): who/what this run is and when it must be gone.
+# scripts/leftovers.sh finds anything that outlives the TTL.
+labels = {
+  "nip-env"         = "inference"
+  "nip-owner"       = "platform"
+  "nip-run"         = "ticket-123"            # a ticket, date or run id
+  "nip-ttl-expires" = "2026-10-31T18:00:00Z"  # RFC 3339 UTC, inside the approved session
+}

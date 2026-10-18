@@ -1,0 +1,21 @@
+# Two team namespaces for the queue example, shaped like R5's team-research
+# (recipes/team-platform/namespaces): PSS baseline enforced, restricted warned. No GPU
+# ResourceQuota here: Kueue's ClusterQueue quota is the GPU cap for these namespaces, and a
+# ResourceQuota below it would reject pods Kueue has already admitted.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-nlp
+  labels:
+    nip.nebius.io/team: nlp
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-vision
+  labels:
+    nip.nebius.io/team: vision
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted

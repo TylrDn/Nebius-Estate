@@ -1,0 +1,39 @@
+{
+  "name": "backend",
+  "version": "0.0.0",
+  "main": "dist/index.cjs.js",
+  "types": "src/index.ts",
+  "private": true,
+  "backstage": {
+    "role": "backend"
+  },
+  "scripts": {
+    "start": "backstage-cli package start",
+    "build": "backstage-cli package build",
+    "lint": "backstage-cli package lint",
+    "test": "backstage-cli package test",
+    "clean": "backstage-cli package clean",
+    "build-image": "docker build ../.. -f Dockerfile --tag nebius-estate"
+  },
+  "dependencies": {
+    "@backstage/backend-defaults": "^0.18.0",
+    "@backstage/backend-plugin-api": "^1.10.1",
+    "@backstage/plugin-app-backend": "^0.5.18",
+    "@backstage/plugin-auth-backend": "^0.30.1",
+    "@backstage/plugin-auth-backend-module-guest-provider": "^0.2.23",
+    "@backstage/plugin-permission-backend": "^0.7.16",
+    "@backstage/plugin-permission-common": "^0.9.11",
+    "@backstage/plugin-permission-node": "^0.11.4",
+    "@internal/backstage-plugin-nebius-estate-backend": "workspace:^",
+    "app": "link:../app",
+    "better-sqlite3": "^12.0.0",
+    "node-gyp": "^10.0.0",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@backstage/cli": "^0.36.6"
+  },
+  "files": [
+    "dist"
+  ]
+}

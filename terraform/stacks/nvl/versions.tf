@@ -1,0 +1,11 @@
+terraform {
+  # Same floor and provider pin as the other stacks (one lock file, one CI Terraform version).
+  required_version = ">= 1.11.0, < 2.0.0"
+
+  required_providers {
+    nebius = {
+      source  = "nebius/nebius"
+      version = "0.6.67"
+    }
+  }
+}

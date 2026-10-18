@@ -1,0 +1,19 @@
+{
+  "description": "R10 GPU VM on one preemptible L40S with a public address and the vLLM API exposed to an allowlist: the shape of the 2026-10-11 sandbox run. The allowlist and SSH key are the operator's own and stay in the environment.",
+  "stack": "gpu-vm",
+  "stages": ["sandbox"],
+  "region": "eu-north1",
+  "ttl_hours": 3,
+  "requires_env": ["TF_VAR_allowed_cidrs", "TF_VAR_ssh_public_key"],
+  "evidence": [
+    "docs/evidence/2026-10-11-sandbox-gpu-vm-live-recipe.md"
+  ],
+  "vars": {
+    "platform": "gpu-l40s-a",
+    "preset": "1gpu-8vcpu-32gb",
+    "preemptible": true,
+    "boot_disk_size_gib": 200,
+    "public_ip": true,
+    "expose_api": true
+  }
+}

@@ -1,0 +1,13 @@
+# gitleaks configuration: the default rules plus one narrow allowlist.
+# Mocked `terraform test` files pass fixed test values to sensitive variables (password rules are
+# what they test); nothing in them reaches a real resource. Only these literal values, and only in
+# tests/*.tftest.hcl, are allowed; any other value there is still reported.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Mock values in mocked terraform tests"
+condition = "AND"
+paths = ['''(^|/)tests/[^/]+\.tftest\.hcl$''']
+regexes = ['''^"?(mock-password|alllowercase|NoSpecials1)"?$''']
+regexTarget = "secret"

@@ -1,0 +1,10 @@
+{
+  "name": "s8-rate-card-eu-north1-1h",
+  "region": "eu-north1",
+  "items": [
+    {"name": "l40s-a-1gpu", "platform": "gpu-l40s-a", "preset": "1gpu-8vcpu-32gb", "count": 1, "hours": 1, "preemptible": "compare"},
+    {"name": "h100-1gpu", "platform": "gpu-h100-sxm", "preset": "1gpu-16vcpu-200gb", "count": 1, "hours": 1, "preemptible": "compare"},
+    {"name": "h200-1gpu", "platform": "gpu-h200-sxm", "preset": "1gpu-16vcpu-200gb", "count": 1, "hours": 1, "preemptible": "compare"},
+    {"name": "h100-8gpu", "platform": "gpu-h100-sxm", "preset": "8gpu-128vcpu-1600gb", "count": 1, "hours": 1, "preemptible": "compare"}
+  ]
+}

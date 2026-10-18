@@ -1,0 +1,13 @@
+# Kubernetes MCP server (containers/kubernetes-mcp-server), read-only.
+# Least-privilege identity: build the kubeconfig with a nebius CLI profile for the portal's
+# read-only service account (Managed Kubernetes maps it to group nebius:viewer: reads only,
+# no secrets, no exec, no writes), then:
+#   NEBIUS_PROFILE=nip-portal-viewer scripts/get-kubeconfig.sh <stage> <stack>
+# Never point it at an admin kubeconfig. Secrets are denied here even where RBAC would allow them.
+read_only = true
+toolsets = ["core", "helm"]
+
+[[denied_resources]]
+group = ""
+version = "v1"
+kind = "Secret"

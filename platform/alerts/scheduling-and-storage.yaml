@@ -1,0 +1,49 @@
+# Scheduling and storage rules: GPU requests that cannot be placed, and the shared filesystem
+# filling up (node_filesystem metrics from the chart's node-exporter on the cloud-init mount).
+groups:
+  - name: nip-scheduling
+    rules:
+      - alert: PodsPendingOnGpu
+        expr: sum by (namespace) (kube_pod_status_phase{phase="Pending"} * on(namespace, pod) group_left max by (namespace, pod) (kube_pod_container_resource_requests{resource="nvidia_com_gpu"} > 0)) > 0
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "GPU pods Pending for 15 minutes in {{ $labels.namespace }}"
+          description: "Requested GPUs exceed what the node group offers or the nodes are tainted/NotReady. Check gpu_node_count, quota and docs/capacity.md before scaling."
+          runbook: runbooks/incident.md#vllm-pod-pending
+          docs: https://docs.nebius.com/kubernetes/node-groups/autoscaling#troubleshooting
+      - alert: GpuCapacityExhausted
+        expr: sum(kube_node_status_allocatable{resource="nvidia_com_gpu"}) > 0 and sum(kube_pod_container_resource_requests{resource="nvidia_com_gpu"}) / sum(kube_node_status_allocatable{resource="nvidia_com_gpu"}) >= 1
+        for: 30m
+        labels: { severity: info }
+        annotations:
+          summary: "Every allocatable GPU is requested"
+          description: "Capacity planning signal, not a fault: see docs/capacity.md for when to grow the node group or request a reservation."
+          runbook: docs/capacity.md#when-to-grow
+          docs: https://docs.nebius.com/kubernetes/node-groups/autoscaling#set-up-autoscaling-for-existing-node-groups
+  - name: nip-storage
+    rules:
+      - alert: SharedFilesystemAlmostFull
+        expr: 1 - node_filesystem_avail_bytes{fstype="virtiofs"} / node_filesystem_size_bytes{fstype="virtiofs"} > 0.85
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Shared filesystem over 85 % on {{ $labels.instance }}"
+          description: "The Filestore mount is filling up. Grow filestore_size_gib (online resize) or clean the model cache (ADR-0004)."
+          runbook: docs/slo.md#storage
+          docs: https://docs.nebius.com/compute/monitoring/volumes#filesystem-monitoring-metrics
+      - alert: PrometheusStorageAlmostFull
+        # Whole volume (blocks + WAL + everything else) at whatever prometheus_pv_size is set to:
+        # kubelet volume stats for the Prometheus server's claim, not TSDB block bytes vs a constant.
+        expr: |
+          max by (namespace, persistentvolumeclaim) (
+            kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*prometheus-server.*"}
+            / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~".*prometheus-server.*"}
+          ) > 0.85
+        for: 30m
+        labels: { severity: warning }
+        annotations:
+          summary: "Prometheus volume {{ $labels.persistentvolumeclaim }} over 85 % full"
+          description: "Shorten retention or raise prometheus_pv_size in modules/o11y."
+          runbook: docs/slo.md#storage
+          docs: https://docs.nebius.com/compute/monitoring/volumes#disk-monitoring-metrics

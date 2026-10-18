@@ -1,0 +1,13 @@
+# CONSTRUCTED, not captured: the shape of a one-rank all_reduce_perf on a node with no InfiniBand or
+# RoCE device (NCCL falls back to sockets; one rank never uses the network). Lines follow the
+# captured nccl-roce-1gpu.log; the NET/Socket line and the figures are illustrative, not a measurement.
+nip-nccl-1gpu:1:1 [0] NCCL INFO NCCL version 2.23.4+cuda12.4
+nip-nccl-1gpu:1:20 [0] NCCL INFO NET/IB : No device found.
+nip-nccl-1gpu:1:20 [0] NCCL INFO NET/Socket : Using [0]eth0:<ip-redacted><0>
+nip-nccl-1gpu:1:20 [0] NCCL INFO Using network Socket
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)
+           8             2     float     sum      -1     5.10    0.00    0.00      0     5.02    0.00    0.00      0
+   268435456      67108864     float     sum      -1     6.90 38903.53    0.00      0     6.85 39187.51    0.00      0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 0

@@ -1,0 +1,67 @@
+{
+  "step": "o11y-acceptance",
+  "status": "fail",
+  "timestamp": "2026-10-12T19:37:49Z",
+  "context": "nebius-mk8s-nip-sandbox-inference-<id>",
+  "details": {
+    "grafana": {
+      "grafana": {
+        "database": "ok",
+        "version": "13.2.2"
+      },
+      "expected": [
+        "nebius-provider-metrics",
+        "nebius-ingested-metrics",
+        "nebius-logs",
+        "nebius-traces"
+      ],
+      "missing": [
+        "nebius-provider-metrics",
+        "nebius-ingested-metrics",
+        "nebius-logs",
+        "nebius-traces"
+      ],
+      "datasources": [],
+      "ok": false
+    },
+    "alerts": {
+      "rules_expected": 13,
+      "rules_loaded": 0,
+      "rules_missing": [
+        "GpuCapacityExhausted",
+        "GpuMetricsMissing",
+        "GpuNodeNotReady",
+        "GpuThermalOrPowerThrottling",
+        "GpuUncorrectableEccErrors",
+        "GpuXidError",
+        "PodsPendingOnGpu",
+        "PrometheusStorageAlmostFull",
+        "SharedFilesystemAlmostFull",
+        "VllmHighE2eLatency",
+        "VllmNoReplicasReady",
+        "VllmPodRestarting",
+        "VllmRequestsQueueing"
+      ],
+      "rules_unhealthy": [],
+      "alertmanagers": 0,
+      "test_alert": {
+        "posted": true,
+        "run": "20261012T193748Z-63936",
+        "state": "active",
+        "receivers": [
+          "null"
+        ],
+        "null_only": true,
+        "expected_receiver": null,
+        "ok": true
+      },
+      "ok": false
+    },
+    "endpoints": {
+      "grafana": "http://127.0.0.1:13000",
+      "prometheus": "http://127.0.0.1:19090",
+      "alertmanager": "http://127.0.0.1:19093"
+    },
+    "method": "Grafana /api/datasources + /api/datasources/uid/<uid>/health for grafana/datasources.yaml; Prometheus /api/v1/rules vs platform/alerts/*.yaml and /api/v1/alertmanagers; NipAcceptanceTest posted to Alertmanager /api/v2/alerts and read back with its receivers"
+  }
+}

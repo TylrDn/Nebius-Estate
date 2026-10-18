@@ -1,0 +1,26 @@
+# sky launch -c ddp recipes/team-platform/skypilot/task.yaml
+# One GPU on the lab cluster; runs the same DDP sanity script the PyTorchJob uses,
+# then writes metrics to /artifacts and (optionally) syncs them to Object Storage.
+name: nip-ddp-sanity
+
+resources:
+  infra: kubernetes
+  accelerators: H100:1 # L40S:1 when the lab uses gpu-l40s-a
+  image_id: docker:pytorch/pytorch:2.14.1-cuda13.0-cudnn9-runtime@sha256:3c0b174a1339193a5bcc4b37d737c9f5ca3c4782a2293d3888e4271367eddf44
+
+# SkyPilot resolves workdir from the caller's current directory, so run `sky launch` from the repo root.
+workdir: workloads/training/ddp
+
+envs:
+  STEPS: "20"
+  HIDDEN: "4096"
+  ARTIFACT_BUCKET: "" # s3://<bucket>/team-research — leave empty to keep artifacts in the pod
+  S3_ENDPOINT: "https://storage.eu-north1.nebius.cloud" # https://storage.<bucket region>.nebius.cloud
+
+run: |
+  mkdir -p /artifacts
+  torchrun --standalone --nproc_per_node=1 train.py | tee /artifacts/metrics.json
+  if [ -n "$ARTIFACT_BUCKET" ]; then
+    pip install -q awscli && aws --endpoint-url "$S3_ENDPOINT" \
+      s3 cp /artifacts/metrics.json "$ARTIFACT_BUCKET/$(date +%Y%m%dT%H%M%S)/metrics.json"
+  fi

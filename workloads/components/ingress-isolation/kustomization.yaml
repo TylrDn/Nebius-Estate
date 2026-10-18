@@ -1,0 +1,9 @@
+# Namespace ingress isolation for job and team namespaces (docs/security.md "network isolation"):
+# nothing outside the namespace reaches its pods except Prometheus in o11y. Egress stays open on
+# purpose: the Kubeflow v1 MPIJob launcher reaches workers through the API server, whose address
+# a NetworkPolicy cannot select reliably, and team jobs install packages. The inference namespace
+# has the stricter default-deny-both-ways set (inference/base/networkpolicy.yaml).
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - networkpolicy.yaml

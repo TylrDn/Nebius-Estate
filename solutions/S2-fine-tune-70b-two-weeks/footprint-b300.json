@@ -1,0 +1,12 @@
+{
+  "name": "s2-finetune-2x8-b300-14d",
+  "region": "eu-west2",
+  "items": [
+    {"name": "gpu-nodes", "platform": "gpu-b300-sxm", "preset": "8gpu-192vcpu-2768gb", "count": 2, "hours": 336, "preemptible": "compare"},
+    {"name": "gpu-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 1023, "count": 2, "hours": 336},
+    {"name": "cpu-nodes", "platform": "cpu-d3", "preset": "8vcpu-32gb", "count": 2, "hours": 336},
+    {"name": "cpu-boot-disks", "disk_type": "NETWORK_SSD", "size_gib": 128, "count": 2, "hours": 336},
+    {"name": "prometheus-pv", "disk_type": "NETWORK_SSD", "size_gib": 25, "count": 1, "hours": 336},
+    {"name": "train-fs", "filesystem_type": "NETWORK_SSD", "size_gib": 4096, "count": 1, "hours": 336}
+  ]
+}

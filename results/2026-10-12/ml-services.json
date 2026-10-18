@@ -1,0 +1,38 @@
+{
+  "step": "ml-services",
+  "status": "fail",
+  "timestamp": "2026-10-12T19:37:17Z",
+  "context": "nebius-mk8s-nip-sandbox-inference-<id>",
+  "details": {
+    "job": "ml-services/ml-services-check",
+    "status": "Failed",
+    "registry": {
+      "check": "registry",
+      "ok": true,
+      "image": "cr.eu-north1.nebius.cloud/<id>/nip-check:20261012193215",
+      "pushed_digest": "sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f",
+      "pulled_digest": "sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f",
+      "push_s": 3,
+      "pull_s": 0
+    },
+    "mlflow": {
+      "check": "mlflow",
+      "error": "MlflowException: API request to https://private-tracking.mlflow-<id>.backbone-<id>.msp.eu-north1.nebius.cloud/api/2.0/mlflow/experiments/get-by-name failed with exception HTTPSConnectionPool(host='private-tracking.mlflow-<id>.backbone-<id>.msp.",
+      "ok": false
+    },
+    "postgresql": {
+      "check": "postgresql",
+      "ok": true,
+      "select_1": "1",
+      "server_version": "16.15 (Ubuntu 16.15-293-nebius.58100.c68e4fd4aee)",
+      "sslmode": "verify-full"
+    },
+    "node_pull": {
+      "ok": true,
+      "image": "cr.eu-north1.nebius.cloud/<id>/nip-check@sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f",
+      "node": "computeinstance-<id>",
+      "service_account_pull_secrets": 0
+    },
+    "method": "workloads/ml-services/check-job (crane push/pull as iam, mlflow log+get_run, psql select 1 sslmode=verify-full); then a pod pulls the pushed digest with imagePullPolicy Always and no pull secret"
+  }
+}

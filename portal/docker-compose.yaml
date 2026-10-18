@@ -1,0 +1,22 @@
+# Optional: PostgreSQL for a production-like local run of the portal backend.
+# Demo mode does not need it (in-memory SQLite). Nothing here talks to a cloud API.
+#   docker compose -f portal/docker-compose.yaml up -d
+#   POSTGRES_HOST=127.0.0.1 POSTGRES_PORT=5432 POSTGRES_USER=nebius_estate POSTGRES_PASSWORD=... \
+#     yarn --cwd portal backstage-cli repo start backend \
+#       --config ../../app-config.yaml --config ../../app-config.production.yaml
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nebius_estate}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in portal/.env}
+    ports:
+      - '127.0.0.1:5432:5432' # loopback only
+    volumes:
+      - nebius-estate-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER:-nebius_estate}']
+      interval: 5s
+      retries: 10
+volumes:
+  nebius-estate-pg: {}

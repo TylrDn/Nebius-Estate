@@ -1,0 +1,9 @@
+# 2 nodes x 8 B200 over InfiniBand (us-central1-b / me-west1-a): the base topology
+# with the B200 image and hcoll flag from the doc's B200 tab.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: nccl-test
+resources:
+  - ../../base
+components:
+  - ../../components/b200

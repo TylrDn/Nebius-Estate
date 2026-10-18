@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: vllm
+spec:
+  # One replica on one GPU cannot stay available through a drain; allow the
+  # eviction so node-group replacement never blocks. With replicas >= 2 switch
+  # to minAvailable: 1.
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vllm

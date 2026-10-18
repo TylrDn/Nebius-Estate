@@ -1,0 +1,5 @@
+# Default owner for everything; narrow as teams join.
+*                                   @TylrDn
+/terraform/                         @TylrDn
+/docs/decisions/                    @TylrDn
+/.github/                           @TylrDn

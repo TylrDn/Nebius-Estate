@@ -1,0 +1,104 @@
+# Single source of truth for every pinned version in this repository.
+# docs/compatibility-matrix.md is rendered from this file (make compat-matrix).
+# `verified` is the date the value was checked against its source, not a release date.
+
+terraform:
+  cli: { version: "1.16.5", source: "https://releases.hashicorp.com/terraform/", verified: "2026-10-11", note: "Newest stable at verification. 1.11-1.15 test harnesses refuse an apply run that leaves an ephemeral variable unset, which the SecretStash apply-refusal tests need (fixed in 1.16.0); configurations still require only >= 1.11" }
+  providers:
+    nebius/nebius: { version: "0.6.67", source: "https://registry.terraform.io/providers/nebius/nebius", verified: "2026-10-09" }
+    hashicorp/helm: { version: "3.3.0", source: "https://registry.terraform.io/providers/hashicorp/helm", verified: "2026-10-09" }
+    hashicorp/kubernetes: { version: "3.3.0", source: "https://registry.terraform.io/providers/hashicorp/kubernetes", verified: "2026-10-09" }
+    gavinbunney/kubectl: { version: "1.19.0", source: "https://registry.terraform.io/providers/gavinbunney/kubectl", verified: "2026-10-09" }
+    dstaroff/units: { version: "1.1.1", source: "https://registry.terraform.io/providers/dstaroff/units", verified: "2026-10-09" }
+    hashicorp/random: { version: "3.9.1", source: "https://registry.terraform.io/providers/hashicorp/random", verified: "2026-10-09" }
+
+tooling:
+  # Built into the toolbox image (tools/toolbox, `make toolbox`) for linux/amd64; `scripts/pins.py check`
+  # fails CI when any workflow, script or manifest drifts from these values.
+  toolbox-base: { version: "3.13.16-slim-trixie", value: "python:3.13.16-slim-trixie@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f", source: "https://hub.docker.com/_/python", verified: "2026-10-12", note: "toolbox base: Python 3.13 for the repo scripts (stdlib only)" }
+  portal-node: { version: "24.21.0-trixie-slim", value: "node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66", source: "https://hub.docker.com/_/node", verified: "2026-10-10", note: "the portal image (portal/packages/backend/Dockerfile) and the CI portal job; portal/.nvmrc says 24" }
+  terraform: { version: "1.16.5", sha256: "2bc2fcfff033265c9e02ca0351f01794eb122f62a9b2a49a3294b9e49eaab5e4", source: "https://releases.hashicorp.com/terraform/1.16.5/", verified: "2026-10-11", note: "every root except the Soperator recipe; above upstream CI (1.11.4) because terraform test before 1.16.0 cannot run an apply with an ephemeral variable unset (stacks/data, stacks/ml-services, modules/o11y)" }
+  terraform-soperator: { version: "1.12.2", sha256: "1eaed12ca41fcfe094da3d76a7e9aa0639ad3409c43be0103ee9f5a1ff4b7437", source: "https://releases.hashicorp.com/terraform/1.12.2/", verified: "2026-10-10", note: "the Soperator recipe requires >= 1.12; installed as terraform-soperator in the toolbox" }
+  tflint: { version: "0.64.0", sha256: "cca9d13e2e1d7a2c627af60ff899a3c9b74212899416aeb96ec764d2ef954537", source: "https://github.com/terraform-linters/tflint/releases/tag/v0.64.0", verified: "2026-10-10" }
+  conftest: { version: "0.71.1", sha256: "c3f6b2a753bd56e377a1e51a95ae3e057f926f2e9139f7d5b5dfbbaf810f7985", source: "https://github.com/open-policy-agent/conftest/releases/tag/v0.71.1", verified: "2026-10-12", note: "OPA policy checks over platform/stages.yaml and the sizing files (policy/)" }
+  kubectl: { version: "1.35.9", sha256: "3cfeaf80be482b435b0aa214aff6e0b2c312ee23c0ff20810c75517b6004c6eb", source: "https://dl.k8s.io/release/v1.35.9/bin/linux/amd64/kubectl", verified: "2026-10-10", note: "within the supported skew of the 1.34-1.36 clusters; kustomize builds" }
+  shellcheck: { version: "0.11.0", sha256: "8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198", source: "https://github.com/koalaman/shellcheck/releases/tag/v0.11.0", verified: "2026-10-10" }
+  trivy: { version: "0.75.0", sha256: "c6e65abddb348e25f10549df887045629cf28cc72453cd1c63acb717316b3f3f", source: "https://github.com/aquasecurity/trivy/releases/tag/v0.75.0", verified: "2026-10-12", note: "IaC/config scan (make scan)" }
+  gitleaks: { version: "8.30.1", sha256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb", source: "https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1", verified: "2026-10-10" }
+  jq: { version: "1.8.2", sha256: "b1c22172dd303f3be49e935aa56aa48a8b7a46e0bc838b4997d3bb451495870f", source: "https://github.com/jqlang/jq/releases/tag/jq-1.8.2", verified: "2026-10-10" }
+  lychee: { version: "0.24.2", sha256: "1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a", source: "https://github.com/lycheeverse/lychee/releases/tag/lychee-v0.24.2", verified: "2026-10-10", note: "Markdown link check (make links)" }
+  nebius_cli: { version: "0.12.287", sha256: "a32623c45958290901d2858f2135f4916724c4621da55a4f3f53a449483539f5", source: "https://artifacts.nebius.cloud/cli/release/0.12.287/linux/x86_64/nebius", verified: "2026-10-10", note: "deploy pipeline and operator commands; the documented install.sh resolves stable at run time, so it is not used" }
+  actions-checkout: { version: "4.4.0", value: "11d5960a326750d5838078e36cf38b85af677262", source: "https://github.com/actions/checkout/releases/tag/v4.4.0", verified: "2026-10-10", note: "the only third-party action; pinned by commit" }
+
+upstream:
+  nebius-solutions-library:
+    ref: "d1c15caa37d330db88cb20bfef8dfceee4852032"
+    tag: "soperator-v4.1.13-2"
+    source: "https://github.com/nebius/nebius-solutions-library"
+    verified: "2026-10-09"
+    note: "Release tag (2026-10-07), baseline for mirrored modules and Soperator; separate GB300 reference below"
+  nebius-solutions-library-gb300:
+    ref: "fba7148cecd8bd38bccf60ba194ab8f5fdb02194"
+    source: "https://github.com/nebius/nebius-solutions-library/blob/fba7148cecd8bd38bccf60ba194ab8f5fdb02194/k8s-training/gb300.tf"
+    verified: "2026-10-17"
+    note: "Separate NVL/GB300 design reference, not the Soperator release baseline"
+  serverless-ai-cookbook:
+    ref: "6c150ce951dac480177af09116ec53d9c2fa7670"
+    source: "https://github.com/nebius/serverless-ai-cookbook"
+    verified: "2026-10-09"
+    note: "nebius ai endpoint/job CLI patterns copied by recipes/serverless"
+  nebius-physical-ai:
+    ref: "c76fe41"
+    source: "https://github.com/nebius/nebius-physical-ai"
+    verified: "2026-10-09"
+    note: "team namespace + SkyPilot pattern (recipes/team-platform); pins skypilot[nebius,kubernetes]==0.12.2"
+  soperator:
+    version: "4.1.13"
+    solution_library_tag: "soperator-v4.1.13-2"
+    source: "https://github.com/nebius/soperator/releases/tag/4.1.13"
+    verified: "2026-10-09"
+    note: "main carries VERSION=5.0.0 (unreleased); recipe needs Terraform >= 1.12 and helm < 3 (own root); see docs/soperator-compatibility.md"
+  # The Soperator root's own provider set, pinned by its committed .terraform.lock.hcl; the recipe's constraints float (nebius >= 0.6.23, helm < 3, flux >= 1.5)
+  soperator-recipe-providers:
+    nebius/nebius: { version: "0.6.67", source: "https://registry.terraform.io/providers/nebius/nebius", verified: "2026-10-10", note: "Soperator root (terraform/stacks/soperator) lock file; the recipe's own constraints float" }
+    hashicorp/helm: { version: "2.17.0", source: "https://registry.terraform.io/providers/hashicorp/helm", verified: "2026-10-10", note: "the recipe requires helm < 3; the rest of the repo uses 3.3.0" }
+    hashicorp/kubernetes: { version: "3.3.0", source: "https://registry.terraform.io/providers/hashicorp/kubernetes", verified: "2026-10-10" }
+    fluxcd/flux: { version: "1.9.6", source: "https://registry.terraform.io/providers/fluxcd/flux", verified: "2026-10-10" }
+    hashicorp/local: { version: "2.5.3", source: "https://registry.terraform.io/providers/hashicorp/local", verified: "2026-10-10" }
+    dstaroff/units: { version: "1.1.1", source: "https://registry.terraform.io/providers/dstaroff/units", verified: "2026-10-10" }
+    random-things/string-functions: { version: "0.5.0", source: "https://registry.terraform.io/providers/random-things/string-functions", verified: "2026-10-10" }
+
+platform:
+  gpu_driver_preset: { value: "cuda13.0", source: "https://docs.nebius.com/kubernetes/gpu/set-up", verified: "2026-10-09", note: "Managed driver image (driver 580.x, Ubuntu 24.04); cuda12.8 = 570.x" }
+  nvidia-gpu-operator: { install: "Marketplace nebius/nvidia-gpu-operator", version: "managed by Nebius Marketplace", source: "nebius-solutions-library/modules/gpu-operator", verified: "2026-10-09" }
+  nvidia-network-operator: { install: "Marketplace nebius/nvidia-network-operator", version: "managed by Nebius Marketplace", source: "nebius-solutions-library/modules/network-operator", verified: "2026-10-09", note: "stacks/training only; installed before the GPU Operator" }
+  region-platform-table: { value: "platform/regions.yaml", source: "https://docs.nebius.com/compute/clusters/gpu", verified: "2026-10-09", note: "Fabrics, 1-GPU/8-GPU presets and driver presets per region and platform (H100, H200, B200, B300, L40S); consumed by the Terraform roots" }
+  filesystem-csi: { chart: "oci://cr.eu-north1.nebius.cloud/mk8s/helm/csi-mounted-fs-path", version: "0.1.10", source: "https://docs.nebius.com/kubernetes/storage/filesystem-over-csi", verified: "2026-10-09", note: "The docs' chart; the upstream recipe still pins 0.1.5. cloud-init mounts with defaults,nofail as the docs require" }
+  nvidia-device-plugin: { install: "Marketplace nebius/nvidia-device-plugin", version: "managed by Nebius Marketplace", source: "nebius-solutions-library/modules/device-plugin", verified: "2026-10-09", note: "Driver-image path (ADR-0003); dcgm-exporter enabled" }
+  grafana-and-prometheus: { install: "Marketplace nebius/grafana-and-prometheus", version: "managed by Nebius Marketplace", source: "nebius-solutions-library/modules/o11y/prometheus.tf", verified: "2026-10-09" }
+  nebius-observability-agent: { install: "Marketplace nebius/nebius-observability-agent", version: "managed by Nebius Marketplace", source: "nebius-solutions-library/modules/o11y/nebius_o11y_agent.tf", verified: "2026-10-09" }
+
+workloads:
+  vllm: { version: "v0.31.0", value: "vllm/vllm-openai:v0.31.0@sha256:c1c9f6fd5c109ba7f0546a59f5b2f15fb87f64c77782e90a27b648b42a8e67c3", source: "https://hub.docker.com/r/vllm/vllm-openai/tags", verified: "2026-10-09", note: "Latest stable tag on Docker Hub at verification (published 2026-10-04); manifest-list digest, amd64 sha256:a4a4c043..." }
+  qwen2.5-1.5b-instruct: { version: "989aa7980e4cf806f80c7fef2b1adb7bc71aa306", source: "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct", verified: "2026-10-09", note: "Apache-2.0; default lab model" }
+  qwen2.5-7b-instruct: { version: "a09a35458c702b33eeacc393d103063234e8bc28", source: "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct", verified: "2026-10-09", note: "Apache-2.0; representative size" }
+  nccl-tests-image-h100-h200: { version: "2.23.4-ubu22.04-cu12.4", value: "cr.eu-north1.nebius.cloud/nebius-benchmarks/nccl-tests:2.23.4-ubu22.04-cu12.4@sha256:ac690d7e792f9baed20c079e664fee097ec0f9b872a1ac6e4f6ecb4c9c667381", source: "https://docs.nebius.com/kubernetes/gpu/nccl-test", verified: "2026-10-09", note: "H100/H200 tab of the NCCL-test doc; workloads/training/nccl/base" }
+  nccl-tests-image-b200: { version: "2.26.5-ubu22.04-cu12.8", value: "cr.eu-north1.nebius.cloud/nebius-benchmarks/nccl-tests:2.26.5-ubu22.04-cu12.8@sha256:5fd70fb3695161f34a203a51870a831921f31b2285cb77546bdaaedc20935e37", source: "https://docs.nebius.com/kubernetes/gpu/nccl-test", verified: "2026-10-09", note: "B200 tab (adds -mca coll ^hcoll); workloads/training/nccl/components/b200. No B300 manifest in the doc yet" }
+  kubeflow-training-operator: { version: "v1.9.3", ref: "c77ee3ff4d21aa8e5027580d83361c1a426ee789", source: "https://docs.nebius.com/kubernetes/gpu/nccl-test", verified: "2026-10-09", note: "MPIJob/PyTorchJob CRDs; installed by workloads/training/install-training-operator.sh at ref, the commit tag v1.9.3 pointed to on 2026-10-11 (git ls-remote)" }
+  kueue: { version: "v0.20.1", sha256: "c48514295365aae0c7dc578c70330befdd0015fec57cb4a06ba872bbef8750dd", source: "https://github.com/kubernetes-sigs/kueue/releases/tag/v0.20.1", verified: "2026-10-11", note: "R16 workloads/kueue: install.sh applies the release manifests.yaml (sha256 of that asset) server-side; v1beta2 API only (v0.20 no longer serves v1beta1); TopologyAwareScheduling beta and on by default since v0.14" }
+  rclone: { version: "1.75.2", value: "rclone/rclone:1.75.2@sha256:2687085f718d3c628f7fdfb77c52a1d344332aed543110bb88088f2c70d43eb5", source: "https://hub.docker.com/r/rclone/rclone/tags", verified: "2026-10-11", note: "workloads/data/copy-job: stage a bucket prefix onto the shared filesystem, also the filesystem restore path (runbooks/data.md, runbooks/backup-restore.md)" }
+  pytorch: { version: "2.14.1-cuda13.0-cudnn9-runtime", value: "pytorch/pytorch:2.14.1-cuda13.0-cudnn9-runtime@sha256:3c0b174a1339193a5bcc4b37d737c9f5ca3c4782a2293d3888e4271367eddf44", source: "https://hub.docker.com/r/pytorch/pytorch/tags", verified: "2026-10-09", note: "Pinned by digest in workloads/training/ddp/pytorchjob.yaml" }
+
+validation_images:
+  nvidia-cuda-base: { version: "13.0.1-base-ubuntu24.04", value: "nvidia/cuda:13.0.1-base-ubuntu24.04@sha256:f8ef28f579ea42a44b415d2c5d46f788e6a9b395c6c83f2929416e1fc192c143", source: "https://hub.docker.com/r/nvidia/cuda/tags", verified: "2026-10-09", note: "tests/validate/01-gpu.sh nvidia-smi probe for cuda13.0 presets (580.x)" }
+  nvidia-cuda-base-12-8: { version: "12.8.1-base-ubuntu24.04", value: "nvidia/cuda:12.8.1-base-ubuntu24.04@sha256:133c78a0575303be34164d0b90137a042172bdf60696af01a3c424ab402d86e2", source: "https://hub.docker.com/r/nvidia/cuda/tags", verified: "2026-10-10", note: "tests/validate/01-gpu.sh fallback probe for cuda12.8 presets chosen explicitly (570.x; no platform defaults to it)" }
+  fio: { version: "3.13", value: "xridge/fio:3.13@sha256:4a244dda3f95682895bf6508cfb83841694c45aa1534f407bee83ad6069029bd", source: "https://hub.docker.com/r/xridge/fio/tags", verified: "2026-10-10", note: "tests/validate/03-storage.sh; the previously pinned 3.33 tag does not exist. 3.13 (2019) is the newest published tag of the most-used fio image; a seq-write probe needs nothing newer" }
+  curl: { version: "8.22.0", value: "curlimages/curl:8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777", source: "https://hub.docker.com/r/curlimages/curl/tags", verified: "2026-10-11", note: "tests/validate/network.sh egress probe (R7): the source IP an echo endpoint sees must be the NAT VM's" }
+  busybox: { version: "1.36.1", value: "busybox:1.36.1@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662", source: "https://hub.docker.com/_/busybox", verified: "2026-10-10", note: "node debug pods (03-storage.sh) and the NCCL MPIJob init containers" }
+  crane: { version: "v0.22.1-debug", value: "gcr.io/go-containerregistry/crane/debug:v0.22.1@sha256:e78770b31258a3846f878036d9c1f63fbe4c871f9f56990bf77fd95c013e3c1b", source: "https://github.com/google/go-containerregistry/releases/tag/v0.22.1", verified: "2026-10-12", note: "R12 check Job (workloads/ml-services/check-job): push to and pull from Container Registry; the debug variant carries a busybox shell" }
+  mlflow-client: { version: "v2.21.2", value: "ghcr.io/mlflow/mlflow:v2.21.2@sha256:436a0de96fcda76ae2424cb36f2c1bfdf9cc05c49491888a481f166e09c8e17d", source: "https://github.com/mlflow/mlflow/pkgs/container/mlflow", verified: "2026-10-12", note: "R12 check Job: logs and reads back one MLflow run; the version Managed MLflow reported on the 2026-10-11 run" }
+  postgres-client: { version: "16.10-alpine3.22", value: "postgres:16.10-alpine3.22@sha256:029660641a0cfc575b14f336ba448fb8a75fd595d42e1fa316b9fb4378742297", source: "https://hub.docker.com/_/postgres", verified: "2026-10-12", note: "R12 check Job: psql select 1 over sslmode=verify-full; Managed PostgreSQL offers version 16 only" }
+  aws-cli: { version: "2.37.4", value: "amazon/aws-cli:2.37.4@sha256:3a0758d9430be6e07af814bf26d9d42afdb768bc138a11636ea037100e3de8a1", source: "https://hub.docker.com/r/amazon/aws-cli/tags", verified: "2026-10-12", note: "R8 restore drill from the operator host (scripts/live/bin/aws for tests/validate/checkpoint-restore.sh): the S3 client in a container, nothing installed on the host; used live 2026-10-12" }
+
+recipes:
+  skypilot: { version: "0.12.2", source: "nebius-physical-ai/docs/orchestration/skypilot-setup.md", verified: "2026-10-09" }

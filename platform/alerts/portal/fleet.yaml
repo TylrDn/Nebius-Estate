@@ -1,0 +1,153 @@
+# Portal-only alerting rules (Nebius Estate, portal/). Same format as the rule files one level up,
+# which the portal evaluates too; this directory is not loaded by in-cluster Prometheus (the stacks
+# read platform/alerts/*.yaml only).
+#   - DCGM rules run against Nebius Monitoring with the portal's read-only identity, per project.
+#   - nebius_estate_* series are signals the portal computes from its inventory after each sync:
+#       nebius_estate_node_group_quota_blocked   short quota for a node group's missing nodes (tenant allowances)
+#       nebius_estate_project_allowance_below_tenant  a real project cap below the tenant limit of its quota and region,
+#                                                or at 0 while the tenant allows more (value: tenant limit minus the cap)
+#       nebius_estate_connector_failing          1+ when a portal connector is in error or stale (never the connector
+#                                                of a discovered cluster that is deleting or gone: it is retired)
+#       nebius_estate_gpu_allocatable_zero       GPUs of a running GPU VM whose node advertises no nvidia.com/gpu
+#       nebius_estate_maintenance_scheduled      hours until a maintenance starts (0 once started)
+#       nebius_estate_preemptible_node_lost      1 for a preemptible VM that was stopped or vanished since the last sync
+#                                                (not when its node group or cluster is deleting or gone, or its TTL passed)
+#       nebius_estate_ttl_expires_hours          hours until the earliest nip-ttl-expires (own or inherited) of a root's
+#                                                running resources, per project, stage, stack and run, while it is ahead
+#     Their expressions are `<signal>{label="value"} <op> <number>` only. Annotations may write
+#     `{{ $value | untilHours }}` (portal only): hours as a time ahead, "in 49 d", as every page words it.
+# Every rule names `runbook` (repo path#anchor) and `docs` (docs.nebius.com page#anchor); a portal
+# test fails otherwise. `checks` are read-only; `fix` says what a change would be — the portal never applies one.
+groups:
+  - name: nip-portal-gpu
+    rules:
+      - alert: GpuIdle
+        expr: DCGM_FI_DEV_GPU_UTIL < 5
+        for: 60m
+        labels: { severity: info }
+        annotations:
+          summary: "GPU {{ $labels.gpu }}{{ $labels.uuid }} on {{ $labels.Hostname }}{{ $labels.instance_id }} idle for an hour"
+          description: "Utilisation has stayed below 5 % for 60 minutes while the VM keeps running and billing. Not a fault: a sizing or scheduling question."
+          runbook: runbooks/fleet-alerts.md#gpu-idle
+          docs: https://docs.nebius.com/compute/monitoring/virtual-machines#gpu-monitoring-metrics
+          checks: |
+            Fleet page, 24 h: when did this GPU last do work, and are the other GPUs of its node group idle too?
+            Workloads page: is anything scheduled on the node, or is a pod Pending for another node group?
+          fix: "Scale the node group down (gpu_node_count or the autoscaling minimum in the stage's tfvars) or tear the stage down; for a standalone VM, stop or delete it. Made through Terraform and review, never from the portal."
+      - alert: GpuHot
+        expr: DCGM_FI_DEV_GPU_TEMP >= 85
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "GPU {{ $labels.gpu }}{{ $labels.uuid }} on {{ $labels.Hostname }}{{ $labels.instance_id }} at {{ $value }} °C"
+          description: "GPU temperature at or above 85 °C for five minutes. Expect throttling; sustained heat on one GPU of a VM points at the hardware."
+          runbook: runbooks/fleet-alerts.md#gpu-hot-or-throttling
+          docs: https://docs.nebius.com/compute/monitoring/virtual-machines#gpu-monitoring-metrics
+          checks: |
+            Fleet page with the temperature and power toggles: one GPU or every GPU of the VM?
+            Logs page, preset "Serial-console errors", for thermal or Xid messages on this VM.
+            GPU & Capacity: is a maintenance scheduled for the VM?
+          fix: "For a single hot GPU: open a support case with the VM id and time range. For a whole node under sustained load: reduce the batch size or spread replicas (workload change in git)."
+
+  - name: nip-portal-capacity
+    rules:
+      - alert: QuotaBlocksNodeGroup
+        expr: nebius_estate_node_group_quota_blocked > 0
+        for: 0m
+        labels: { severity: critical }
+        annotations:
+          summary: "Node group {{ $labels.node_group_name }} cannot reach its size: {{ $labels.quota }} in {{ $labels.region }}"
+          description: "The node group has fewer nodes than it asks for, and the tenant quota of its region cannot hold the missing ones (limit 0, or usage plus the missing nodes over the limit). A quota is a ceiling; raising it does not guarantee capacity."
+          runbook: runbooks/capacity-request.md#2-quota-in-the-stages-project
+          docs: https://docs.nebius.com/overview/quotas#change-quotas
+          checks: |
+            GPU & Capacity: the tenant allowance {{ $labels.quota }} in {{ $labels.region }} (limit and usage).
+            Logs page, preset "Control-plane errors": the autoscaler's quota messages for the cluster.
+            Explorer: the node group's nodes and their states.
+          fix: "Request more quota (Administration → Limits → Quotas in the console), or lower the node group's size in the stage's tfvars until the quota is granted."
+      - alert: ProjectAllowanceBelowTenant
+        expr: nebius_estate_project_allowance_below_tenant > 0
+        for: 0m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.quota }} in {{ $labels.region }} is capped at {{ $labels.project_limit }} for this project (tenant limit {{ $labels.tenant_limit }})"
+          description: "A project quota allowance with a limit of its own is below the tenant limit of the same quota and region (or 0 while the tenant allows more), so this project gets less than it would inherit. A project entry without a limit of its own uses the tenant quota and never fires this. Seen on 2026-10-11 when a console assistant created project allowances in eu-west2 (vpc.allocation.count 1000 to 13)."
+          runbook: runbooks/capacity-request.md#project-allowances-below-the-tenant-quota
+          docs: https://docs.nebius.com/overview/quotas#change-quotas
+          checks: |
+            GPU & Capacity → Quotas → Allowance check: every project cap that differs from the tenant limit, and which project.
+            make quota-check (read-only): the same check from the CLI, per region and project.
+            Was the cap set on purpose (a lab project kept small)? Ask whoever changed the project's quotas.
+          fix: "If the cap is not intended, set it to the tenant limit: scripts/quota-plan.py --plan-align prints the update, CONFIRM=yes scripts/quota-plan.py --apply performs it after a rollback file is written (update only, never delete). The portal never changes a quota."
+      - alert: GpuVmNoAllocatableGpus
+        expr: nebius_estate_gpu_allocatable_zero > 0
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.node }} has {{ $value }} GPU(s) but advertises none to Kubernetes"
+          description: "A running GPU VM is a Kubernetes node with no allocatable nvidia.com/gpu for 15 minutes: pods that request GPUs cannot land on it. Usually a node group without the GPU drivers preset, or no device plugin."
+          runbook: runbooks/incident.md#gpu-not-visible-to-pods-nvidiacomgpu-allocatable--0
+          docs: https://docs.nebius.com/kubernetes/gpu/set-up#how-to-install-the-drivers-and-components-on-existing-node-groups
+          checks: |
+            Workloads page: GPU pods Pending on this cluster?
+            kubectl describe node {{ $labels.node }} (read-only): the nvidia.com/gpu capacity and the device-plugin pod.
+            Serial-console logs of the VM for NVRM or driver errors.
+          fix: "Set the node group's GPU drivers preset (gpu_settings.drivers_preset) or install the device plugin through the stack's Terraform; nodes are replaced on the next rollout."
+      - alert: MaintenanceScheduled
+        expr: nebius_estate_maintenance_scheduled >= 0
+        for: 0m
+        labels: { severity: info }
+        annotations:
+          summary: "Maintenance {{ $labels.name }} {{ $value | untilHours }}"
+          description: "Nebius scheduled maintenance that affects resources of this project. Workloads on the affected VMs are interrupted when it starts."
+          runbook: runbooks/maintenance.md#scheduled-node-maintenance
+          docs: https://docs.nebius.com/kubernetes/maintenance/manage#how-to-check-that-a-maintenance-event-is-issued
+          checks: |
+            GPU & Capacity: the maintenance, its start time and the affected resources.
+            Workloads page: what runs on the affected nodes, and does it have another replica?
+          fix: "Drain the affected nodes before the window, or launch the maintenance manually at a quiet time (Managed Kubernetes); nothing to change in Terraform."
+      - alert: PreemptibleNodeLost
+        expr: nebius_estate_preemptible_node_lost > 0
+        for: 0m
+        labels: { severity: warning }
+        annotations:
+          summary: "Preemptible VM {{ $labels.name }} was stopped or reclaimed"
+          description: "A preemptible VM that ran at the previous sync is stopped or gone. Nebius stops preempted VMs; a node group recreates its nodes when capacity returns, a standalone VM stays stopped. A planned teardown does not count: no alert when the VM's node group or cluster is deleting or gone, or its TTL (nip-ttl-expires, its own or inherited) has passed."
+          runbook: runbooks/gpu-vm.md#preemption
+          docs: https://docs.nebius.com/compute/virtual-machines/preemptible#how-to-continue-working-with-a-stopped-preemptible-vm
+          checks: |
+            Explorer: is the VM stopped, or did its node group create a replacement?
+            Serial-console logs of the VM around the alert time.
+            Capacity advice on GPU & Capacity: preemptible availability in the region.
+          fix: "Start the stopped VM again, or move the workload to on-demand capacity (capacity type in the stage's tfvars) if interruptions are not acceptable."
+
+      - alert: TtlExpiresSoon
+        expr: nebius_estate_ttl_expires_hours < 6
+        for: 0m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.stage }}/{{ $labels.stack }}{{ $labels.run_note }} reaches its TTL {{ $value | untilHours }} ({{ $labels.ttl_expires }})"
+          description: "A root (stage, stack and run) still has running resources and its earliest nip-ttl-expires, own or inherited from its cluster, is less than six hours away. A reminder before the run ends: save results, or extend the TTL. A safety-net teardown (make ttl-teardown) runs at that time only if it was scheduled."
+          runbook: runbooks/teardown.md#a-running-root-near-its-ttl
+          docs: https://docs.nebius.com/signup-billing/usage/cost-allocation-labels#how-to-set-labels-on-resources
+          checks: |
+            Estate Explorer: the root's running resources and the TTL each carries (quick view "TTL expired" once it passes).
+            terraform/live/{{ $labels.stage }}/{{ $labels.stack }}/.terraform/ttl-teardown.log: is a teardown scheduled, and for when?
+            Are the run's results saved (object storage, docs/evidence)?
+          fix: "Let it end after saving the results (runbooks/teardown.md), or set a new nip-ttl-expires (at most 7 days ahead) in the run profile or TF_VAR_labels and run make plan and make apply for the root. The portal never changes a label."
+
+  - name: nip-portal-connectors
+    rules:
+      - alert: ConnectorFailing
+        expr: nebius_estate_connector_failing > 0
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Connector {{ $labels.title }} is failing"
+          description: "A portal connector failed its syncs or its data is older than its freshness bound. Figures that depend on it are shown as stale, never as zero."
+          runbook: runbooks/fleet-alerts.md#connector-failing
+          docs: https://docs.nebius.com/iam/authorization/groups/members#adding-a-service-account
+          checks: |
+            Integrations page: the connector's last error, HTTP status and failure streak.
+            yarn verify:live in portal/ (read-only) re-checks every call with the configured identity.
+          fix: "Grant the missing role to the portal's group, or correct the credential variables in .env; then Sync now on Integrations."

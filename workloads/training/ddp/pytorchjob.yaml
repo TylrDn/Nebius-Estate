@@ -1,0 +1,56 @@
+# PyTorchJob (Kubeflow Training Operator v1.9.3). Defaults: 1 master + 1 worker, 1 GPU
+# each — runs on the inference lab only if it has 2 GPU nodes; on stacks/training set
+# nprocPerNode: "8" and nvidia.com/gpu: 8. Launch AFTER tests/validate/03-nccl.sh passes, with
+# tests/validate/ddp.sh (records samples/s as results/ddp.json).
+apiVersion: kubeflow.org/v1
+kind: PyTorchJob
+metadata:
+  name: ddp-sanity
+spec:
+  nprocPerNode: "1"
+  runPolicy:
+    cleanPodPolicy: None
+    backoffLimit: 0
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: Never
+      template: &tpl
+        spec:
+          nodeSelector:
+            nip.nebius.io/gpu: "true"
+          tolerations:
+            - { key: nvidia.com/gpu, operator: Exists, effect: NoSchedule }
+          securityContext:
+            seccompProfile: { type: RuntimeDefault }
+          containers:
+            - name: pytorch
+              image: pytorch/pytorch:2.14.1-cuda13.0-cudnn9-runtime@sha256:3c0b174a1339193a5bcc4b37d737c9f5ca3c4782a2293d3888e4271367eddf44
+              command: ["torchrun", "--nnodes=$(PET_NNODES)", "--nproc_per_node=$(PET_NPROC_PER_NODE)", "--node_rank=$(PET_NODE_RANK)", "--master_addr=$(PET_MASTER_ADDR)", "--master_port=$(PET_MASTER_PORT)", "/workspace/train.py"]
+              env:
+                - { name: NCCL_DEBUG, value: INFO }
+                - { name: STEPS, value: "20" }
+                - { name: HIDDEN, value: "4096" }
+                - { name: BATCH, value: "64" } # rows per rank per step; samples/s = world x BATCH / median step
+              resources:
+                limits: { nvidia.com/gpu: 1, memory: 32Gi }
+                requests: { cpu: "4", memory: 16Gi, nvidia.com/gpu: 1 }
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities: { drop: ["ALL"] }
+              volumeMounts:
+                - { name: script, mountPath: /workspace }
+                - { name: shm, mountPath: /dev/shm }
+                - { name: tmp, mountPath: /tmp }
+          volumes:
+            - name: script
+              configMap: { name: ddp-script }
+            - name: shm
+              emptyDir: { medium: Memory, sizeLimit: 8Gi }
+            - name: tmp
+              emptyDir: { sizeLimit: 4Gi }
+    Worker:
+      replicas: 1
+      restartPolicy: Never
+      template: *tpl

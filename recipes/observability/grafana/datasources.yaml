@@ -1,0 +1,64 @@
+# Grafana data-source provisioning for one Nebius project (R14). Copy to
+# <grafana>/provisioning/datasources/ and start Grafana with two environment variables; Grafana
+# expands ${VAR} in provisioning files, so no value is ever written here:
+#   NEBIUS_PROJECT_ID   the project (project-...)
+#   PROMETHEUS_TOKEN    an OBSERVABILITY static key of a read-only service account
+#                       (docs/credentials.md#observability-static-key; the account needs viewer)
+# URLs and headers as the docs give them:
+#   provider metrics  https://docs.nebius.com/observability/metrics/grafana#how-to-connect-grafana-data-source
+#   your own metrics  https://docs.nebius.com/observability/metrics/ingest#connect-grafana-to-view-your-own-metrics
+#   logs (Loki)       https://docs.nebius.com/observability/logs/grafana#how-to-connect-grafana
+#   traces (Tempo)    https://docs.nebius.com/observability/traces/grafana#how-to-connect-grafana
+# The docs set the Authorization header to the key itself for Prometheus and Loki and to
+# "Bearer <key>" for Tempo; kept exactly so. One project per file: repeat the block per project.
+apiVersion: 1
+
+datasources:
+  - name: Nebius provider metrics
+    uid: nebius-provider-metrics
+    type: prometheus
+    access: proxy
+    url: https://read.monitoring.api.nebius.cloud/projects/${NEBIUS_PROJECT_ID}/service-provider/prometheus
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: GET
+      httpHeaderName1: Authorization
+      timeInterval: 15s
+    secureJsonData:
+      httpHeaderValue1: ${PROMETHEUS_TOKEN}
+
+  - name: Nebius ingested metrics
+    uid: nebius-ingested-metrics
+    type: prometheus
+    access: proxy
+    url: https://read.monitoring.api.nebius.cloud/projects/${NEBIUS_PROJECT_ID}/prometheus
+    editable: false
+    jsonData:
+      httpMethod: GET
+      httpHeaderName1: Authorization
+    secureJsonData:
+      httpHeaderValue1: ${PROMETHEUS_TOKEN}
+
+  - name: Nebius logs
+    uid: nebius-logs
+    type: loki
+    access: proxy
+    url: https://read.logging.api.nebius.cloud/projects/${NEBIUS_PROJECT_ID}
+    editable: false
+    jsonData:
+      maxLines: 1000
+      httpHeaderName1: Authorization
+    secureJsonData:
+      httpHeaderValue1: ${PROMETHEUS_TOKEN}
+
+  - name: Nebius traces
+    uid: nebius-traces
+    type: tempo
+    access: proxy
+    url: https://read.tracing.api.nebius.cloud/projects/${NEBIUS_PROJECT_ID}/tempo
+    editable: false
+    jsonData:
+      httpHeaderName1: Authorization
+    secureJsonData:
+      httpHeaderValue1: Bearer ${PROMETHEUS_TOKEN}
