@@ -11,7 +11,7 @@ In scope: anything in this repository, for example a Terraform default that expo
 that leaks a credential, a workflow that could run untrusted code with secrets, or the portal reading or
 writing more than it documents.
 Bypasses or regressions in the maintained [local dependency patches](docs/security/dependency-backports.md)
-are also in scope. Existing advisory risks and pending release decisions are recorded in the
+are also in scope. Existing advisory risks and release decisions are recorded in the
 [advisory review](docs/security/advisory-release-decision.md).
 
 Out of scope: vulnerabilities in Nebius AI Cloud itself or in upstream projects (report those to Nebius or
@@ -25,6 +25,7 @@ see one, report it privately as above so it can be revoked before it is removed 
 
 ## Supported versions
 
-This is experimental source. Only `main` receives fixes until the first public release.
+This is experimental source. Fixes are maintained on `main`; `v0.1.0` is a historical experimental snapshot.
+Update from `main` for subsequent fixes; no release-branch backports are promised.
 Known upstream advisories and their observed exposure are tracked in
 [dependency security](docs/dependency-security.md); no production support is promised.

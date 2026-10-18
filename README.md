@@ -9,6 +9,9 @@ or upstream repository it follows. Coverage ranges from mocked wiring to histori
 this is not a production platform or a claim that every recipe has been deployed. CI checks do not
 provision cloud resources, and the deploy pipeline ships disabled.
 
+[v0.1.0 experimental source](docs/releases/v0.1.0.md) includes the verification scope,
+known advisory risks and maintenance responsibilities.
+
 **Start here**
 
 1. [Three flagship paths](docs/portfolio.md): synthetic portal demo, measured R1 inference, and R2 foundation lifecycle.

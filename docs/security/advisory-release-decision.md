@@ -1,21 +1,22 @@
-# Advisory review for the proposed source release
+# Advisory decision for the experimental source release
 
-**Status: prepared for owner review; publication and risk acceptance are pending.**
-This record covers the proposed `v0.1.0` experimental source release. Preparing it does not
-approve publication, dismiss an advisory or authorize a shared deployment. Keep the repository
-private and Actions disabled until the owner explicitly approves the next action.
+**Status: owner-approved experimental source release, October 18, 2026.**
+Taylor Dean explicitly approved publication of `v0.1.0`, confirmed ownership and confidentiality,
+and accepted the documented advisory risks and maintenance responsibilities. This decision
+covers source distribution under the conditions below. Actions remains disabled; no paid
+GitHub Actions minutes are authorized. Shared deployment requires a separate review.
 
 ## Decision and maintenance responsibility
 
-| Item | Proposed arrangement |
+| Item | Confirmed arrangement |
 |---|---|
 | Publication decision owner | Taylor Dean, repository owner |
-| Dependency patch maintenance owner | Taylor Dean, proposed; confirmation pending |
+| Dependency patch maintenance owner | Taylor Dean, confirmed October 18, 2026 |
 | Technical review date | October 18, 2026 |
 | Next maintenance review | By November 1, 2026, or before a dependency, patch or input-boundary change, whichever is earlier |
-| Proposed distribution | Source checkout/archive with LICENSE, NOTICE, provenance and retained third-party texts |
+| Approved distribution | Source checkout/archive with LICENSE, NOTICE, provenance and retained third-party texts |
 | Evaluation scope | Synthetic portal demo on loopback; infrastructure examples require operator review |
-| Approval status | Pending separately for the advisory disposition, source ownership/confidentiality review and publication |
+| Approval status | Owner confirmed advisory disposition, ownership/confidentiality and publication on October 18, 2026 |
 
 The review date is a maintenance obligation for the confirmed owner, not a scheduled monitoring
 service. Reassess stale evidence before publication if the review deadline has passed.
@@ -29,16 +30,16 @@ entries. Patch implementation and exact upstream references are in [dependency b
 
 | Advisory | Observed path and local mitigation | Remaining risk and release boundary | Owner decision |
 |---|---|---|---|
-| [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), braces 3.0.3, High | Backstage config watching and tooling through chokidar/micromatch. The patch bounds parser/AST depth and rejects cyclic parent chains. | Runtime config watching remains a consumer. Trusted operator-selected paths are the reviewed boundary; untrusted patterns or new request-driven glob features need a new review. Targeted regressions cover the reproduced recursion cases, not every possible denial of service. | Pending |
-| [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv), node-forge 1.4.0, High | Backstage generated development certificates and selfsigned. The patch checks nested child counts, empty NULL parameters and canonical algorithm OID bytes. | Generated backend HTTPS is absent from the shipped configuration. Enabling it, processing external certificates/signatures or adding authentication integrations changes the boundary. The locally maintained cryptographic patch has bounded regression evidence, not an exhaustive security assessment. | Pending |
-| [GHSA-848j-6mx2-7j84](https://github.com/advisories/GHSA-848j-6mx2-7j84), elliptic 6.6.1, Low | CLI build browser-polyfill chain through browserify-sign/create-ecdh. The patch preserves generated P-521 nonce width before truncation. | Future dependency or bundler changes may change reachability. Do not introduce real signing features using this package under this review. Independent nonce/signature controls exercise the reproduced case and compatibility boundaries. | Pending |
+| [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), braces 3.0.3, High | Backstage config watching and tooling through chokidar/micromatch. The patch bounds parser/AST depth and rejects cyclic parent chains. | Runtime config watching remains a consumer. Trusted operator-selected paths are the reviewed boundary; untrusted patterns or new request-driven glob features need a new review. Targeted regressions cover the reproduced recursion cases, not every possible denial of service. | Accepted for the experimental source scope below; review by November 1, 2026 |
+| [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv), node-forge 1.4.0, High | Backstage generated development certificates and selfsigned. The patch checks nested child counts, empty NULL parameters and canonical algorithm OID bytes. | Generated backend HTTPS is absent from the shipped configuration. Enabling it, processing external certificates/signatures or adding authentication integrations changes the boundary. The locally maintained cryptographic patch has bounded regression evidence, not an exhaustive security assessment. | Accepted for the experimental source scope below; review by November 1, 2026 |
+| [GHSA-848j-6mx2-7j84](https://github.com/advisories/GHSA-848j-6mx2-7j84), elliptic 6.6.1, Low | CLI build browser-polyfill chain through browserify-sign/create-ecdh. The patch preserves generated P-521 nonce width before truncation. | Future dependency or bundler changes may change reachability. Do not introduce real signing features using this package under this review. Independent nonce/signature controls exercise the reproduced case and compatibility boundaries. | Accepted for the experimental source scope below; review by November 1, 2026 |
 
 Forty installed-dependency security/compatibility checks passed on macOS and Linux, including
 24 advisory-focused checks and a native SQLite lifecycle check. Installed consumer resolution
 was inspected on both platforms. The [release record](../release-readiness.md) contains the full
 functional verification scope. Those results support the mitigations; they do not clear the audit.
 
-## Conditions for the proposed experimental source scope
+## Conditions for the approved experimental source scope
 
 - Keep the three findings and patch provenance visible in the README-linked security documents.
   The complete audit continues to fail; no advisory IDs are ignored or assigned invented fixes.
@@ -63,12 +64,13 @@ cryptographic signing or a shared portal deployment. Treat a patch bypass, missi
 consumer or failed regression as a release blocker. Keep the last verified lockfile/patch set
 available while investigating; do not turn a failing check green by suppressing it.
 
-## Owner approval still required
+## Owner approval
 
-The owner must record the decision date and confirm the maintenance assignment, reviewed
-constraints and next review date for each finding. Source ownership and confidentiality approval
-are separate from the technical checks. Neither approval is inferred from asking to prepare
-the release. If the owner requires an advisory-free graph, keep publication on hold until
-supported upstream fixes or a verified parent migration satisfy that requirement.
+On October 18, 2026, Taylor Dean explicitly approved publishing Nebius-Estate as experimental
+source, confirmed ownership and confidentiality, and accepted the documented advisory risks
+and maintenance responsibilities. This includes the retained, scrubbed historical method records
+described in the release notes. The three findings above remain open in the registry audit.
 
-No approval has been recorded in this document.
+Taylor Dean owns the local patches and must review them by November 1, 2026, or before a
+dependency, patch or input-boundary change, whichever is earlier. This approval does not extend
+to shared production hosting, built-artifact distribution or paid GitHub Actions minutes.

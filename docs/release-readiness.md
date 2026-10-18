@@ -10,7 +10,7 @@ see [third-party texts](../third_party/README.md).
 
 The October 18, 2026 local verification uses the workflow's pinned Node 24.22.0 Linux image
 and the pinned infrastructure toolbox. Docker Desktop's engine is running locally; no GitHub
-Actions run or paid runner minute was used. The repository remains private and Actions disabled.
+Actions run or paid runner minute was used. The repository was private during verification; Actions remains disabled for publication.
 The main-branch ruleset requires a pull request and blocks deletion and non-fast-forward updates.
 
 | Check | Observed local result |
@@ -35,7 +35,8 @@ controls. Published package versions
 remain unchanged, so the registry audit cannot establish that these source patches are installed.
 The installed Linux dependency tree was inspected for each patched package and the expected
 guards. These patches are a local maintenance responsibility, not official fixed releases or
-an accepted residual-risk decision. See [dependency security](dependency-security.md).
+a clean audit. The owner subsequently accepted the scoped remaining risks on October 18;
+see the [advisory decision](security/advisory-release-decision.md). See [dependency security](dependency-security.md).
 
 The native macOS SQLite abort was reproduced independently of Jest and traced to Node's
 native-addon cleanup hooks. Node 24.22.0 includes the upstream fix; the same installed addon
@@ -113,14 +114,14 @@ after that functional record. No live cloud call or GitHub Actions run is part o
 
 ## Publication approval checklist
 
-The proposed release is **experimental source only**. [Draft release notes](releases/v0.1.0.md)
-are prepared for review; creating that document does not create a GitHub release or tag.
+The owner approved **experimental source only** publication on October 18, 2026.
+[Release notes](releases/v0.1.0.md) describe the approved scope.
 The [advisory decision record](security/advisory-release-decision.md) gives each remaining
-finding a reviewed input boundary, mitigation, remaining risk and proposed maintenance obligation.
+finding a reviewed input boundary, mitigation, remaining risk and confirmed maintenance obligation.
 The source retains dated, scrubbed historical evidence, including the method records under
 [`docs/evidence/raw/`](evidence/raw/README.md). Their documented redactions distinguish them
-from excluded private audit downloads and current raw verification logs. The owner's final
-confidentiality and redistribution review must cover these retained records as well as the code.
+from excluded private audit downloads and current raw verification logs. The owner confirmed
+confidentiality and redistribution permission for these retained records as well as the code.
 
 Technical preparation and owner approval are separate gates:
 
@@ -128,21 +129,23 @@ Technical preparation and owner approval are separate gates:
 - [x] Preserve licenses/notices, source provenance, patch references and visible audit findings.
 - [x] Prepare an advisory decision record and source-only release notes.
 - [x] Complete fresh-clone onboarding; retain exact candidate, commands and results in the private verification record.
-- [ ] Owner confirms source ownership/redistribution permission and confidentiality of retained evidence,
+- [x] Owner confirms source ownership/redistribution permission and confidentiality of retained evidence,
   including the scrubbed prior-run method records linked above.
-- [ ] Owner confirms the advisory disposition, maintenance assignment and review deadline for each finding.
-- [ ] Owner explicitly approves publication and final release scope.
-- [ ] After approval: merge the reviewed candidate, recheck repository protections, change visibility,
-  enable/test private vulnerability reporting and then publish the approved source release.
+- [x] Owner confirms the advisory disposition, maintenance assignment and review deadline for each finding.
+- [x] Owner explicitly approves publication and final release scope.
 
-Until the owner approves publication, retain a private repository, an unmerged draft PR, disabled
-Actions and no public tag/release. No deployment, production-readiness or built-artifact clearance
-is inferred from these checks. If the source changes after verification, assess the diff and rerun
+Publication procedure: merge the reviewed candidate, recheck repository protections, change visibility,
+enable/check private vulnerability reporting and publish the approved source prerelease.
+Confirm each operation from GitHub before reporting completion.
+
+The owner approved merging the reviewed candidate, public visibility and the source prerelease.
+Actions must remain disabled; no paid GitHub Actions minutes are authorized. No deployment,
+production-readiness or built-artifact clearance is inferred from these checks. If the source changes after verification, assess the diff and rerun
 the affected checks before publication.
 
 ## Repository setup at publication
 
-The fresh repository is prepared privately, with Actions disabled, Dependabot alerts enabled,
+The fresh repository was prepared privately, with Actions disabled, Dependabot alerts enabled,
 no imported deployment secrets or environments, and no live Terraform enable variable. Keep
 live dispatch disabled unless deliberately configured for a separately approved cloud run.
 Before changing visibility, inspect the final source diff, scanner classifications and verification

@@ -3,15 +3,15 @@
 The portal's current Backstage dependency graph has known advisories. A source release is
 not an advisory-free installation or approval for a hosted multi-user deployment. The
 complete recursive audit deliberately remains visible; no advisory is blanket-ignored and
-no residual-risk acceptance is implied by this document.
+the scoped owner acceptance is recorded explicitly in the linked decision record.
 
 [Local source backports](security/dependency-backports.md) now address the reproduced cases,
 including additional Forge NULL-content and algorithm-OID validation gaps found during review. Their 24 focused regressions
 pass locally. The complete version-based registry audit still reports the three advisories;
-these results are distinct, and publication remains on hold.
+these results are distinct.
 The [advisory decision record](security/advisory-release-decision.md) documents each finding's
-remaining risk and the proposed maintenance obligations. Owner acceptance and publication
-approval are still pending.
+remaining risk and maintenance obligations. Taylor Dean approved experimental source publication
+and accepted these risks on October 18, 2026; the next maintenance review is due by November 1.
 
 ## Dependency updates
 
@@ -40,7 +40,7 @@ on the exact candidate commit: counts and advisories change over time.
 
 The October 18 local complete recursive audit still reports three advisory entries: two High
 and one Low, plus upstream deprecations. It removes the seven Moderate findings in the earlier
-10-entry candidate, but remains a failing check. The findings are not accepted or suppressed;
+10-entry candidate, but remains a failing check. The findings remain unsuppressed; the owner accepted their documented source-release risks;
 see the local backports for their tested mitigation and maintenance limits, and the
 [verification record](release-readiness.md) for the candidate's full test results. No GitHub
 Actions run was used for this local verification.
@@ -81,5 +81,5 @@ Upstream deprecated-package warnings also remain and are included in the unchang
 Before a public installation recommendation or shared deployment, review each remaining
 finding, its enabled feature/input boundary and available mitigation. Any residual-risk
 acceptance must name the advisory, reviewer, deployment constraints and review/expiry date.
-That approval is not supplied by this source snapshot. Keep the full audit check and exact CI results
+The recorded approval covers experimental source distribution only. Keep the full audit check and exact CI results
 linked from release review; do not describe a green compilation as a clean security audit.

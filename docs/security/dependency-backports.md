@@ -6,11 +6,11 @@ maintenance responsibilities: all three upstream proposals were unmerged at the 
 2026 review, and none of the advisories listed an official patched release.
 
 The complete registry audit still reports **two High and one Low** findings. Nothing is
-ignored, renamed or assigned an invented fixed version. Keep the repository private until
-final verification and advisory disposition are complete. These patches do not establish
+ignored, renamed or assigned an invented fixed version. Local verification is complete for the
+recorded scope, and the owner approved experimental source publication on October 18, 2026. These patches do not establish
 approval for a shared deployment or replace served-authentication integration.
-The [advisory decision record](advisory-release-decision.md) lists remaining risks, the proposed
-maintenance assignment, review deadline and owner approvals still required.
+The [advisory decision record](advisory-release-decision.md) records remaining risks, the confirmed
+maintenance assignment, review deadline and explicit owner acceptance.
 
 ## Patch inventory
 
@@ -70,11 +70,11 @@ from the shipped configuration. Config watching still uses braces at runtime wit
 paths. Elliptic's identified dependency path is build tooling. These input boundaries reduce the
 identified exposure but do not prove all configurations safe. See [dependency security](../dependency-security.md).
 
-**Disposition: mitigated locally; upstream findings remain open.** Neither a complete audit pass
-nor owner acceptance of the remaining maintenance risk has been recorded. Keep publication on
-hold. The next acceptable resolution is an official fixed release, a supported parent migration,
-or an explicit reviewed decision for the experimental source scope. The source patches alone
-do not supply that decision.
+**Disposition: mitigated locally; upstream findings remain open.** The complete audit still fails.
+Taylor Dean explicitly accepted the documented risks and maintenance responsibility for
+experimental source publication on October 18, 2026. The linked decision records the boundaries
+and November 1 review deadline. Supported upstream fixes or parent migrations remain the
+preferred replacement for these local patches.
 
 ### Commands
 
@@ -100,4 +100,4 @@ On each parent or package update, check whether an official fixed release exists
 superseded patches, regenerate the lockfile, and rerun regressions plus the full portal suite.
 Do not carry a patch forward merely because it still applies cleanly. Any accepted residual
 risk requires a named reviewer, deployment constraints and a review date; that acceptance
-has not been recorded here.
+is recorded in the linked advisory decision for this experimental source release.
