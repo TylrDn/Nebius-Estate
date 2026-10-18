@@ -1,4 +1,4 @@
-# nebius-infrastructure-patterns
+# Nebius Estate
 
 Nebius AI Cloud cookbook: recipes R1–R16 (`terraform/stacks/*`, `recipes/*`), solutions S1–S9,
 runbooks, evidence, and the Backstage portal "Nebius Estate" (`portal/`). Start at `README.md`,
@@ -7,9 +7,10 @@ runbooks, evidence, and the Backstage portal "Nebius Estate" (`portal/`). Start 
 ## Verify
 
 `make ci` (offline: pins, fmt, render-live, docs links, md-links, validate, lint, test, policy, shellcheck, recipes-check,
-selftest, kustomize). Full set in the toolbox: `make ci-docker TARGETS="ci soperator-check scan links"`.
+selftest, kustomize). Full set in the toolbox: `make ci-docker TARGETS="ci soperator-check scan links release-regressions"`.
 Portal: `make portal-build portal-test portal-e2e`; against the real account (read-only):
 `make portal-verify-live` after `set -a; source .env; set +a`.
+Record each check’s final exit code and summary; progress lines are not pass results.
 
 ## Policy
 

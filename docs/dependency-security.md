@@ -5,6 +5,11 @@ not an advisory-free installation or approval for a hosted multi-user deployment
 complete recursive audit deliberately remains visible; no advisory is blanket-ignored and
 no residual-risk acceptance is implied by this document.
 
+[Local source backports](security/dependency-backports.md) now address the reproduced cases,
+including an additional Forge validation gap found during review. Their 13 focused regressions
+pass locally. The complete version-based registry audit still reports the three advisories;
+these results are distinct, and publication remains on hold.
+
 ## Dependency updates
 
 The release remediation updates the existing graph, without new application libraries:
@@ -20,23 +25,21 @@ The release remediation updates the existing graph, without new application libr
 | Octokit REST / app-auth | REST 20.1.2 and app-auth 6.1.4 for the old Backstage integration selectors | Preserves CommonJS while selecting patched request, request-error and pagination packages; synthetic credentials, JWT, installation token and pagination tests |
 | argparse / js-yaml 3 | argparse 2.0.1, retaining js-yaml 3.15.2 with a CLI version-action patch | Removes the sprintf-js chain without changing YAML schema behavior; [patch and provenance](js-yaml-argparse-patch.md) |
 | UUID / material-table | UUID 11.1.1 and a named-import patch to material-table 3.2.5 | Preserves row identity and selection; [patch, upstream license and buffer regressions](material-table-uuid-patch.md) |
-| React Router | Router and DOM 7.18.4, with [Backstage route parameter compatibility patches](security/react-router-7-compatibility.md) | Tests mixed-separator navigation, exact-once named parameter encoding and preserved wildcard behavior; 397 browser checks passed on the source baseline; publication edits have not been rerun |
+| React Router | Router and DOM 7.18.4, with [Backstage route parameter compatibility patches](security/react-router-7-compatibility.md) | Tests mixed-separator navigation, exact-once named parameter encoding and preserved wildcard behavior; full browser verification and its source scope are recorded in the [release record](release-readiness.md) |
 
 Lockfile changes are generated inside the pinned Node container. The immutable install,
 typecheck, full test suite and build must validate them; resolution overrides are not proof
 of compatibility by themselves. Re-run `cd portal && yarn npm audit --all --recursive --json`
 on the exact candidate commit: counts and advisories change over time.
 
-## Remaining upstream limitations
+## Remaining upstream limitations and local mitigations
 
-The complete recursive audit of the generated Router 7.18.4 graph in
-run 39072928717 (private development CI; not publicly accessible)
-reports three advisory entries: two High and one Low, plus upstream deprecations.
-This removes the seven Moderate findings in the earlier 10-entry candidate.
-The audit remains a failing CI job; release review requires its disposition, but the
-private development repository’s ruleset did not enforce this job. The remaining findings are not accepted
-or suppressed. The final source baseline was checked in private development run 39082724154; see the
-[verification record](release-readiness.md).
+The October 18 local complete recursive audit still reports three advisory entries: two High
+and one Low, plus upstream deprecations. It removes the seven Moderate findings in the earlier
+10-entry candidate, but remains a failing check. The findings are not accepted or suppressed;
+see the local backports for their tested mitigation and maintenance limits, and the
+[verification record](release-readiness.md) for the candidate's full test results. No GitHub
+Actions run was used for this local verification.
 
 At the October 18 metadata recheck, the latest published `braces` 3.0.3 and `node-forge` 1.4.0
 remain affected by High advisories with no patched release identified:
@@ -59,7 +62,8 @@ remain affected by High advisories with no patched release identified:
 These are scoped source observations, not proof that every call path is unreachable.
 None of these three packages had an official patched release at the review. Open
 upstream patches do not make their current versions pass the registry audit. Keep
-the findings visible while upstream fixes or supported parent replacements are reviewed.
+the findings visible while the local backports await published upstream fixes or supported
+parent replacements.
 For example, replacing chokidar 3 with 4 changes glob behavior. Do not rename packages,
 fabricate patched version numbers, or suppress advisory IDs to obtain a passing check.
 

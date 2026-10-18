@@ -99,6 +99,13 @@ rerun the storage acceptance benchmark and size against measured results.
 Operators may implement their own tuning after reviewing source permission and
 validating it on their images; the removed docs script is not reformatted here.
 
+## Dependency security backports
+
+The three local braces, node-forge and elliptic Yarn runtime patches, their exact upstream
+commits, the additional local Forge validation and retained licenses are recorded in
+[dependency backports](security/dependency-backports.md). These are modified third-party
+sources; they do not imply a published fixed package version or a passing registry audit.
+
 ## Conditional artifact distribution checklist
 
 A source publication does not establish clearance for built images, browser

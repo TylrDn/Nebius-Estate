@@ -14,11 +14,32 @@ Follow the [synthetic demo setup](../portal/README.md#try-the-synthetic-demo): `
 the demo needs no Nebius account or `.env`. It uses the REST stub on loopback and labels
 every page **Test data — not your tenant**. Ctrl-C stops the services.
 
-Explore Overview and Estate Explorer, inspect an unavailable connector, then open Costs and
-Provisioning. A provisioning preview produces a patch and run sheet; it does not apply changes.
+### Five-step demo tour
+
+Use the primary navigation on the left. On a narrow screen it shows icons; labels appear
+on keyboard focus or tap. The Overview tour also provides named links to these pages.
+Every page should retain the **Test data — not your tenant** banner.
+
+Begin on **Overview** (`/`): read the source beneath a GPU or cost figure. A missing source reads
+**Unavailable**. Imported reported cost and the current hourly run-rate answer different questions;
+neither is a cloud-performance measurement. Then follow the five links in **Explore this demo**:
+
+1. **Estate Explorer** (`/estate`): search for a resource, open its details, and inspect its
+   project, region and relationships. The estate is invented; relationships come from explicit fields.
+2. **Costs** (`/costs`): inspect the selected cost metric, currency and imported period. Then open
+   **Integrations & Coverage** to see how unavailable or refused sources are explained. Demo prices
+   and billing rows are synthetic, and currencies are never combined into one total.
+3. **Provisioning** (`/provisioning`): choose a supported recipe and inspect its policy checks,
+   intended file changes and run sheet. A preview does not apply infrastructure. Preparing a change
+   still leaves review and deployment outside the portal.
+4. **Evidence & Runbooks** (`/evidence`): open R1 and compare its dated measurements with a
+   mocked-only recipe. These files describe historical runs, separate from the synthetic estate.
+5. **Nebius docs** (`/nebius-docs`): search the committed catalog and follow official source links.
+   Check its coverage before treating the catalog as a complete service reference.
+
 The local contribution is the domain model, connector/coverage reporting, policy-aware previews,
 cost model and evidence UI on the Backstage scaffold. This development demo demonstrates workflow
-and synthetic data, with no cloud-performance result. Served identity is still an
+and synthetic data, with no new cloud-performance result. Served identity is still an
 [integration task](portal/security.md#identity); the demo is not a production deployment.
 
 ## 2. Inspect the measured R1 inference path
@@ -60,5 +81,5 @@ The [source/change inventory](source-provenance.md) distinguishes adapted files 
 influences; [NOTICE](../NOTICE) and [retained license texts](../third_party/README.md) preserve
 third-party attribution. These links do not establish permission to redistribute cached upstream
 documentation or generated images. This repository starts from a cleaned source snapshot; original development history and tags stay
-private. The [verification record](release-readiness.md) distinguishes previously tested code from
-publication edits that have not received another full container run.
+private. The [verification record](release-readiness.md) records the local candidate checks, remaining
+registry advisories and limits of the historical evidence.

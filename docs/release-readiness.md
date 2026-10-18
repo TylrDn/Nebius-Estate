@@ -8,37 +8,50 @@ see [third-party texts](../third_party/README.md).
 
 ## Verification record
 
-The source baseline is `188d6b9dcacc9787f4857bedcf2a760b7b813c8c`, checked in private development
-Actions run `39082724154` on October 17, 2026. That run is not publicly accessible. The following
-is a maintainer-recorded result, not independently accessible public CI evidence:
+The October 18, 2026 local verification uses the workflow's pinned Node 24.21.0 Linux image
+and the pinned infrastructure toolbox. Docker Desktop's engine is running locally; no GitHub
+Actions run or paid runner minute was used. The repository remains private and Actions disabled.
+The main-branch ruleset requires a pull request and blocks deletion and non-fast-forward updates.
 
-| Check | Observed baseline result |
+| Check | Observed local result |
 |---|---|
-| Infrastructure | `make ci`, Soperator mocked checks, history secret scan, Trivy configuration scan and external links passed |
-| Portal | Typecheck, lint, config check, unit/integration tests and frontend/backend builds passed; 1,329 tests passed and three existing tests skipped |
-| Browser | Four shards, 397 checks passed, no retries |
-| Dependency compatibility | 41 installed-dependency, router-security and route-parameter regressions passed |
-| Demo and prerequisite scripts | 14 tests passed |
-| Release regressions | Passed, including authorization/pricing scope, deployment inputs, source retention and observability mock tests |
-| Complete dependency audit | **Failed:** two High and one Low upstream advisory; see [dependency security](dependency-security.md) |
+| Portal typecheck, lint, configuration and frontend/backend builds | Passed |
+| Portal unit/integration tests | 1,332 passed; three existing tests skipped across 123 suites |
+| Dependency compatibility | 28 Node security regressions, 10 router-security and 16 route-parameter regressions passed |
+| Demo and prerequisite scripts | 15 passed |
+| macOS demo lifecycle | Frontend and backend readiness reached; shutdown completed cleanly |
+| Infrastructure | Full toolbox CI, Soperator mocked plans and release regressions passed; final source scans passed |
+| External links | Pinned lychee 0.24.2 passed natively; Docker network limitation recorded below |
+| Browser and accessibility | 398 Chromium checks passed; two workers, retries disabled |
+| Expanded tour visual review | Desktop and mobile, both themes; four additional accessibility analyses passed |
+| Complete registry dependency audit | **Failed:** two High and one Low upstream advisory remain visible |
 
-Publication edits update repository URLs (including matching link assertions), first-run command
-order and documentation, remove obsolete private-history scanner exceptions, and replace the
-private release-review notes with this record. They do not change the locked dependencies or
-cloud-resource configuration. The final snapshot has **not** received another full container run.
-The maintainer has exhausted the monthly Actions allowance, and local Docker is unavailable.
-Actions is disabled in the new repository during preparation to avoid consuming additional minutes.
-Do not treat the earlier baseline run as a passing run of this repository's final commit.
+The dependency graph now applies reviewed [local source backports](security/dependency-backports.md)
+to braces, node-forge and elliptic. All 13 added regressions pass; stock packages failed nine,
+and the upstream proposals alone failed one additional Forge case. Published package versions
+remain unchanged, so the registry audit cannot establish that these source patches are installed.
+The installed Linux dependency tree was inspected for each patched package and the expected
+guards. These patches are a local maintenance responsibility, not official fixed releases or
+an accepted residual-risk decision. See [dependency security](dependency-security.md).
 
-The October 18 publication review checked 207 relative Markdown link targets for file existence,
-confirmed that the locked dependencies, pins and retained third-party texts are unchanged, and
-ran Gitleaks over the fresh source tree with no leaks found. This limited static review does not
-replace the project’s full Markdown anchor checks, builds or tests. An independent review of the
-publication delta found no source-publication blocker.
+Earlier attempts exposed two environment limits: native macOS Jest workers aborted in SQLite
+cleanup, and overlapping Linux browser/unit runs exceeded the container's memory limit. The
+successful Linux unit/build run was sequential; the macOS full unit run is not recorded as passing.
+The first full browser run passed 397 checks and found one accessibility failure in the expanded
+demo tour. Paragraph markup restored the existing underlined-link style, and the focused
+keyboard/accessibility regression passed before the full rerun.
+Final source checks repeat pins, relative links and anchors, and secret/configuration scans in
+the pinned toolbox. Its external-link attempt hit a GitHub 503 and connection timeouts to Kueue.
+The same pinned lychee 0.24.2 completed `make links` natively on macOS with zero errors.
+No additional URLs were excluded and no accepted status codes were added.
 
-The source/private-artifact review found no confirmed credential or private resource identifier
-in the classified findings. Scanners do not prove absence of every possible confidential value.
-Original private audit downloads and logs are excluded from this source repository.
+The demo's separate macOS startup problem was traced to its temporary SWC cache path, fixed
+with a physical private cache directory, and verified with a regression and actual readiness.
+
+This record describes local checks of the source candidate, not publicly accessible CI evidence.
+No new GPU benchmark, cloud apply, alert-delivery check, restore drill or autonomous TTL teardown
+is claimed. Original private audit downloads and raw verification logs are excluded from this
+source repository. Scanners cannot prove the absence of every confidential value.
 
 ## Reproduce the checks
 
@@ -83,7 +96,7 @@ scope. Shared deployment still requires authentication integration and a deploym
 security review.
 
 After publication, enable and test GitHub private vulnerability reporting, check the reporting link
-in [SECURITY](../SECURITY.md), and configure public fork approval and branch protection. Enable
+in [SECURITY](../SECURITY.md), and recheck public fork approvals and branch protection. Enable
 Actions only when the owner chooses to resume CI; workflow files remain available for inspection
 and local reproduction. Public repository billing differs from private repository billing, so confirm
 the account and runner settings before relying on available minutes.

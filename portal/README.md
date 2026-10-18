@@ -28,6 +28,11 @@ starting; startup readiness is bounded and failures stop the process groups. Dem
 imports and scenarios are held in memory and disappear on exit. This is a development build,
 so the first startup includes compilation; it is not measured cloud evidence or a production setup.
 
+For a guided first visit, follow the [five-step demo tour](../docs/portfolio.md#five-step-demo-tour).
+Docker and a Playwright browser download are optional for this native development demo.
+`make doctor` reports those as optional; `node portal/scripts/doctor.mjs --full` requires them.
+Browser tests install Chromium separately (`cd portal && yarn playwright install chromium`).
+
 ## Run against your projects
 
 ```bash
@@ -46,7 +51,7 @@ is pre-loaded: billing comes from FOCUS imports, prices from rate books you add.
 [identity limitations](../docs/portal/security.md#identity). Review the
 [known dependency advisories](../docs/dependency-security.md) before any shared deployment.
 
-Fifteen pages in four nav groups. Every page carries the "Read-only to Nebius" badge (it saves only its
+Sixteen pages in four nav groups. Every page carries the "Read-only to Nebius" badge (it saves only its
 own budgets, scenarios, rate books and imports) and, on a run against the test stub, a "Test data — not
 your tenant" banner that a live run never shows.
 
@@ -66,6 +71,7 @@ your tenant" banner that a live run never shows.
 | Finance | Budgets & credits | Advisory budgets and credits counted against the FOCUS actual, with a separate projected line and alerts |
 | Assurance | Evidence & Runbooks | Mocked plan tests, static checks, upstream live runs, this repo's live runs and unmeasured claims, kept apart; the R1–R16 recipe list with what each has proven, runbooks and evidence rows; runbooks and ADRs |
 | Assurance | Solutions | S1–S9 with their composed recipes and status, and "Price this footprint" |
+| Assurance | Nebius docs | Search the committed documentation catalog, inspect coverage, and follow links to the official source |
 | Assurance | Integrations & Coverage | Every API call this identity makes, with its state, health and what to grant when refused; connectors; the capability matrix |
 
 ## Documentation

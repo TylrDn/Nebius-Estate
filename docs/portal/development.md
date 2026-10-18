@@ -8,14 +8,14 @@
 | Yarn | any `yarn` on PATH (Node 24 ships corepack: `corepack enable`) | the repository pins Yarn 4.13.0 through `.yarn/releases` |
 | Python 3 | for `better-sqlite3`'s build fallback | |
 | Terraform | optional | one domain test runs generated patches through `terraform fmt` when it is on PATH |
-| Docker | optional | for `docker-compose.yaml` (PostgreSQL) and the production image (`packages/backend/Dockerfile`) |
+| Docker | optional for the native demo; required for pinned release verification | also used for `docker-compose.yaml` (PostgreSQL) and the production image (`packages/backend/Dockerfile`) |
 
 ## Commands
 
 ```bash
+make portal-install     # yarn install --immutable; run before doctor on a fresh clone
 make doctor             # read-only prerequisites; no installs, daemon probes or cloud calls
 make portal-demo        # isolated synthetic estate at :3100/:7107/:7199; no credentials
-make portal-install     # yarn install --immutable
 make portal-dev         # local run: http://localhost:3000 (backend on 127.0.0.1:7007), hot reload
 make portal-test        # unit + integration tests (Jest, all packages)
 make portal-e2e         # Playwright + axe against the Nebius REST stub, on :3100/:7107 (yarn --cwd portal playwright install chromium)
@@ -29,7 +29,9 @@ Inside `portal/`: `yarn start` (loads `app-config.yaml` + `app-config.local.yaml
 `CI=1 yarn test:all`, `yarn build:all`, `yarn playwright test`, and `yarn verify:live` (read-only
 probe of every capability against the account in the environment; never in CI). CI runs install,
 tsc, lint, config check, unit tests and build in `node:24.21.0-trixie-slim`; the Playwright suite
-also runs a focused synthetic browser smoke check in CI; the full suite is available with `make portal-e2e`.
+defines the full synthetic browser/accessibility suite in four shards; it is also available
+locally with `make portal-e2e`. Repository Actions may be disabled during private release review;
+see the [verification record](../release-readiness.md) for actual results.
 
 `node portal/scripts/doctor.mjs` works before installing dependencies. It reports the current Node
 runtime and architecture, PATH tools, dependency presence, fixed demo ports and cached Chromium.

@@ -3,7 +3,7 @@
 // keep operator credentials, private overlays and runtime injection out of every child.
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, realpath, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -74,12 +74,16 @@ export async function runDemo({ services = demoServices(), ports = [3100, 7107, 
   const aborted = () => signal?.aborted;
   const check = () => { if (failure) throw failure; };
   try {
+    // Resolve macOS /var aliases before SWC validates every native-cache path component.
+    const physicalHome = await realpath(home);
+    const nativeCache = resolve(physicalHome, 'swc-native');
+    await mkdir(nativeCache, { mode: 0o700 });
     const deadline = Date.now() + timeoutMs;
     for (const service of services) {
       if (aborted()) return;
-      const child = spawn(service.command, service.args, { cwd: root, env: { ...demoEnvironment(env), HOME: home }, detached: true, stdio: 'inherit' });
+      const child = spawn(service.command, service.args, { cwd: root, env: { ...demoEnvironment(env), HOME: physicalHome, SWC_NATIVE_BINDING_CACHE: nativeCache }, detached: true, stdio: 'inherit' });
       children.push(child);
-      child.on('error', error => { failure = new Error(`${service.name} failed to start: ${error.message}. Run make doctor, then make portal-install.`); });
+      child.on('error', error => { failure = new Error(`${service.name} failed to start: ${error.message}. Run make portal-install, then make doctor.`); });
       child.on('exit', (code, exitSignal) => { failure ??= new Error(`${service.name} exited (${code ?? exitSignal}) before the demo stopped.`); });
       for (const url of service.urls) {
         let ready = false;

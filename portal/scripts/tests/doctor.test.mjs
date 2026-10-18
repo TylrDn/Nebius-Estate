@@ -14,7 +14,9 @@ test('doctor reports missing tools with remedies without invoking installs or ex
   assert.match(output, /Node.*architecture|architecture.*Node/is);
   assert.match(output, /Yarn.*corepack enable/is);
   assert.match(output, /Docker.*Docker/is);
-  assert.match(output, /Chromium.*playwright install chromium/is);
+  const browser = output.split('\n').find(line => /Chromium cache/.test(line));
+  assert.ok(browser, 'doctor must report browser prerequisite status');
+  if (!browser.startsWith('OK ')) assert.match(browser, /playwright install chromium/);
   assert.doesNotMatch(output, /never-print-this/);
 });
 

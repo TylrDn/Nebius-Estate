@@ -59,6 +59,16 @@ portal/.yarn/releases/yarn-4.13.0.cjs is distributed under BSD-2-Clause.
 The complete license is in third_party/licenses/yarn-4.13.0-LICENSE.md;
 additional third-party notices embedded in the bundle are retained.
 
+Dependency source backports
+--------------------------
+braces 3.0.3: Copyright (c) 2014-present, Jon Schlinkert. MIT.
+node-forge 1.4.0: Copyright (c) 2010, Digital Bazaar, Inc. BSD-3-Clause option.
+elliptic 6.6.1: Copyright Fedor Indutny, 2014. MIT.
+Their runtime source patches are adapted from the exact upstream commits recorded
+in docs/security/dependency-backports.md. Forge also has a local empty-NULL check.
+Complete license texts are retained in third_party/licenses/. Published package
+versions are unchanged; registry audit findings remain visible.
+
 Documentation and distributions
 ------------------------------
 Documentation references and metadata do not license full upstream prose.

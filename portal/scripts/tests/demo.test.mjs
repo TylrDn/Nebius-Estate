@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:net';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, symlink } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 const module = await import('../demo.mjs').catch(() => null);
 const available = () => assert.ok(module, 'supported demo runner must exist');
@@ -198,4 +199,52 @@ test('occupied IPv6 loopback port fails before starting any demo child', async t
   t.after(() => new Promise(resolveClose => occupied.close(resolveClose)));
   await assert.rejects(module.runDemo({ services: [f.service], ports: [f.port], timeoutMs: 500, signal: AbortSignal.timeout(1000), log: () => {} }), /port.*in use.*stop|port.*occupied.*stop/i);
   assert.equal(await recorded(f.record), null);
+});
+
+
+test('demo creates a private physical native cache through a symlinked temp directory', async t => {
+  available();
+  const f = await fixture(t);
+  const physicalTemp = join(dirname(f.record), 'physical-temp');
+  const linkedTemp = join(dirname(f.record), 'linked-temp');
+  await mkdir(physicalTemp);
+  await symlink(physicalTemp, linkedTemp, 'dir');
+  // A subprocess isolates TMPDIR and exercises the macOS-style alias on Linux too.
+  const script = `
+    import assert from 'node:assert/strict';
+    import { readFileSync, realpathSync, statSync, existsSync } from 'node:fs';
+    import { dirname } from 'node:path';
+    import { runDemo } from ${JSON.stringify(new URL('../demo.mjs', import.meta.url).href)};
+    const controller = new AbortController();
+    let cache;
+    await runDemo({
+      services: [${JSON.stringify(f.service)}], ports: [${f.port}],
+      env: { PATH: process.env.PATH, SWC_NATIVE_BINDING_CACHE: '/operator/private-cache' },
+      signal: controller.signal, timeoutMs: 2000, log: () => {},
+      onReady: () => {
+        const child = JSON.parse(readFileSync(${JSON.stringify(f.record)}, 'utf8'));
+        cache = child.env.SWC_NATIVE_BINDING_CACHE;
+        assert.equal(typeof cache, 'string');
+        assert.equal(dirname(cache), child.env.HOME);
+        assert.equal(dirname(child.env.HOME), realpathSync(${JSON.stringify(physicalTemp)}));
+        assert.equal(cache, realpathSync(cache));
+        const info = statSync(cache);
+        assert.equal(info.isDirectory(), true);
+        assert.equal(info.mode & 0o077, 0);
+        controller.abort();
+      },
+    });
+    assert.ok(cache);
+    assert.equal(existsSync(cache), false);
+  `;
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+    env: { ...process.env, TMPDIR: linkedTemp }, encoding: 'utf8', timeout: 10_000,
+  });
+  // Even a timed-out or broken harness must not leave its detached fixture running.
+  const child = await recorded(f.record);
+  if (child && (alive(child.pid) || alive(child.grandchild))) {
+    try { process.kill(-child.pid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; }
+  }
+  assert.equal(result.error, undefined, result.error?.message);
+  assert.equal(result.status, 0, result.stderr);
 });
