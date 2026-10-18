@@ -117,6 +117,10 @@ The proposed release is **experimental source only**. [Draft release notes](rele
 are prepared for review; creating that document does not create a GitHub release or tag.
 The [advisory decision record](security/advisory-release-decision.md) gives each remaining
 finding a reviewed input boundary, mitigation, remaining risk and proposed maintenance obligation.
+The source retains dated, scrubbed historical evidence, including the method records under
+[`docs/evidence/raw/`](evidence/raw/README.md). Their documented redactions distinguish them
+from excluded private audit downloads and current raw verification logs. The owner's final
+confidentiality and redistribution review must cover these retained records as well as the code.
 
 Technical preparation and owner approval are separate gates:
 
@@ -124,7 +128,8 @@ Technical preparation and owner approval are separate gates:
 - [x] Preserve licenses/notices, source provenance, patch references and visible audit findings.
 - [x] Prepare an advisory decision record and source-only release notes.
 - [x] Complete fresh-clone onboarding; retain exact candidate, commands and results in the private verification record.
-- [ ] Owner confirms source ownership/redistribution permission and confidentiality of retained evidence.
+- [ ] Owner confirms source ownership/redistribution permission and confidentiality of retained evidence,
+  including the scrubbed prior-run method records linked above.
 - [ ] Owner confirms the advisory disposition, maintenance assignment and review deadline for each finding.
 - [ ] Owner explicitly approves publication and final release scope.
 - [ ] After approval: merge the reviewed candidate, recheck repository protections, change visibility,
