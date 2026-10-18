@@ -91,6 +91,50 @@ script suite alone does not cover the Backstage route integration. Audit finding
 visible even when builds succeed. No new GPU benchmark, cloud apply, alert-delivery check,
 restore drill or autonomous TTL teardown is claimed by these offline checks.
 
+## Fresh-clone onboarding rehearsal
+
+The October 18 macOS arm64 rehearsal cloned the private candidate directly from GitHub, with
+no pre-existing `node_modules`, operator configuration or dependency cache. Node 24.22.0 used
+an isolated HOME and new Corepack, Yarn, SWC and native-build caches. Corepack created its
+Yarn launcher in a private writable directory; it did not replace the machine's global launcher.
+
+The README sequence passed: `make portal-install` completed its immutable install, `make doctor`
+passed the demo prerequisites, and `make portal-demo` reached HTTP 200 at the frontend, backend
+readiness and stub endpoints. A SIGINT to the foreground command group reproduced Ctrl-C;
+all three ports closed. The resulting interrupted Make exit is expected, not a demo startup failure.
+The clone's tracked files remained unchanged. Upstream peer and optional native-binding build
+warnings remain visible in the installation log; the installed SQLite lifecycle regression passed.
+
+The same clone passed all 40 installed-dependency security/compatibility checks, 17 script checks,
+configuration validation and typecheck. This verifies fresh installation and documented startup;
+the full unit/browser/build and infrastructure results above remain the broader functional record.
+The private verification manifest identifies the exact candidate and any documentation-only changes
+after that functional record. No live cloud call or GitHub Actions run is part of the rehearsal.
+
+## Publication approval checklist
+
+The proposed release is **experimental source only**. [Draft release notes](releases/v0.1.0.md)
+are prepared for review; creating that document does not create a GitHub release or tag.
+The [advisory decision record](security/advisory-release-decision.md) gives each remaining
+finding a reviewed input boundary, mitigation, remaining risk and proposed maintenance obligation.
+
+Technical preparation and owner approval are separate gates:
+
+- [x] Record full local functional, infrastructure, source scan and link verification above.
+- [x] Preserve licenses/notices, source provenance, patch references and visible audit findings.
+- [x] Prepare an advisory decision record and source-only release notes.
+- [x] Complete fresh-clone onboarding; retain exact candidate, commands and results in the private verification record.
+- [ ] Owner confirms source ownership/redistribution permission and confidentiality of retained evidence.
+- [ ] Owner confirms the advisory disposition, maintenance assignment and review deadline for each finding.
+- [ ] Owner explicitly approves publication and final release scope.
+- [ ] After approval: merge the reviewed candidate, recheck repository protections, change visibility,
+  enable/test private vulnerability reporting and then publish the approved source release.
+
+Until the owner approves publication, retain a private repository, an unmerged draft PR, disabled
+Actions and no public tag/release. No deployment, production-readiness or built-artifact clearance
+is inferred from these checks. If the source changes after verification, assess the diff and rerun
+the affected checks before publication.
+
 ## Repository setup at publication
 
 The fresh repository is prepared privately, with Actions disabled, Dependabot alerts enabled,

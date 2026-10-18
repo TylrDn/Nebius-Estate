@@ -9,6 +9,9 @@ no residual-risk acceptance is implied by this document.
 including additional Forge NULL-content and algorithm-OID validation gaps found during review. Their 24 focused regressions
 pass locally. The complete version-based registry audit still reports the three advisories;
 these results are distinct, and publication remains on hold.
+The [advisory decision record](security/advisory-release-decision.md) documents each finding's
+remaining risk and the proposed maintenance obligations. Owner acceptance and publication
+approval are still pending.
 
 ## Dependency updates
 

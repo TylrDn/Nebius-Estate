@@ -10,6 +10,9 @@ reproduce it, and the impact you expect. You should get an acknowledgement withi
 In scope: anything in this repository, for example a Terraform default that exposes a resource, a script
 that leaks a credential, a workflow that could run untrusted code with secrets, or the portal reading or
 writing more than it documents.
+Bypasses or regressions in the maintained [local dependency patches](docs/security/dependency-backports.md)
+are also in scope. Existing advisory risks and pending release decisions are recorded in the
+[advisory review](docs/security/advisory-release-decision.md).
 
 Out of scope: vulnerabilities in Nebius AI Cloud itself or in upstream projects (report those to Nebius or
 the upstream maintainers), and findings that need credentials or access you were not given.

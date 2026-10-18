@@ -9,6 +9,8 @@ The complete registry audit still reports **two High and one Low** findings. Not
 ignored, renamed or assigned an invented fixed version. Keep the repository private until
 final verification and advisory disposition are complete. These patches do not establish
 approval for a shared deployment or replace served-authentication integration.
+The [advisory decision record](advisory-release-decision.md) lists remaining risks, the proposed
+maintenance assignment, review deadline and owner approvals still required.
 
 ## Patch inventory
 
